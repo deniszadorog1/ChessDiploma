@@ -13,6 +13,7 @@ using ChessLib;
 using ChessDiploma.Models;
 using ChessLib.Figures;
 using ChessLib.Enums.Players;
+using ChessLib.Other;
 
 namespace ChessDiploma.Windows
 {
@@ -52,8 +53,11 @@ namespace ChessDiploma.Windows
 
         private const int _indentPlayerPanelBorder = 10;
 
-        public PictureBox[,] Field;
+        public PictureBox[,] _field;
         private List<Image> _images = new List<Image>();
+        private Color[,] _originalColors;
+
+        private AllMoves _moves = new AllMoves();
 
         public FieldFrom()
         {
@@ -64,7 +68,7 @@ namespace ChessDiploma.Windows
             InitGamePanels();
 
             InitFieldPanel();
-            InitCellsInField();
+            //InitCellsInField();
 
             GetImagesPath();
 
@@ -73,18 +77,41 @@ namespace ChessDiploma.Windows
 
         public void InitFieldArrSize()
         {
-            Field = new PictureBox[_amountOfRows, _amountOfRows];
-
-            for(int i = 0; i < Field.GetLength(0); i++)
+            _field = new PictureBox[_amountOfRows, _amountOfRows];
+            _originalColors = new Color[_amountOfRows, _amountOfRows];
+            int cellSizePar = _fieldCellSize.Item1;
+            int heightIters = 0;
+            (int, int) tempLock = _firstCellLock;
+            for (int i = 0; i < _field.GetLength(0); i++)
             {
-                for(int j = 0; j < Field.GetLength(1); j++)
+                for(int j = 0; j < _field.GetLength(1); j++)
                 {
-                     Figure figure = Data._game.InitCord((i, j));
-
-                    GetImageForCell(figure);
+                    _field[i, j] = new PictureBox();
+                    Figure figure = Data._game.InitCord((i, j));
+                    
+                    if(j == 0)
+                    {
+                        tempLock = _firstCellLock;
+                        int heightMultyplier = cellSizePar * heightIters;
+                        tempLock = (_firstCellLock.Item1, tempLock.Item2 + heightMultyplier);
+                        AddPictureBox(GetTempColor(), tempLock, (i,j));
+                        heightIters++;
+                    }
+                    else
+                    {
+                        tempLock = (tempLock.Item1 + cellSizePar, tempLock.Item2);
+                        AddPictureBox(GetCellColor(), tempLock, (i,j));
+                    }
+                    InitImageInCell(GetImageForCell(figure), (i, j));
                 }
             }
         }
+        private void InitImageInCell(Image img, (int x,int y) cord)
+        {
+            _field[cord.x, cord.y].Image = img;
+            _field[cord.x, cord.y].SizeMode = PictureBoxSizeMode.StretchImage;
+        }
+
 
         private Image GetImageForCell(Figure fig)
         {
@@ -138,10 +165,6 @@ namespace ChessDiploma.Windows
 
             _images.Add(newImage);
         }
-
-
-
-
         public void InitSizes()
         {
             //Main menu params
@@ -185,28 +208,6 @@ namespace ChessDiploma.Windows
             Controls.Add(_fieldPanel);
         }
 
-        public void InitCellsInField()
-        {
-            int cellSizePar = _fieldCellSize.Item1;
-            int heightIters = 0;
-            (int, int) tempLock = _firstCellLock;
-            for (int i = 0; i < _amountOfSquaresInField; i++)
-            {
-                if (i % 8 == 0)
-                {
-                    tempLock = _firstCellLock;
-                    int heightMultyplier = cellSizePar * heightIters;
-                    tempLock = (_firstCellLock.Item1, tempLock.Item2 + heightMultyplier);
-                    AddPictureBox(GetTempColor(), tempLock);
-                    heightIters++;
-                }
-                else
-                {
-                    tempLock = (tempLock.Item1 + cellSizePar, tempLock.Item2);
-                    AddPictureBox(GetCellColor(), tempLock);
-                }
-            }
-        }
         public Color GetTempColor()
         {
             return _fillingFieldMarker ? _firstCellColor : _secondCellColor;
@@ -221,18 +222,101 @@ namespace ChessDiploma.Windows
             _fillingFieldMarker = !_fillingFieldMarker;
             return _secondCellColor;
         }
-        public void AddPictureBox(Color color, (int, int) loc)
+        public void AddPictureBox(Color color, (int, int) loc, (int x,int y) cord)
         {
-            PictureBox newCell = new PictureBox();
-            newCell.BorderStyle = BorderStyle.FixedSingle;
-            newCell.BackColor = color;
-            newCell.Size = new Size(50, 50);
-            newCell.Location = new Point(loc.Item1, loc.Item2);
-            newCell.BorderStyle = BorderStyle.None;
+            _field[cord.x, cord.y].BorderStyle = BorderStyle.FixedSingle;
+            _field[cord.x, cord.y].BackColor = color;
+            _field[cord.x, cord.y].Size = new Size(50, 50);
+            _field[cord.x, cord.y].Location = new Point(loc.Item1, loc.Item2);
+            _field[cord.x, cord.y].BorderStyle = BorderStyle.None;
 
-            _fieldPanel.Controls.Add(newCell);
+            _originalColors[cord.x, cord.y] = color;
+
+            _field[cord.x, cord.y].Click += (sender, e) =>
+            {
+                int moveIndex = GetMoveIndexToMake(cord);
+
+                if (_field[cord.x, cord.y].BackColor == Color.Yellow && moveIndex != -1)
+                {
+                    //reassign in logic
+                    Data._game.ReassignMove(_moves.PossibleMoves[moveIndex]);
+                   
+                    //reassign in form
+                    ReassignMove(_moves.PossibleMoves[moveIndex]);
+
+                    AssignOriginalColors();
+                    return;
+                }
+                AssignOriginalColors();
+                if (!(_field[cord.x, cord.y].Image is null))
+                {
+                    _field[cord.x, cord.y].BackColor = Color.Yellow;
+                    _moves = Data._game.GetMovesForFigure(cord);
+                    ShowEndPointsToMove();
+                    Console.WriteLine();
+                }
+            };
+            _fieldPanel.Controls.Add(_field[cord.x, cord.y]);
+        }
+        public void ReassignMove(Move move)
+        {
+            //Move reassigned in logic 
+            Image toFill = null;
+            for(int i = 0; i < move.OneMove.Count; i++)
+            {
+                (int x, int y) cord = move.OneMove[i];
+                if (i % 2 == 0 || i == 0)
+                {
+                    toFill = _field[cord.x, cord.y].Image;
+
+                    _field[cord.x, cord.y].Image = null;
+                }
+                else
+                {
+                    _field[cord.x, cord.y].Image = toFill;
+                    //fill cell
+                }
+            }
+        }
+        public int GetMoveIndexToMake((int x,int y) cord)
+        {
+            for(int i = 0; i < _moves.PossibleMoves.Count; i++)
+            {
+                for(int j = 1; j < _moves.PossibleMoves[i].OneMove.Count; j++)
+                {
+                    if (_moves.PossibleMoves[i].OneMove[j] == cord)
+                    {
+                        return i;
+                    }
+                }
+            }
+            return -1;
         }
 
+        private void ShowEndPointsToMove()
+        {
+            for(int i = 0; i < _moves.PossibleMoves.Count; i++)
+            {
+                if (_moves.PossibleMoves[i].OneMove.Count == 2)
+                {
+                    (int x, int y) endMovePoint = _moves.PossibleMoves[i].OneMove.Last();
+                    _field[endMovePoint.x, endMovePoint.y].BackColor = Color.Yellow;
+                }
+            }
+        }
+        private void AssignOriginalColors()
+        {
+            for(int i = 0; i < _field.GetLength(0); i++)
+            {
+                for(int j = 0; j < _field.GetLength(1); j++)
+                {
+                    if (_field[i,j].BackColor != _originalColors[i, j])
+                    {
+                        _field[i, j].BackColor = _originalColors[i,j];
+                    }
+                }
+            }
+        }
         public void InitGamePanels()
         {
             InitMainMenuPanel();
@@ -241,7 +325,6 @@ namespace ChessDiploma.Windows
             InitFirstPlayerPanel();
             InitSecondPlayerPanel();
         }
-
         /// <summary>
         /// Main menu panel initialization
         /// </summary>
@@ -294,7 +377,6 @@ namespace ChessDiploma.Windows
 
             Controls.Add(_secondPlayerPanel);
         }
-
         public void AddDefaultLabelToPanel(Panel panel, string toPrint)
         {
             Label defaultLabel = new Label();
@@ -308,6 +390,9 @@ namespace ChessDiploma.Windows
                 (panel.Height - defaultLabel.Height) / 2);
 
         }
+        private void FieldFrom_Load(object sender, EventArgs e)
+        {
 
+        }
     }
 }

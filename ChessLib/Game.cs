@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ChessLib.FieldModels;
-using ChessLib.Players;
+using ChessLib.PlayerModels;
 using ChessLib.Other;
 using ChessLib.Figures;
+using ChessLib.Enums.Players;
 
 namespace ChessLib
 {
@@ -26,6 +27,8 @@ namespace ChessLib
         private int _chosenEqualMovesToCheckForDraw = 4;
         private int _drawByMovesWithOutHitting = 50;
 
+        private Player _steper; 
+
         public Game(Field allField, List<Player> players)
         {
             AllField = allField;
@@ -33,10 +36,19 @@ namespace ChessLib
         }
         public Game()
         {
-            AllField = new Field();
             Players = new List<Player>();
+
+            AddPlaeyrs();
+
+            AllField = new Field(Players);
         }
 
+        public void AddPlaeyrs()
+        {
+            Players.Add(new User("first", PlayerColor.Black, PlayerSide.Down));
+            Players.Add(new User("second", PlayerColor.White, PlayerSide.Up));
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
+        }
         public int GetFieldLegthParam()
         {
             return AllField.AllCells.Length;
@@ -48,12 +60,18 @@ namespace ChessLib
 
         public Figure InitCord((int x, int y) cord)
         {
-
-
-            return new Figure();
+            return AllField.AllCells[cord.x, cord.y].Figure;
+        }
+        public AllMoves GetMovesForFigure((int, int) figCord)
+        {
+            return AllField.GetMovesForFigure(figCord, _steper);
+        }
+        public void ReassignMove(Move move)
+        {
+            AllField.ReassignMove(move);
         }
 
-
+        
 
 
     }

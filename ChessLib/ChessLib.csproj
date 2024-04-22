@@ -57,7 +57,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="Other\KingRays.cs" />
     <Compile Include="Other\Move.cs" />
-    <Compile Include="Other\PossiableMoves.cs" />
+    <Compile Include="Other\AllMoves.cs" />
     <Compile Include="PlayerModels\Bot.cs" />
     <Compile Include="PlayerModels\Player.cs" />
     <Compile Include="PlayerModels\User.cs" />

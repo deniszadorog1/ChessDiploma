@@ -16,5 +16,55 @@ namespace ChessLib.Other
         public ConvertPawn ConvertFigure { get; set; }
         public (int, int)? HitCellCordForBeatingOnThePass { get; set; }
         public Figure HitFigure { get; set; }
+
+        public Move(List<(int, int)> oneMove, int[] arr, Figure hitFigure)
+        {
+            OneMove = oneMove;
+            HitHistIDs = arr;
+            HitFigure = hitFigure;
+        }
+        public Move(List<(int, int)> oneMove, ConvertPawn convertFigure, int[] arr, Figure hitFigure)
+        {
+            OneMove = oneMove;
+            ConvertFigure = convertFigure;
+            HitHistIDs = arr;
+            HitFigure = hitFigure;
+        }
+        public Move(List<(int, int)> oneMove, ConvertPawn convertFigure)
+        {
+            OneMove = oneMove;
+            ConvertFigure = convertFigure;
+        }
+
+        public Move(List<(int, int)> oneMove)
+        {
+            OneMove = oneMove;
+        }
+
+        public Move(List<(int, int)> history, int[] hitHistIDs)
+        {
+            OneMove = history;
+            HitHistIDs = hitHistIDs;
+        }
+        public Move()
+        {
+            OneMove = new List<(int, int)>();
+            ConvertFigure = new ConvertPawn();
+            HitCellCordForBeatingOnThePass = null;
+            HitHistIDs[0] = -1;
+            HitHistIDs[1] = -1;
+            HitFigure = null;
+        }
+        public override bool Equals(object obj)
+        {
+            Move temp = obj as Move;
+
+            if (!OneMove.SequenceEqual(temp.OneMove)) return false;
+            else if (temp.ConvertFigure != ConvertFigure) return false;
+            else if (temp.HitCellCordForBeatingOnThePass != HitCellCordForBeatingOnThePass) return false;
+            else if (!temp.HitHistIDs.SequenceEqual(HitHistIDs)) return false;
+
+            return true;
+        }
     }
 }
