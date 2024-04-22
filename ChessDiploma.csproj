@@ -46,11 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="Windows\StartForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="Windows\StartForm.Designer.cs">
+      <DependentUpon>StartForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Data.cs" />
     <Compile Include="Models\Program.cs" />
@@ -61,8 +61,8 @@
     <Compile Include="Windows\FieldFrom.Designer.cs">
       <DependentUpon>FieldFrom.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="Windows\StartForm.resx">
+      <DependentUpon>StartForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -89,14 +89,26 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Images\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ChessLib\ChessLib.csproj">
+    <ProjectReference Include="ChessLib\ChessLib.csproj">
       <Project>{8bc9a8cd-9b94-465f-b8d1-4afb568c56bb}</Project>
       <Name>ChessLib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\BlackFigures\BlackBishop.png" />
+    <Content Include="Images\BlackFigures\BlackHorse.png" />
+    <Content Include="Images\BlackFigures\BlackKing.png" />
+    <Content Include="Images\BlackFigures\BlackPawn.png" />
+    <Content Include="Images\BlackFigures\BlackQueen.png" />
+    <Content Include="Images\BlackFigures\BlackRook.png" />
+    <Content Include="Images\WhiteFigures\WhiteBishop.png" />
+    <Content Include="Images\WhiteFigures\WhiteHorse.png" />
+    <Content Include="Images\WhiteFigures\WhiteKing.png" />
+    <Content Include="Images\WhiteFigures\WhitePawn.png" />
+    <Content Include="Images\WhiteFigures\WhiteQueen.png" />
+    <Content Include="Images\WhiteFigures\WhiteRook.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

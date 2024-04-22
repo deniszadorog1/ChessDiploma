@@ -1,0 +1,6 @@
+B:\GitHub\ChessDiploma\ChessLib\obj\Debug\ChessLib.csproj.AssemblyReference.cache
+B:\GitHub\ChessDiploma\ChessLib\obj\Debug\ChessLib.csproj.CoreCompileInputs.cache
+B:\GitHub\ChessDiploma\ChessLib\bin\Debug\ChessLib.dll
+B:\GitHub\ChessDiploma\ChessLib\bin\Debug\ChessLib.pdb
+B:\GitHub\ChessDiploma\ChessLib\obj\Debug\ChessLib.dll
+B:\GitHub\ChessDiploma\ChessLib\obj\Debug\ChessLib.pdb

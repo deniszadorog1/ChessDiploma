@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessDiploma", "ChessDiploma.csproj", "{EF1112E8-BF45-487F-8EB6-12D6560C0193}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib", "..\ChessLib\ChessLib.csproj", "{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChessLib", "ChessLib\ChessLib.csproj", "{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

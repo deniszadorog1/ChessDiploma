@@ -30,13 +30,14 @@
         {
             this.SuspendLayout();
             // 
-            // Field
+            // FieldFrom
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.ActiveBorder;
-            this.ClientSize = new System.Drawing.Size(1184, 615);
-            this.Name = "Field";
+            this.ClientSize = new System.Drawing.Size(1184, 611);
+            this.Name = "FieldFrom";
             this.Text = "FIeld";
             this.ResumeLayout(false);
 

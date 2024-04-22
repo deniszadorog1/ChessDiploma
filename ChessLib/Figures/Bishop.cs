@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ChessLib;
 
-namespace ChessDiploma.Models
+namespace ChessLib.Figures
 {
-    public static class Data
+    public class Bishop: Figure
     {
-        public static Game _game = new Game();
-        
 
     }
 }
