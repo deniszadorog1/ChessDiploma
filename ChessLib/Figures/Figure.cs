@@ -93,7 +93,6 @@ namespace ChessLib.Figures
                     (field, cord, divisions[i], player, kingRays.KingCord).PossibleMoves);
                 }
             }
-
             else if (kingRays.FigsThatProtectsKing.Count > 0 &&
                 kingRays.FigsThatProtectsKing.Contains(cord))
             {

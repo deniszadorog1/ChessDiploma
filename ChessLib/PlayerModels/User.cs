@@ -11,18 +11,16 @@ namespace ChessLib.PlayerModels
 {
     public class User : Player
     {
-        public User(string name, PlayerColor playerColor, PlayerSide side) :
-        base(name, playerColor, side)
+        public User(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures) :
+        base(name, playerColor, side, hitFigures)
         {
             Name = name;
             Color = playerColor;
             Side = side;
         }
-        public User()
+        public User() : base()
         {
-            Name = "";
-            Color = new PlayerColor();
-            Side = new PlayerSide();
+           
         }
     }
 }

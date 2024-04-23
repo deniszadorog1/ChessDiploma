@@ -24,8 +24,8 @@ namespace ChessLib.PlayerModels
         private const int _hitMovePointsAmount = 2;
         private const int _depthToForHittingEachOther = 2;
 
-        public Bot(string name, PlayerColor playerColor, PlayerSide side) :
-            base(name, playerColor, side)
+        public Bot(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures) :
+            base(name, playerColor, side, hitFigures)
         {
             rnd = new Random();
         }

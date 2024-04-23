@@ -81,6 +81,9 @@ namespace ChessLib.FieldModels
         private int _shortCastling = 4;
         private int _longCastling = 5;
 
+        private bool _ifNeedToConvertFig = false;
+
+
         public Field(List<Player> players)
         {
             _players = players;
@@ -92,7 +95,7 @@ namespace ChessLib.FieldModels
                 {
                     AllCells[i, j] = new Cell();
 
-                    AllCells[i,j].Figure = GetFigureToFill((i, j));
+                    AllCells[i, j].Figure = GetFigureToFill((i, j));
 
                     if (!(AllCells[i, j].Figure is null))
                     {
@@ -106,8 +109,8 @@ namespace ChessLib.FieldModels
         {
             _players = new List<Player>()
             {
-                new Player(copyField._players[0].Name ,copyField._players[0].Color ,copyField._players[0].Side),
-                new Player(copyField._players[1].Name, copyField._players[1].Color, copyField._players[1].Side)
+                new Player(copyField._players[0].Name ,copyField._players[0].Color ,copyField._players[0].Side, copyField._players[0].HitFigures),
+                new Player(copyField._players[1].Name, copyField._players[1].Color, copyField._players[1].Side, copyField._players[1].HitFigures)
             };
 
             AllCells = new Cell[_fieldHeight, _fieldWidth];
@@ -116,7 +119,7 @@ namespace ChessLib.FieldModels
             {
                 for (int j = 0; j < AllCells.GetLength(1); j++)
                 {
-                    AllCells[i, j] = new Cell(copyField.AllCells[i, j].Color, 
+                    AllCells[i, j] = new Cell(copyField.AllCells[i, j].Color,
                         copyField.AllCells[i, j].Figure is null ? null : copyField.AllCells[i, j].Figure.GetCopy());
                 }
             }
@@ -149,7 +152,7 @@ namespace ChessLib.FieldModels
             if (_secondPlayerKingCord == cord) return new King(secondPlayer.Color, false, _tempFigureId, cord, secondPlayer.Side);
             if (_firstPlayerKingCord == cord) return new King(firstPlayer.Color, false, _tempFigureId, cord, firstPlayer.Side);
 
-            return null; 
+            return null;
 
             //var - we dont now which type we want to compare
             //_ - we dont care which type value has
@@ -315,7 +318,7 @@ namespace ChessLib.FieldModels
         }
         public Player GetAnoutherPlayer(Player player)
         {
-            return _players[0] == player ? _players[1] : _players[0];
+            return _players.Find(x => x.Name != player.Name);// _players[0] == player ? _players[1] : _players[0];
         }
         public bool IfKingCanBeHitInDirection((int, int) direction, (int, int) figCord, Player player)
         {
@@ -379,11 +382,24 @@ namespace ChessLib.FieldModels
             }
             return (-1, -1);
         }
-        public AllMoves GetMovesForFigure((int x,int y) cord, Player tempPlayer)
+        public AllMoves GetMovesForFigure((int x, int y) cord, Player tempPlayer)
         {
             _rays.GetKingsRayses(this, tempPlayer);
 
-            return AllCells[cord.x, cord.y].Figure.GetMoves(tempPlayer, cord, this, _rays);
+            AllMoves moves = AllCells[cord.x, cord.y].Figure.GetMoves(tempPlayer, cord, this, _rays);
+
+            for(int i = 0; i < moves.PossibleMoves.Count; i++)
+            {
+                if (moves.PossibleMoves[i].HitFigure is null)
+                {
+                    (int, int) toStepOn = moves.PossibleMoves[i].OneMove.Last();
+                    moves.PossibleMoves[i].HitFigure = AllCells[toStepOn.Item1, toStepOn.Item2].Figure;
+                }
+            }
+
+            _rays = new KingRays();
+
+            return moves;
         }
         public bool IfKingWillBeHitAfterMove(Field field, Move move, Player player)
         {
@@ -465,5 +481,119 @@ namespace ChessLib.FieldModels
 
             return res;
         }
+        public bool CheckForCheckMate(Field field, Player player)
+        {
+            if (field.GetKingsCord(GetAnoutherPlayer(player)) == (-1, -1))
+            {
+                return false;
+            }
+
+            AllMoves enemysMoves = field.GetAllMoves(GetAnoutherPlayer(player));
+            return enemysMoves.PossibleMoves.Count == 0 && IfKingCanBeHit(player, GetKingsCord(player));
+        }
+        public AllMoves GetAllMoves(Player player)
+        {
+            AllMoves moves = new AllMoves();
+
+            KingRays rays = new KingRays();
+            rays.GetKingsRayses(this, player);
+
+            for (int i = 0; i < AllCells.GetLength(0); i++)
+            {
+                for (int j = 0; j < AllCells.GetLength(1); j++)
+                {
+                    if (IfChipIsPlayers(player, (i, j)))
+                    {
+                        moves.PossibleMoves.AddRange(AllCells[i, j].Figure.GetMoves(
+                                player, (i, j), this, rays).PossibleMoves);
+                    }
+                }
+            }
+            return moves;
+        }
+        public void IfPawnWentToTheEndOfField(Move move)
+        {
+            if (move.OneMove.Count != 2)
+            {
+                return;//Move is castling;
+            }
+            (int, int) lastCord = move.OneMove.Last();
+            if ((lastCord.Item1 == 0 || lastCord.Item1 == AllCells.GetLength(0) - 1) &&
+                AllCells[lastCord.Item1, lastCord.Item2].Figure is Pawn)
+            {
+                _ifNeedToConvertFig = true;
+            }
+        }
+        public bool IfNeedToConvertFigure()
+        {
+            return _ifNeedToConvertFig;
+        }
+        public void ClearConvertationVariable()
+        {
+            _ifNeedToConvertFig = false;
+        }
+        public (int, int) GetFigureCordToConvert()
+        {
+            for (int i = 0; i < AllCells.GetLength(0); i++)
+            {
+                if (i == 0 || i == AllCells.GetLength(0) - 1)
+                {
+                    for (int j = 0; j < AllCells.GetLength(1); j++)
+                    {
+                        if (!(AllCells[i,j].Figure is null) && AllCells[i,j].Figure is Pawn)
+                        {
+                            return (i, j);
+                        }
+                    }
+                }
+            }
+            return (-1, -1);
+        }
+        public void ConvertFigure((int x,int y) cord, ConvertPawn type)
+        {
+            Figure figure = AllCells[cord.x, cord.y].Figure;
+            AllCells[cord.x, cord.y].Figure = GetConvertedFigure(type, figure);
+        }
+        public Figure GetConvertedFigure(ConvertPawn type, Figure figure)
+        {
+            if (type == ConvertPawn.Queen) return new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide);
+            if (type == ConvertPawn.Bishop) return new Bishop(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide);
+            if (type == ConvertPawn.Rook) return new Rook(figure.FigureColor, true, figure.FigureID, figure.FigureCord, figure.OwnerSide);
+            if (type == ConvertPawn.Horse) return new Horse(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide);
+            return null;
+
+/*            return type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                type == ConvertPawn.Bishop ? new Bishop(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                type == ConvertPawn.Rook ? new Rook(figure.FigureColor, true, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) : null;*/
+        }
+        public void IfSpecialChipIsMoved(Move move)
+        {
+            for (int i = 0; i < move.OneMove.Count; i++)
+            {
+                if (i % 2 != 0 && i != 0)
+                {
+                    (int, int) cord = move.OneMove[i];
+                    if (AllCells[cord.Item1, cord.Item2].Figure is Pawn)
+                    {
+                        ((Pawn)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                    }
+                    else if (AllCells[cord.Item1, cord.Item2].Figure is Rook)
+                    {
+                        ((Rook)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                    }
+                    else if (AllCells[cord.Item1, cord.Item2].Figure is King)
+                    {
+                        ((King)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                    }
+                }
+            }
+        }
+
+        public bool IfEnemyCanMakeMoves(Player player)
+        {
+            return GetAllMoves(GetAnoutherPlayer(player)).PossibleMoves.Count == 0;
+        }
+         
     }
 }

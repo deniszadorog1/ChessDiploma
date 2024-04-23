@@ -218,7 +218,7 @@ namespace ChessLib.Figures
             return GetUsualMoves(field, usualStepDivision, distanse, pawnCord).Concat(GetHitMovesForPawn(field, getHitDivision, pawnCord, player)).ToList();
         }
         public List<(int, int)> GetUsualMoves(Field field, (int, int) division,
-    int distance, (int, int) figCord)
+        int distance, (int, int) figCord)
         {
             List<(int, int)> res = new List<(int, int)>();
             (int, int) temp = (figCord.Item1 + division.Item1, figCord.Item2 + division.Item2);
