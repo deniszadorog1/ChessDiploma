@@ -46,41 +46,41 @@ namespace ChessLib.PlayerModels
             };
         }
 
-        public void UpdateHitFigures(Figure fig)
+        public void UpdateHitFigures(Figure fig, int updater)
         {
             if (fig is Pawn)
             {
                 int index = HitFigures.FindIndex(x => x.name == "pawn");
                 int newAmount = HitFigures[index].amount;
-                newAmount++;
+                newAmount += updater;
                 HitFigures[index] = ("pawn", newAmount);
             }
             else if (fig is Rook)
             {
                 int index = HitFigures.FindIndex(x => x.name == "rook");
                 int newAmount = HitFigures[index].amount;
-                newAmount++;
+                newAmount += updater;
                 HitFigures[index] = ("rook", newAmount);
             }
             else if (fig is Horse)
             {
                 int index = HitFigures.FindIndex(x => x.name == "horse");
                 int newAmount = HitFigures[index].amount;
-                newAmount++;
+                newAmount += updater;
                 HitFigures[index] = ("horse", newAmount);
             }
             else if (fig is Bishop)
             {
                 int index = HitFigures.FindIndex(x => x.name == "bishop");
                 int newAmount = HitFigures[index].amount;
-                newAmount++;
+                newAmount += updater;
                 HitFigures[index] = ("bishop", newAmount);
             }
             else if (fig is Queen)
             {
                 int index = HitFigures.FindIndex(x => x.name == "queen");
                 int newAmount = HitFigures[index].amount;
-                newAmount++;
+                newAmount += updater;
                 HitFigures[index] = ("queen", newAmount);
             }
         }

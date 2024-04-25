@@ -18,12 +18,12 @@ namespace ChessLib
         public Field AllField { get; set; }
         public List<Player> Players { get; set; }
 
+
+
         private int _movesCounter = 0;
 
         private List<Move> _сheckForEqualMoves = new List<Move>();
-
         private int _movesWithoutHitCounter = 0;
-
         private int _toStartCheckForDraw = 12;
         private int _chosenEqualMovesToCheckForDraw = 4;
         private int _drawByMovesWithOutHitting = 50;
@@ -46,8 +46,8 @@ namespace ChessLib
 
         public void AddPlaeyrs()
         {
-            Players.Add(new User("first", PlayerColor.Black, PlayerSide.Down, new List<(string name, int amount)>()));
-            Players.Add(new User("second", PlayerColor.White, PlayerSide.Up, new List<(string name, int amount)>()));
+            Players.Add(new User("first", PlayerColor.White, PlayerSide.Down, new List<(string name, int amount)>()));
+            Players.Add(new User("second", PlayerColor.Black, PlayerSide.Up, new List<(string name, int amount)>()));
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
         public int GetFieldLegthParam()
@@ -119,13 +119,17 @@ namespace ChessLib
         {
             AllField.IfSpecialChipIsMoved(move);
         }
-        public Player GetPlayerNameAndColor(int playerIndex)
+        public Player GetPlayer(int playerIndex)
         {
             return Players[playerIndex];
         }
-        public void AddHitFigure(Figure hitFigure)
+        public (string, string) GetSteppersNameAdnColor()
         {
-            _steper.UpdateHitFigures(hitFigure);
+            return (_steper.Name, _steper.Color.ToString());
+        }
+        public void AddHitFigure(Figure hitFigure, int updater)
+        {
+            _steper.UpdateHitFigures(hitFigure, updater);
         }
         public int GetAmountOfHitFigureList()
         {
@@ -151,5 +155,38 @@ namespace ChessLib
         {
             return AllField.IfEnemyCanMakeMoves(_steper);
         }
+        public void AddMoveInHistory(Move move)
+        {
+            AllField.AddMoveInHistory(move);
+        }
+        public Move GetLastMove()
+        {
+            return AllField.GetLastMove();
+        }
+        public void DeleteLastMoveInHistory()
+        {
+            AllField.DeleteLastMoveInHistory();
+        }
+        public void DeclineLastMove()
+        {
+            AllField.DeclineMove();
+        }
+        public PlayerColor GetFigureColor((int, int) cord)
+        {
+            return AllField.AllCells[cord.Item1, cord.Item2].Figure.FigureColor;
+        }
+        public void AddFigToMoveInHistory(Move move)
+        {
+            AllField.AddMovedFigure(move);
+        }
+        public void DeleteFigToMove()
+        {
+            AllField.DeleteMovedFigure();
+        }
+        public bool IfCanDeclineMove()
+        {
+            return AllField.IfMoveCanBeDeclined();
+        }
+
     }
 }

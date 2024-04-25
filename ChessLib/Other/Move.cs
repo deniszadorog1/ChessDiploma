@@ -13,7 +13,7 @@ namespace ChessLib.Other
     {
         public List<(int, int)> OneMove { get; set; }
         public int[] HitHistIDs { get; set; } = new int[2];
-        public ConvertPawn ConvertFigure { get; set; }
+        public ConvertPawn? ConvertFigure { get; set; }
         public (int, int)? HitCellCordForBeatingOnThePass { get; set; }
         public Figure HitFigure { get; set; }
 
@@ -49,7 +49,7 @@ namespace ChessLib.Other
         public Move()
         {
             OneMove = new List<(int, int)>();
-            ConvertFigure = new ConvertPawn();
+            ConvertFigure = null;
             HitCellCordForBeatingOnThePass = null;
             HitHistIDs[0] = -1;
             HitHistIDs[1] = -1;

@@ -17,6 +17,9 @@ namespace ChessLib.FieldModels
         public Cell[,] AllCells { get; set; }
         private List<Player> _players = new List<Player>();
 
+        private List<Move> _movesHistory = new List<Move>();
+        private List<Figure> _movedFigsInHistory = new List<Figure>();
+
         private const int _fieldHeight = 8;
         private const int _fieldWidth = 8;
 
@@ -82,7 +85,7 @@ namespace ChessLib.FieldModels
         private int _longCastling = 5;
 
         private bool _ifNeedToConvertFig = false;
-
+        private Figure _movedFigureForDecline = null;
 
         public Field(List<Player> players)
         {
@@ -388,7 +391,7 @@ namespace ChessLib.FieldModels
 
             AllMoves moves = AllCells[cord.x, cord.y].Figure.GetMoves(tempPlayer, cord, this, _rays);
 
-            for(int i = 0; i < moves.PossibleMoves.Count; i++)
+            for (int i = 0; i < moves.PossibleMoves.Count; i++)
             {
                 if (moves.PossibleMoves[i].HitFigure is null)
                 {
@@ -487,9 +490,8 @@ namespace ChessLib.FieldModels
             {
                 return false;
             }
-
-            AllMoves enemysMoves = field.GetAllMoves(GetAnoutherPlayer(player));
-            return enemysMoves.PossibleMoves.Count == 0 && IfKingCanBeHit(player, GetKingsCord(player));
+            return field.GetAllMoves(GetAnoutherPlayer(player)).PossibleMoves.Count == 0 &&
+                IfKingCanBeHit(GetAnoutherPlayer(player), GetKingsCord(GetAnoutherPlayer(player)));
         }
         public AllMoves GetAllMoves(Player player)
         {
@@ -540,7 +542,7 @@ namespace ChessLib.FieldModels
                 {
                     for (int j = 0; j < AllCells.GetLength(1); j++)
                     {
-                        if (!(AllCells[i,j].Figure is null) && AllCells[i,j].Figure is Pawn)
+                        if (!(AllCells[i, j].Figure is null) && AllCells[i, j].Figure is Pawn)
                         {
                             return (i, j);
                         }
@@ -549,7 +551,7 @@ namespace ChessLib.FieldModels
             }
             return (-1, -1);
         }
-        public void ConvertFigure((int x,int y) cord, ConvertPawn type)
+        public void ConvertFigure((int x, int y) cord, ConvertPawn type)
         {
             Figure figure = AllCells[cord.x, cord.y].Figure;
             AllCells[cord.x, cord.y].Figure = GetConvertedFigure(type, figure);
@@ -562,10 +564,10 @@ namespace ChessLib.FieldModels
             if (type == ConvertPawn.Horse) return new Horse(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide);
             return null;
 
-/*            return type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
-                type == ConvertPawn.Bishop ? new Bishop(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
-                type == ConvertPawn.Rook ? new Rook(figure.FigureColor, true, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
-                type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) : null;*/
+            /*            return type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                            type == ConvertPawn.Bishop ? new Bishop(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                            type == ConvertPawn.Rook ? new Rook(figure.FigureColor, true, figure.FigureID, figure.FigureCord, figure.OwnerSide) :
+                            type == ConvertPawn.Queen ? new Queen(figure.FigureColor, figure.FigureID, figure.FigureCord, figure.OwnerSide) : null;*/
         }
         public void IfSpecialChipIsMoved(Move move)
         {
@@ -589,11 +591,80 @@ namespace ChessLib.FieldModels
                 }
             }
         }
-
         public bool IfEnemyCanMakeMoves(Player player)
         {
             return GetAllMoves(GetAnoutherPlayer(player)).PossibleMoves.Count == 0;
         }
-         
+        public void DeclineMove()
+        {
+            Move lastMove = _movesHistory.Last();
+            //If its castling move
+            if (lastMove.OneMove.Count > 2)
+            {
+                (int, int) kingStartPos = lastMove.OneMove[0];
+                (int, int) rookStartPos = lastMove.OneMove[2];
+                Move backMove = new Move(new List<(int, int)> { lastMove.OneMove[1],
+                    lastMove.OneMove[0], lastMove.OneMove[3], lastMove.OneMove[2] });
+                ReassignMove(backMove);
+
+                ((King)AllCells[kingStartPos.Item1, kingStartPos.Item2].Figure).IfFirstMoveMaken = false;
+                ((Rook)AllCells[rookStartPos.Item1, rookStartPos.Item2].Figure).IfFirstMoveMaken = false;
+
+                return;
+            }
+            /////
+            (int, int) from = lastMove.OneMove.First();
+            (int, int) to = lastMove.OneMove.Last();
+            
+            //if figure was converted
+            if(!(lastMove.ConvertFigure is null))
+            {
+                Figure convertFig = AllCells[to.Item1, to.Item2].Figure;
+                AllCells[to.Item1, to.Item2].Figure = new Pawn(convertFig.FigureColor,
+                    true, convertFig.FigureID, convertFig.FigureCord, convertFig.OwnerSide);
+            }
+
+            //move figure back
+            //Figure fig = AllCells[to.Item1, to.Item2].Figure;
+            AllCells[from.Item1, from.Item2].Figure = _movedFigsInHistory[_movedFigsInHistory.Count - 1];
+            AllCells[to.Item1, to.Item2].Figure = null;
+
+            //if figure hit another figure
+            if(!(lastMove.HitFigure is null))
+            {
+                AllCells[to.Item1, to.Item2].Figure = lastMove.HitFigure.GetCopy();
+            }
+        }
+        
+        /// <summary>
+        /// Adding figure before reassigning move in logic 
+        /// to save all firstMovesMaken
+        /// </summary>
+        /// <param name="move"></param>
+        public void AddMovedFigure(Move move)
+        {
+            (int, int) figToMove = move.OneMove.First();
+            _movedFigsInHistory.Add(AllCells[figToMove.Item1, figToMove.Item2].Figure.GetCopy());
+        }
+        public void DeleteMovedFigure()
+        {
+            _movedFigsInHistory.RemoveAt(_movedFigsInHistory.Count - 1);
+        }
+        public void AddMoveInHistory(Move move)
+        {
+            _movesHistory.Add(move);
+        }
+        public Move GetLastMove()
+        {
+            return _movesHistory.Count > 0 ? _movesHistory.Last() : null;
+        }
+        public void DeleteLastMoveInHistory()
+        {
+            _movesHistory.RemoveAt(_movesHistory.Count - 1);
+        }
+        public bool IfMoveCanBeDeclined()
+        {
+            return _movedFigsInHistory.Count != 0;
+        }
     }
 }
