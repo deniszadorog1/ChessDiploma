@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 using ChessLib.PlayerModels;
 using ChessLib.Figures;
@@ -22,7 +23,7 @@ namespace ChessLib.FieldModels
 
         private const int _fieldHeight = 8;
         private const int _fieldWidth = 8;
-
+         
         private KingRays _rays = new KingRays();
 
         private List<(int, int)> _secondPlayerPawnCords = new List<(int, int)>()

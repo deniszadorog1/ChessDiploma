@@ -15,6 +15,8 @@ using ChessLib.Figures;
 using ChessLib.Enums.Players;
 using ChessLib.Other;
 using ChessLib.PlayerModels;
+using ChessLib;
+using ChessLib.Enums.Game;
 
 namespace ChessDiploma.Windows
 {
@@ -75,10 +77,35 @@ namespace ChessDiploma.Windows
 
         private List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
         private int _chosenStepIndex = -1;
+
+        private Player _player;
+        private Player _enemy;
+        private ReplayOrGame? _formType = null;
+
+        private Timer _firstPlayerTimer = new Timer();
+        private Timer _secondPlayerTimer = new Timer();
+
+        public FieldFrom(Game game, ReplayOrGame type)
+        {
+            _formType = type;
+            InitGameParams();
+        }
+
         public FieldFrom()
         {
             InitializeComponent();
-
+            InitGameParams();
+        }
+        public FieldFrom(Player player, Player enemy)
+        {
+            _player = player;
+            _enemy = enemy;
+            InitializeComponent();
+            Data._game = new Game(player, enemy);
+            InitGameParams();
+        }
+        public void InitGameParams()
+        {
             InitSizes();
             InitGamePanels();
             InitFieldPanel();
@@ -90,6 +117,10 @@ namespace ChessDiploma.Windows
 
             CreateConvertPawnPanels();
             FillGameMenuPanel();
+        }
+        private void InitTimer()
+        {
+            //_firstPlayerTimer.
         }
         public void InitFieldArrSize()
         {
@@ -1010,10 +1041,13 @@ namespace ChessDiploma.Windows
                 _images.Find(x => x.Tag.ToString() == "WhitePawn") :
                 _images.Find(x => x.Tag.ToString() == "BlackPawn");
         }
-
         private void FieldFrom_Load(object sender, EventArgs e)
         {
 
+        }
+        private void AddGameToDB()
+        {
+            DbUsage.InsertGame(Data._game);
         }
     }
 }

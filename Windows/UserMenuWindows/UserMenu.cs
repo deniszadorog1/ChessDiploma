@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using ChessLib.PlayerModels;
+using ChessDiploma.Windows.UserMenuWindows.ShowGameWindows;
 
 namespace ChessDiploma.Windows.UserMenuWindows
 {
@@ -51,6 +52,22 @@ namespace ChessDiploma.Windows.UserMenuWindows
             PlayGameParams playGame = new PlayGameParams(_user, _allUsers);
             playGame.ShowDialog();
             Show();
+        }
+        private void SeeAllPlayers_Click(object sender, EventArgs e)
+        {
+            Hide();
+            ChoosePlayer choose = new ChoosePlayer(_allUsers);
+            choose.ShowDialog();
+            Show();
+        }
+
+        private void SeeAllGames_Click(object sender, EventArgs e)
+        {
+            Hide();
+            ShowGames gameReplay = new ShowGames();
+            gameReplay.ShowDialog();
+            Show();
+                
         }
     }
 }

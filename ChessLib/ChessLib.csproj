@@ -43,7 +43,10 @@
   <ItemGroup>
     <Compile Include="Enums\Field\CellColor.cs" />
     <Compile Include="Enums\Figures\ConvertPawn.cs" />
+    <Compile Include="Enums\Game\GameResult.cs" />
+    <Compile Include="Enums\Game\ReplayOrGame.cs" />
     <Compile Include="Enums\Players\PlayerColor.cs" />
+    <Compile Include="Enums\Players\PlayerNumber.cs" />
     <Compile Include="Enums\Players\PlayerSide.cs" />
     <Compile Include="FieldModels\Cell.cs" />
     <Compile Include="FieldModels\Field.cs" />

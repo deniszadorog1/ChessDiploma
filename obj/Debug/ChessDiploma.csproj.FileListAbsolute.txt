@@ -31,3 +31,6 @@ B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.pdb
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.CreateAccount.resources
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.UserMenu.resources
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.PlayGameParams.resources
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.ChoosePlayer.resources
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.ShowUserParamsWindows.ShowUserParams.resources
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.ShowGameWindows.ShowGames.resources

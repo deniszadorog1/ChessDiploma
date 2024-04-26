@@ -105,6 +105,7 @@ namespace ChessDiploma
             enterPasswordLB.Location = new Point(0, _enterLogin.Bottom);
             _enterPawssword = new TextBox();
             _enterPawssword.Location = new Point(0, enterPasswordLB.Bottom);
+            _enterPawssword.PasswordChar = '*';
             InitParamsForEnterLoginTextBoxes(_enterPawssword);
 
             _loginIn = new Button();

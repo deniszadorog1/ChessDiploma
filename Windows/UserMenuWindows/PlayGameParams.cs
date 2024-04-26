@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using ChessLib.PlayerModels;
+using ChessLib.Enums.Players;
 
 namespace ChessDiploma.Windows.UserMenuWindows
 {
@@ -39,7 +40,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             }
             else//Nothing checked
             {
-
+                MessageBox.Show("Enemy doesnt chosen!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         public void FillEnemyUsersInPanel()
@@ -61,7 +62,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
         }
         private void NewEnemy_Click(object sender, EventArgs e)
         {
-            for(int i = 0; i < EnemyPanel.Controls.Count; i++)
+            for (int i = 0; i < EnemyPanel.Controls.Count; i++)
             {
                 if (EnemyPanel.Controls[i] is Label)
                 {
@@ -72,6 +73,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             {
                 clickedLabel.ForeColor = Color.DarkGreen;
                 _enemy = _allUsers.Find(x => x.Login == clickedLabel.Text);
+                EnemyLoginLB.Text = _enemy.Login;
             }
         }
 
@@ -87,15 +89,53 @@ namespace ChessDiploma.Windows.UserMenuWindows
 
         private void PlayerBut_Click(object sender, EventArgs e)
         {
-            if(_enemy is null)
+            if (_enemy is null || (!WhiteRadio.Checked && !BlackRadio.Checked))
             {
-                MessageBox.Show("Enemy doesnt Chosen!");
+                MessageBox.Show("Somthing went wrong!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            MessageBox.Show("Game can be started!", "Success");
+
+            InitColorToPlayer();
+            Player enemy = GetEnemyToPlay();
+
+            if (enemy is null)
+            {
+                MessageBox.Show("Somthing went wrong!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            Console.Write(_enemy);
-            MessageBox.Show("Game can be started!", "Success");
-
+            Hide();
+            FieldFrom game = new FieldFrom(_user, enemy);
+            game.ShowDialog();
+            Show();
+        }
+        public void InitColorToPlayer()
+        {
+            _user.Side = PlayerSide.Down;
+            if (WhiteRadio.Checked)
+            {
+                _user.Color = PlayerColor.White;
+                return;
+            }
+            _user.Color = PlayerColor.Black;
+        }
+        public Player GetEnemyToPlay()
+        {
+            if (UserRadio.Checked)
+            {
+                for (int i = 0; i < _allUsers.Count; i++)
+                {
+                    if (_allUsers[i].Login == EnemyLoginLB.Text)
+                    {
+                        Player enemy = _allUsers[i];
+                        enemy.Color = _user.Color == PlayerColor.White ? PlayerColor.Black : PlayerColor.White;
+                        enemy.Side = PlayerSide.Up;
+                        return enemy;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

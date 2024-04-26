@@ -10,6 +10,8 @@ using ChessLib.Other;
 using ChessLib.Figures;
 using ChessLib.Enums.Players;
 using ChessLib.Enums.Figures;
+using ChessLib.Enums.Game;
+using System.Reflection;
 
 namespace ChessLib
 {
@@ -17,11 +19,12 @@ namespace ChessLib
     {
         public Field AllField { get; set; }
         public List<Player> Players { get; set; }
-
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public GameResult GameExodus { get; set; }
 
 
         private int _movesCounter = 0;
-
         private List<Move> _сheckForEqualMoves = new List<Move>();
         private int _movesWithoutHitCounter = 0;
         private int _toStartCheckForDraw = 12;
@@ -30,18 +33,57 @@ namespace ChessLib
 
         public Player _steper;
 
+        public object this[string name]
+        {
+            get
+            {
+                return typeof(Game).GetProperties().First(x => x.Name == name);
+            }
+            set
+            {
+                if(typeof(Game).GetProperties().Any(x => x.Name == name))
+                {
+                    PropertyInfo propertyInfo = typeof(Game).GetProperty(name);
+                    if(propertyInfo != null && propertyInfo.CanWrite)
+                    {
+                        propertyInfo.SetValue(this, value);
+                    }
+                }
+                throw new ArgumentException("Incorrect game parametr");
+            }
+        }
+        public Game(Player firstPlayer, Player secondPlayer, DateTime start, DateTime end, GameResult exodus)
+        {
+            Players = new List<Player>() { firstPlayer, secondPlayer };
+            AllField = new Field(Players);
+            StartTime = start;
+            EndTime = end;
+            GameExodus = exodus;
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
+        }
         public Game(Field allField, List<Player> players)
         {
             AllField = allField;
             Players = players;
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
         public Game()
         {
+            StartTime = DateTime.Now;
             Players = new List<Player>();
+            //AddPlaeyrs();
+            AllField = new Field(Players);
+        }
+        public Game(Player player, Player enemy)
+        {
+            StartTime = DateTime.Now;
 
-            AddPlaeyrs();
+            Players = new List<Player>();
+            Players.Add(player);
+            Players.Add(enemy);
 
             AllField = new Field(Players);
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
 
         public void AddPlaeyrs()
@@ -116,7 +158,6 @@ namespace ChessLib
         {
             AllField.ClearConvertationVariable();
         }
-
         public void IfSpecialFigIsMoves(Move move)
         {
             AllField.IfSpecialChipIsMoved(move);
@@ -189,6 +230,5 @@ namespace ChessLib
         {
             return AllField.IfMoveCanBeDeclined();
         }
-
     }
 }
