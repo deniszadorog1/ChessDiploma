@@ -282,7 +282,7 @@ namespace ChessDiploma.Windows
 
                     if (Data._game.IfSteperCheckMated())
                     {
-                        MessageBox.Show("Game ended. " + Data._game._steper.Name + " WON", "Game ended!", MessageBoxButtons.OK);
+                        MessageBox.Show("Game ended. " + Data._game._steper.Login + " WON", "Game ended!", MessageBoxButtons.OK);
                         Close();
                     }
                     else if (Data._game.IfGameEndedByPate())
@@ -708,9 +708,9 @@ namespace ChessDiploma.Windows
             Label name = new Label();
             name.AutoSize = true;
             name.Font = new Font("Times New Roman", 24);
-            name.Text = player.Name + ". Color - " + player.Color.ToString();
+            name.Text = player.Login + ". Color - " + player.Color.ToString();
             name.Location = new Point(0, 0);
-            name.Name = player.Name;
+            name.Name = player.Login;
 
             panel.Controls.Add(name);
         }
@@ -774,7 +774,7 @@ namespace ChessDiploma.Windows
         }
         public Panel GetHitFigsPanel()
         {
-            Control[] controls = Controls.Find(Data._game._steper.Name, false);
+            Control[] controls = Controls.Find(Data._game._steper.Login, false);
 
             Panel playerPanel = (Panel)controls.First();
 
@@ -917,7 +917,7 @@ namespace ChessDiploma.Windows
 
             if (!Data._game.IfCanDeclineMove())
             {
-                MessageBox.Show("Cant be declined!", "Mistake!");
+                MessageBox.Show("Nothing to decline!", "Mistake!");
                 return;
             }
             //Get last move 

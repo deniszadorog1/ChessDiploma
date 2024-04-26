@@ -46,8 +46,10 @@ namespace ChessLib
 
         public void AddPlaeyrs()
         {
-            Players.Add(new User("first", PlayerColor.White, PlayerSide.Down, new List<(string name, int amount)>()));
-            Players.Add(new User("second", PlayerColor.Black, PlayerSide.Up, new List<(string name, int amount)>()));
+            Players.Add(new User("first", PlayerColor.White, PlayerSide.Down,
+                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1 ));
+            Players.Add(new User("second", PlayerColor.Black, PlayerSide.Up,
+                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
         public int GetFieldLegthParam()
@@ -76,7 +78,7 @@ namespace ChessLib
         }
         public void ChangeSteper()
         {
-            _steper = Players.Find(x => x.Name != _steper.Name);
+            _steper = Players.Find(x => x.Login != _steper.Login);
         }
         public bool IfFigureIsStepers((int x, int y) cord)
         {
@@ -125,7 +127,7 @@ namespace ChessLib
         }
         public (string, string) GetSteppersNameAdnColor()
         {
-            return (_steper.Name, _steper.Color.ToString());
+            return (_steper.Login, _steper.Color.ToString());
         }
         public void AddHitFigure(Figure hitFigure, int updater)
         {
@@ -145,11 +147,11 @@ namespace ChessLib
         }
         public string GetFirstPlayerName()
         {
-            return Players[0].Name;
+            return Players[0].Login;
         }
         public string GetLastPlayerName()
         {
-            return Players[Players.Count - 1].Name;
+            return Players[Players.Count - 1].Login;
         }
         public bool IfGameEndedByPate()
         {

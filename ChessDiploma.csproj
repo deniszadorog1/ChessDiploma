@@ -46,10 +46,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Windows\StartForm.cs">
+    <Compile Include="Models\DbUsage.cs" />
+    <Compile Include="Windows\StartWindows\CreateAccount.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Windows\StartForm.Designer.cs">
+    <Compile Include="Windows\StartWindows\CreateAccount.Designer.cs">
+      <DependentUpon>CreateAccount.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\StartWindows\StartForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\StartWindows\StartForm.Designer.cs">
       <DependentUpon>StartForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\Data.cs" />
@@ -61,7 +68,22 @@
     <Compile Include="Windows\FieldFrom.Designer.cs">
       <DependentUpon>FieldFrom.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Windows\StartForm.resx">
+    <Compile Include="Windows\UserMenuWindows\PlayGameParams.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\PlayGameParams.Designer.cs">
+      <DependentUpon>PlayGameParams.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\UserMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\UserMenu.Designer.cs">
+      <DependentUpon>UserMenu.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Windows\StartWindows\CreateAccount.resx">
+      <DependentUpon>CreateAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\StartWindows\StartForm.resx">
       <DependentUpon>StartForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -75,6 +97,12 @@
     </Compile>
     <EmbeddedResource Include="Windows\FieldFrom.resx">
       <DependentUpon>FieldFrom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\UserMenuWindows\PlayGameParams.resx">
+      <DependentUpon>PlayGameParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\UserMenuWindows\UserMenu.resx">
+      <DependentUpon>UserMenu.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

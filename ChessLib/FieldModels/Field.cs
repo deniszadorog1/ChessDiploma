@@ -112,8 +112,8 @@ namespace ChessLib.FieldModels
         {
             _players = new List<Player>()
             {
-                new Player(copyField._players[0].Name ,copyField._players[0].Color ,copyField._players[0].Side, copyField._players[0].HitFigures),
-                new Player(copyField._players[1].Name, copyField._players[1].Color, copyField._players[1].Side, copyField._players[1].HitFigures)
+                new Player(copyField._players[0].Login ,copyField._players[0].Color ,copyField._players[0].Side, copyField._players[0].HitFigures),
+                new Player(copyField._players[1].Login, copyField._players[1].Color, copyField._players[1].Side, copyField._players[1].HitFigures)
             };
 
             AllCells = new Cell[_fieldHeight, _fieldWidth];
@@ -321,7 +321,7 @@ namespace ChessLib.FieldModels
         }
         public Player GetAnoutherPlayer(Player player)
         {
-            return _players.Find(x => x.Name != player.Name);// _players[0] == player ? _players[1] : _players[0];
+            return _players.Find(x => x.Login != player.Login);// _players[0] == player ? _players[1] : _players[0];
         }
         public bool IfKingCanBeHitInDirection((int, int) direction, (int, int) figCord, Player player)
         {

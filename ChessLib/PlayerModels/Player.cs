@@ -11,14 +11,14 @@ namespace ChessLib.PlayerModels
 {
     public class Player
     {
-        public string Name { get; set; }
+        public string Login { get; set; }
         public PlayerColor Color { get; set; }
         public PlayerSide Side { get; set; }
         public List<(string name, int amount)> HitFigures { get; set; }
 
         public Player(string name, PlayerColor color, PlayerSide side, List<(string name, int amount)> hitFigures)
         {
-            Name = name;
+            Login = name;
             Color = color;
             Side = side;
             HitFigures = hitFigures.Count != 0 ? hitFigures :
@@ -33,7 +33,7 @@ namespace ChessLib.PlayerModels
         }
         public Player()
         {
-            Name = "";
+            Login = "";
             Color = new PlayerColor();
             Side = new PlayerSide();
             HitFigures = new List<(string name, int amount)>()
@@ -45,6 +45,8 @@ namespace ChessLib.PlayerModels
                 ("queen", 0),
             };
         }
+
+
 
         public void UpdateHitFigures(Figure fig, int updater)
         {

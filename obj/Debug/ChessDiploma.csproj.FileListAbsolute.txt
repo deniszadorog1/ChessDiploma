@@ -28,3 +28,6 @@ B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.csproj.CoreCompileInputs.cache
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.csproj.CopyComplete
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.exe
 B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.pdb
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.CreateAccount.resources
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.UserMenu.resources
+B:\GitHub\ChessDiploma\obj\Debug\ChessDiploma.Windows.UserMenuWindows.PlayGameParams.resources
