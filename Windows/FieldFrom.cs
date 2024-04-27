@@ -82,15 +82,13 @@ namespace ChessDiploma.Windows
         private Player _enemy;
         private ReplayOrGame? _formType = null;
 
-        private Timer _firstPlayerTimer = new Timer();
-        private Timer _secondPlayerTimer = new Timer();
+        private const int _timerWidth = 125;
 
         public FieldFrom(Game game, ReplayOrGame type)
         {
             _formType = type;
             InitGameParams();
         }
-
         public FieldFrom()
         {
             InitializeComponent();
@@ -117,11 +115,30 @@ namespace ChessDiploma.Windows
 
             CreateConvertPawnPanels();
             FillGameMenuPanel();
+
+            Data._game.StartFirstTimer();
         }
-        private void InitTimer()
+        public void FillTimer(Panel panel, string stringTime, int playerIndex)
         {
-            //_firstPlayerTimer.
+            if(Data._game.GetTime() != -1)
+            {
+                Label label = new Label();
+
+                if (Data._game.Players[playerIndex] is User)
+                {
+                    ((User)Data._game.Players[playerIndex]).checkTimer = label;
+                }
+                
+                //label.Size = new Size(_timerWidth, _fieldCellSize.Item1);
+
+                Point loc = new Point(panel.Width - label.Width, panel.Size.Height - _fieldCellSize.Item1);
+                label.Text = stringTime;
+                label.Font = new Font("Times New Roman", 18);
+                label.Location = loc;
+                panel.Controls.Add(label);
+            }
         }
+
         public void InitFieldArrSize()
         {
             _field = new PictureBox[_amountOfRows, _amountOfRows];
@@ -338,7 +355,6 @@ namespace ChessDiploma.Windows
                     _moves = new AllMoves();
                     _moves = Data._game.GetMovesForFigure(cord);
                     ShowEndPointsToMove();
-                    Console.WriteLine();
                 }
             };
             _fieldPanel.Controls.Add(_field[cord.x, cord.y]);
@@ -676,6 +692,9 @@ namespace ChessDiploma.Windows
 
             FillPlayerPlanels(_firstPlayerPanel, firstPlayer);
             FillPlayerPlanels(_secondPlayerPanel, secondPlayer);
+
+            FillTimer(_firstPlayerPanel, Data._game.GetPlayerCurrentTime(0), 0);
+            FillTimer(_secondPlayerPanel, Data._game.GetPlayerCurrentTime(1), 1);
         }
         /// <summary>
         /// Main menu panel initialization
@@ -715,7 +734,7 @@ namespace ChessDiploma.Windows
 
             Panel hitFigures = new Panel();
             hitFigures.BorderStyle = BorderStyle.FixedSingle;
-            hitFigures.Size = new Size(panel.Width, _fieldCellSize.Item1);
+            hitFigures.Size = new Size(panel.Width - _timerWidth, _fieldCellSize.Item1);
             hitFigures.Location = new Point(0, panel.Size.Height - hitFigures.Height);
             hitFigures.Name = hitFiguresName;
 

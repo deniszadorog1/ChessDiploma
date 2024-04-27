@@ -128,8 +128,6 @@ namespace ChessLib.FieldModels
                 }
             }
         }
-
-
         public Figure GetFigureToFill((int x, int y) cord)
         {
             Player firstPlayer =

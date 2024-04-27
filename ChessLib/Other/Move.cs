@@ -17,6 +17,8 @@ namespace ChessLib.Other
         public (int, int)? HitCellCordForBeatingOnThePass { get; set; }
         public Figure HitFigure { get; set; }
 
+        private List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+
         public Move(List<(int, int)> oneMove, int[] arr, Figure hitFigure)
         {
             OneMove = oneMove;
@@ -65,6 +67,10 @@ namespace ChessLib.Other
             else if (!temp.HitHistIDs.SequenceEqual(HitHistIDs)) return false;
 
             return true;
+        }
+        public char GetConvertedChar(int number)
+        {
+            return _lettersToSave[number];
         }
     }
 }

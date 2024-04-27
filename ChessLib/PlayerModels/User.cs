@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
+using System.Windows.Forms;
 
 using ChessLib.Enums.Players;
 
@@ -19,6 +21,13 @@ namespace ChessLib.PlayerModels
         public int Wons { get; set; }
         public int Losts { get; set; }
         public int Draws { get; set; }
+
+        public System.Timers.Timer _gameTimer = new System.Timers.Timer();
+        public Label checkTimer = new Label();
+        
+        
+        public int _currentTime = -1;
+        public int startTime = -1;
 
         public User(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures, 
             string password, string email, DateTime dateBirth, int rating, int wons, int losts, int draws) :
@@ -37,6 +46,7 @@ namespace ChessLib.PlayerModels
             Password = "";
             Email = "";
             DateBirth = new DateTime();
+            _gameTimer = new System.Timers.Timer();
         }
         public User(string email, string login, string password, DateTime birth)
         {
@@ -45,7 +55,35 @@ namespace ChessLib.PlayerModels
             Email = email;
             DateBirth = birth;
         }
-
+        public void InitTimer()
+        {
+            _gameTimer = new System.Timers.Timer();
+            _gameTimer.Interval = 1000;
+            _gameTimer.Stop();
+            
+            _gameTimer.Elapsed += (sender, e) =>
+            {
+                _currentTime--;
+                if (_currentTime > 0)
+                {
+                    checkTimer.Text = GetTimerInString();
+                }
+                else
+                {
+                    //Player Lost
+                }
+            };
+        }
+        public void InitLabel(Label lb)
+        {
+            checkTimer = lb;
+        }
+        public string GetTimerInString()
+        {
+            int minutes = _currentTime / 60;
+            int seconds = _currentTime % 60;
+            return string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
         public object this[string name]
         {
             get

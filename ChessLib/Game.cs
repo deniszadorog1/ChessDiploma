@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 using ChessLib.FieldModels;
 using ChessLib.PlayerModels;
@@ -23,6 +24,10 @@ namespace ChessLib
         public DateTime EndTime { get; set; }
         public GameResult GameExodus { get; set; }
 
+        public Player _steper;
+
+        private int _timeInSeconds = 0;
+        private int _time;
 
         private int _movesCounter = 0;
         private List<Move> _сheckForEqualMoves = new List<Move>();
@@ -31,27 +36,9 @@ namespace ChessLib
         private int _chosenEqualMovesToCheckForDraw = 4;
         private int _drawByMovesWithOutHitting = 50;
 
-        public Player _steper;
 
-        public object this[string name]
-        {
-            get
-            {
-                return typeof(Game).GetProperties().First(x => x.Name == name);
-            }
-            set
-            {
-                if(typeof(Game).GetProperties().Any(x => x.Name == name))
-                {
-                    PropertyInfo propertyInfo = typeof(Game).GetProperty(name);
-                    if(propertyInfo != null && propertyInfo.CanWrite)
-                    {
-                        propertyInfo.SetValue(this, value);
-                    }
-                }
-                throw new ArgumentException("Incorrect game parametr");
-            }
-        }
+
+
         public Game(Player firstPlayer, Player secondPlayer, DateTime start, DateTime end, GameResult exodus)
         {
             Players = new List<Player>() { firstPlayer, secondPlayer };
@@ -71,8 +58,9 @@ namespace ChessLib
         {
             StartTime = DateTime.Now;
             Players = new List<Player>();
-            //AddPlaeyrs();
+            AddPlaeyrs();
             AllField = new Field(Players);
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
         public Game(Player player, Player enemy)
         {
@@ -85,15 +73,15 @@ namespace ChessLib
             AllField = new Field(Players);
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
-
         public void AddPlaeyrs()
         {
             Players.Add(new User("first", PlayerColor.White, PlayerSide.Down,
-                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1 ));
+                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
             Players.Add(new User("second", PlayerColor.Black, PlayerSide.Up,
                 new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
+
         public int GetFieldLegthParam()
         {
             return AllField.AllCells.Length;
@@ -120,7 +108,18 @@ namespace ChessLib
         }
         public void ChangeSteper()
         {
-            _steper = Players.Find(x => x.Login != _steper.Login);
+            if (_steper is User) ((User)_steper)._gameTimer.Stop();
+            _steper = Players.Find(x => x.Color != _steper.Color);
+            if (_steper is User) ((User)_steper)._gameTimer.Start();
+        }
+        public void StartFirstTimer()
+        {
+            Player player = Players.Find(x => x.Color == PlayerColor.White);
+
+            if(!(player is null) && player is User)
+            {
+                ((User)player)._gameTimer.Start();
+            }
         }
         public bool IfFigureIsStepers((int x, int y) cord)
         {
@@ -146,11 +145,11 @@ namespace ChessLib
         {
             return _steper.Side;
         }
-        public (int,int) GetFiugerCordToConvert()
+        public (int, int) GetFiugerCordToConvert()
         {
             return AllField.GetFigureCordToConvert();
         }
-        public void ConvertFigure((int x,int y) cord, ConvertPawn type)
+        public void ConvertFigure((int x, int y) cord, ConvertPawn type)
         {
             AllField.ConvertFigure(cord, type);
         }
@@ -229,6 +228,39 @@ namespace ChessLib
         public bool IfCanDeclineMove()
         {
             return AllField.IfMoveCanBeDeclined();
+        }
+        public void InitTime(int time)
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    ((User)Players[i]).startTime = time ;
+                    ((User)Players[i])._currentTime = time ;
+                }
+            }
+        }
+        public string GetPlayerCurrentTime(int playerIndex)
+        {
+            return Players[playerIndex] is User ? ((User)Players[playerIndex]).GetTimerInString() : "";
+        }
+        public void InitTimers()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    ((User)Players[i]).InitTimer();
+                }
+            }
+        }
+        public int GetTime()
+        {
+            return _time;
+        }
+        public void InitSteper()
+        {
+            _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
     }
 }

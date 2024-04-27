@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 using ChessLib.PlayerModels;
 using ChessLib.Enums.Players;
+using ChessDiploma.Models;
 
 namespace ChessDiploma.Windows.UserMenuWindows
 {
@@ -19,13 +20,14 @@ namespace ChessDiploma.Windows.UserMenuWindows
         private List<User> _allUsers;
 
         private User _enemy = null;
-
         private const int _spaceBetweenEnemyLogins = 25;
+        private List<int> _gameTimer = new List<int>() { -1, 5, 10, 20, 30 };
         public PlayGameParams(User user, List<User> allUsers)
         {
             _user = user;
             _allUsers = allUsers;
             InitializeComponent();
+            FillGameTimeBox();
         }
         public void FillEnemysPanel()
         {
@@ -42,6 +44,14 @@ namespace ChessDiploma.Windows.UserMenuWindows
             {
                 MessageBox.Show("Enemy doesnt chosen!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        public void FillGameTimeBox()
+        {
+            GameTimeBox.Items.Add("No timer");
+            GameTimeBox.Items.Add("5 minutes");
+            GameTimeBox.Items.Add("10 minutes");
+            GameTimeBox.Items.Add("20 minutes");
+            GameTimeBox.Items.Add("30 minutes");
         }
         public void FillEnemyUsersInPanel()
         {
@@ -89,7 +99,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
 
         private void PlayerBut_Click(object sender, EventArgs e)
         {
-            if (_enemy is null || (!WhiteRadio.Checked && !BlackRadio.Checked))
+            if (_enemy is null || (!WhiteRadio.Checked && !BlackRadio.Checked) || GameTimeBox.SelectedIndex == -1)
             {
                 MessageBox.Show("Somthing went wrong!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -106,7 +116,8 @@ namespace ChessDiploma.Windows.UserMenuWindows
             }
 
             Hide();
-            FieldFrom game = new FieldFrom(_user, enemy);
+            Data.InitPlayerAndTimerInGame(_user, _enemy, _gameTimer[GameTimeBox.SelectedIndex]);
+            FieldFrom game = new FieldFrom();
             game.ShowDialog();
             Show();
         }

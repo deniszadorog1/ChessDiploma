@@ -9,6 +9,7 @@ using ChessLib.PlayerModels;
 using ChessLib;
 using ChessLib.Enums.Game;
 using ChessLib.Enums.Players;
+using ChessLib.Other;
 
 namespace ChessDiploma.Models
 {
@@ -182,9 +183,6 @@ namespace ChessDiploma.Models
             return res;
         }
 
-
-
-
         private static int GetLastGameId()
         {
             int res = -1;
@@ -244,7 +242,7 @@ namespace ChessDiploma.Models
                     {
                         string colName = reader.GetName(i);
                         if (colName != "Id")
-                        {      
+                        {
                             if (colName == "FirstPlayer")
                             {
                                 User player = GetPlayerById((int)reader[i]);
@@ -253,19 +251,20 @@ namespace ChessDiploma.Models
                             }
                             else if (colName == "SecondPlayer")
                             {
+                                //Check if ITSBot downLoaded!
                                 User player = GetPlayerById((int)reader[i]);
                                 FillSideAndColorForUser(player, gameId, PlayerNumber.Second);
                                 secondPlayer = player;
                             }
-                            else if(colName == "StartTime")
+                            else if (colName == "StartTime")
                             {
-                                start =  DateTime.Parse(reader[i].ToString());
+                                start = DateTime.Parse(reader[i].ToString());
                             }
-                            else if(colName == "EndTime")
+                            else if (colName == "EndTime")
                             {
                                 end = DateTime.Parse(reader[i].ToString());
                             }
-                            else if(colName == "Result")
+                            else if (colName == "Result")
                             {
                                 exodus = GetGameResult((int)reader[i]);
                             }
@@ -296,7 +295,7 @@ namespace ChessDiploma.Models
             return res;
         }
         private static GameResult GetGameResult(string gameResult)
-        { 
+        {
             for (int i = 0; i <= (int)GameResult.Closed; i++)
             {
                 if (((GameResult)i).ToString() == gameResult)
@@ -328,7 +327,7 @@ namespace ChessDiploma.Models
                         {
                             if (colName == "FirstPlayerColor")
                             {
-                                user.Color =  GetPlaeyrColor((int)reader[i]);
+                                user.Color = GetPlaeyrColor((int)reader[i]);
                             }
                             else if (colName == "FirstPlayerSide")
                             {
@@ -357,7 +356,7 @@ namespace ChessDiploma.Models
         private static PlayerColor GetPlaeyrColor(int id)
         {
             string color = "";
-            using(SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -372,11 +371,11 @@ namespace ChessDiploma.Models
             }
             return GetPlayerColor(color);
         }
-        private static PlayerColor GetPlayerColor (string color)
+        private static PlayerColor GetPlayerColor(string color)
         {
-            for(int i = 0; i <= (int)PlayerColor.Black; i++)
+            for (int i = 0; i <= (int)PlayerColor.Black; i++)
             {
-                if(((PlayerColor)i).ToString() == color)
+                if (((PlayerColor)i).ToString() == color)
                 {
                     return (PlayerColor)i;
                 }
@@ -499,5 +498,61 @@ namespace ChessDiploma.Models
             return user;
         }
 
+        public static void InsertMove(Move move)
+        {
+            using (SqlConnection connection = new SqlConnection())
+            {
+                connection.Open();
+
+                string query = "INSERT INTO [Moves]([GameId], " +
+                    "[MoveFromX], [MoveFromY]," +
+                    "[MoveToX], [MoveToY]," +
+                    "[HitFigType], [ConvertFigType], " +
+                    "[PlayerColor], [TimeOnTimer]) " +
+                    "Values(@gameId, @moveFromX, @moveFromY, @moveToX, @moveToY, " +
+                    "@hitFigType, @convertFigType, @playerColor, @timeOnTimer)";
+
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@gameId", GetLastGameId());
+                command.Parameters.AddWithValue("@moveFromX", GetYCord(move.OneMove[0].Item2, move));
+                command.Parameters.AddWithValue("@moveFromY", GetYCord(move.OneMove[0].Item1, move));
+                command.Parameters.AddWithValue("@moveToX", GetYCord(move.OneMove[1].Item2, move));
+                command.Parameters.AddWithValue("@moveToY", GetYCord(move.OneMove[1].Item1, move));
+                command.Parameters.AddWithValue("@hitFigType",);
+                command.Parameters.AddWithValue("@convertFigType", GetFigureId(move.ConvertFigure.ToString()));
+                command.Parameters.AddWithValue("@playerColor",);
+                command.Parameters.AddWithValue("@timeOnTimer",);
+                connection.Close();
+            }
+        }
+        public static char? GetYCord(int cord, Move move)
+        {
+            if (move.OneMove.Count > 2)
+            {
+                return null;
+            }
+            List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+            return _lettersToSave[cord];
+        }
+
+        private static int? GetFigureId(string figureName)
+        {
+            int res? = -1;
+            using(SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1 [Id] FROM [FigureType] WHERE [Type] = @type";
+                SqlCommand command = new SqlCommand(query, connection);
+                
+                command.Parameters.AddWithValue("@type", figureName);
+
+                res = (int)command.ExecuteScalar();
+
+                connection.Close();
+            }
+            return res;
+        }
     }
 }

@@ -34,7 +34,6 @@
             this.BackBut = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.ChosenPlayerLB = new System.Windows.Forms.Label();
-            this.colorDialog1 = new System.Windows.Forms.ColorDialog();
             this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
@@ -132,7 +131,6 @@
         private System.Windows.Forms.Button BackBut;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label ChosenPlayerLB;
-        private System.Windows.Forms.ColorDialog colorDialog1;
         private System.Windows.Forms.Label label2;
     }
 }
