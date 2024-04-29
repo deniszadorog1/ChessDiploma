@@ -39,6 +39,7 @@
             this.ClientSize = new System.Drawing.Size(1184, 611);
             this.Name = "FieldFrom";
             this.Text = "FIeld";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FieldFrom_FormClosing);
             this.Load += new System.EventHandler(this.FieldFrom_Load);
             this.ResumeLayout(false);
 

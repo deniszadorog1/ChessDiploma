@@ -24,8 +24,26 @@ namespace ChessDiploma.Models
                 enemy
             };
             _game.AllField = new ChessLib.FieldModels.Field(_game.Players);
+            //_game.InitTimers();
             _game.InitTime(time * 60);
             _game.InitSteper();
+
+        }
+        public static void InitGameFieldToRepaly(Game game)
+        {
+            List<Move> moves = DbUsage.GetGameMoves(game);
+
+            UpdateGame();
+
+            _game.Players = new List<Player>()
+            {
+                game.Players[0],
+                game.Players[1]
+            };
+            _game.AllField = new ChessLib.FieldModels.Field(_game.Players);
+            _game.InitTime(game.GetTime());
+            _game.InitSteper();
+            _game.InitMoveHistory(moves);
 
         }
         public static void UpdateGame()
@@ -57,5 +75,6 @@ namespace ChessDiploma.Models
         {
             _game.EndTime = DateTime.Now;
         }
+
     }
 }

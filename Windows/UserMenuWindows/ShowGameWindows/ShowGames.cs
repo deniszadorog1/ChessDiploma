@@ -19,7 +19,7 @@ namespace ChessDiploma.Windows.UserMenuWindows.ShowGameWindows
         private List<Game> _allGames = DbUsage.GetAllGames();
         private Game _chosenGame;
         private const int _distanceBetweenLabels = 25;
-        private const int _gameLabelHeight = 200;
+        private const int _gameLabelHeight = 100;
 
         public ShowGames()
         {
@@ -40,7 +40,7 @@ namespace ChessDiploma.Windows.UserMenuWindows.ShowGameWindows
                 Label label = new Label();
                 label.AutoSize = false;
                 label.Location = loc;
-                label.Size = new Size(GamesPanel.Width, _gameLabelHeight);
+                label.Size = new Size(GamesPanel.Width - 10, _gameLabelHeight);
 
                 string players = _allGames[i].Players[0].Login + " VS " + _allGames[i].Players[1].Login;
                 string startDate = _allGames[i].StartTime.Date.ToString();

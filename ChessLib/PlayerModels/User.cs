@@ -61,7 +61,6 @@ namespace ChessLib.PlayerModels
             _gameTimer = new System.Timers.Timer();
             _gameTimer.Interval = 1000;
             _gameTimer.Stop();
-            
             _gameTimer.Elapsed += (sender, e) =>
             {
                 _currentTime--;
@@ -81,9 +80,9 @@ namespace ChessLib.PlayerModels
         }
         public string GetTimerInString()
         {
-            int minutes = _currentTime / 60;
-            int seconds = _currentTime % 60;
-            return string.Format("{0:00}:{1:00}", minutes, seconds);
+            //string formattedTime = string.Format("{0:00}:{1:00}", _currentTime / 60, _currentTime % 60);
+            return string.Format("{0:00}:{1:00}", _currentTime / 60, _currentTime % 60);
+
         }
         public object this[string name]
         {
@@ -108,6 +107,10 @@ namespace ChessLib.PlayerModels
         public int GetCurrnetTimeOnTimer()
         {
             return _currentTime;
+        }
+        public void StopTimer()
+        {
+            _gameTimer.Stop();
         }
     }
 }

@@ -23,8 +23,8 @@ namespace ChessLib.Other
         private List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
         private int _timerOnMove = -1;
         private PlayerColor _playersColor;
-        private CastlingType? _castling = null; 
- 
+        private CastlingType? _castling = null;
+
         public Move(List<(int, int)> oneMove, int[] arr, Figure hitFigure)
         {
             OneMove = oneMove;
@@ -101,6 +101,26 @@ namespace ChessLib.Other
         public void InitCastling(CastlingType castling)
         {
             _castling = castling;
+        }
+
+        public void InitMoveInCastling(CastlingType type, PlayerSide side)
+        {
+            if (type == CastlingType.Short && side == PlayerSide.Up)
+            {
+                OneMove = new List<(int, int)>() { (0, 4), (0, 6), (0, 7), (0, 5) };
+            }
+            else if (type == CastlingType.Short && side == PlayerSide.Down)
+            {
+                OneMove = new List<(int, int)>() { (7, 4), (7, 6), (7, 7), (7, 5) };
+            }
+            else if (type == CastlingType.Long && side == PlayerSide.Up)
+            {
+                OneMove = new List<(int, int)>() { (0, 4), (0, 2), (0, 0), (0, 3) };
+            }
+            else if (type == CastlingType.Long && side == PlayerSide.Down)
+            {
+                OneMove = new List<(int, int)>() { (7, 4), (7, 2), (7, 0), (7, 3) };
+            }
         }
     }
 }

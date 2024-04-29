@@ -28,21 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.PlayersList = new System.Windows.Forms.FlowLayoutPanel();
             this.Searcher = new System.Windows.Forms.TextBox();
             this.ShowParamsBut = new System.Windows.Forms.Button();
             this.BackBut = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.ChosenPlayerLB = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.PlayersList = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
-            // 
-            // PlayersList
-            // 
-            this.PlayersList.Location = new System.Drawing.Point(12, 12);
-            this.PlayersList.Name = "PlayersList";
-            this.PlayersList.Size = new System.Drawing.Size(182, 416);
-            this.PlayersList.TabIndex = 0;
             // 
             // Searcher
             // 
@@ -104,18 +97,27 @@
             this.label2.TabIndex = 6;
             this.label2.Text = "Search";
             // 
+            // PlayersList
+            // 
+            this.PlayersList.AutoScroll = true;
+            this.PlayersList.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.PlayersList.Location = new System.Drawing.Point(0, 0);
+            this.PlayersList.Name = "PlayersList";
+            this.PlayersList.Size = new System.Drawing.Size(190, 430);
+            this.PlayersList.TabIndex = 7;
+            // 
             // ChoosePlayer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(363, 450);
+            this.Controls.Add(this.PlayersList);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.ChosenPlayerLB);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.BackBut);
             this.Controls.Add(this.ShowParamsBut);
             this.Controls.Add(this.Searcher);
-            this.Controls.Add(this.PlayersList);
             this.Name = "ChoosePlayer";
             this.Text = "ChoosePlayer";
             this.ResumeLayout(false);
@@ -124,13 +126,12 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel PlayersList;
         private System.Windows.Forms.TextBox Searcher;
         private System.Windows.Forms.Button ShowParamsBut;
         private System.Windows.Forms.Button BackBut;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label ChosenPlayerLB;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.FlowLayoutPanel PlayersList;
     }
 }

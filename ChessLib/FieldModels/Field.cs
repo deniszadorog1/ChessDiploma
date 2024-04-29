@@ -673,6 +673,10 @@ namespace ChessLib.FieldModels
         {
             return _movesHistory;
         }
+        public void InitMovesHistory(List<Move> moves)
+        {
+            _movesHistory = moves;
+        }
 
         public AllMoves GetSortedMoves(Player player)
         {

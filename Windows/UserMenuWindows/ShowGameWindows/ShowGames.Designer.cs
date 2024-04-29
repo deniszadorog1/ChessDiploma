@@ -39,6 +39,7 @@
             // 
             // GamesPanel
             // 
+            this.GamesPanel.AutoScroll = true;
             this.GamesPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.GamesPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.GamesPanel.Location = new System.Drawing.Point(0, 0);

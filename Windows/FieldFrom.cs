@@ -84,14 +84,19 @@ namespace ChessDiploma.Windows
 
         private const int _timerWidth = 125;
 
+        private int _tempMoveIndexToShowOnReplay = 0;
         public FieldFrom(Game game, ReplayOrGame type)
         {
             _formType = type;
-            
+            Data.InitGameFieldToRepaly(game);
+
+            InitializeComponent();
             InitGameParams();
+
         }
         public FieldFrom()
         {
+            _formType = ReplayOrGame.Game;
             InitializeComponent();
             InitGameParams();
         }
@@ -107,7 +112,9 @@ namespace ChessDiploma.Windows
         {
             InitSizes();
             InitGamePanels();
+
             InitFieldPanel();
+            
             GetImagesPath();
             InitFieldArrSize();
 
@@ -121,7 +128,7 @@ namespace ChessDiploma.Windows
         }
         public void FillTimer(Panel panel, string stringTime, int playerIndex)
         {
-            if(Data._game.GetTime() != -1)
+            if (Data._game.GetTime() != -1)
             {
                 Label label = new Label();
 
@@ -129,7 +136,7 @@ namespace ChessDiploma.Windows
                 {
                     ((User)Data._game.Players[playerIndex]).checkTimer = label;
                 }
-                
+
                 //label.Size = new Size(_timerWidth, _fieldCellSize.Item1);
 
                 Point loc = new Point(panel.Width - label.Width, panel.Size.Height - _fieldCellSize.Item1);
@@ -307,6 +314,7 @@ namespace ChessDiploma.Windows
 
             _field[cord.x, cord.y].Click += (sender, e) =>
             {
+                if (_formType == ReplayOrGame.Replay) return;
                 _chosenStepIndex = GetMoveIndexToMake(cord);
 
                 if (_field[cord.x, cord.y].BackColor == Color.Yellow && _chosenStepIndex != -1)
@@ -867,26 +875,43 @@ namespace ChessDiploma.Windows
             _inGameMenu.Controls.Add(whoStepsName);
 
 
-            Button declineLastMove = new Button();
-            GivePurumsToInGameMenuButtons(declineLastMove, "Decline last move",
-                new Size(_inGameMenu.Width, _fieldCellSize.Item1),
-                new Point(0, whoStepsName.Location.Y + whoStepsName.Size.Height));
-
-            declineLastMove.Click += DeclineLastMove_Click;
-
-            Button sendDrawOffer = new Button();
             Control last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
-            GivePurumsToInGameMenuButtons(sendDrawOffer, "Send draw offer",
-                new Size(_inGameMenu.Width, _fieldCellSize.Item1),
-                new Point(0, last.Location.Y + last.Size.Height));
+            if (_formType == ReplayOrGame.Game) 
+            {
+                Button declineLastMove = new Button();
+                GivePurumsToInGameMenuButtons(declineLastMove, "Decline last move",
+                    new Size(_inGameMenu.Width, _fieldCellSize.Item1),
+                    new Point(0, whoStepsName.Location.Y + whoStepsName.Size.Height));
 
-            Button giveUp = new Button();
-            last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
-            GivePurumsToInGameMenuButtons(giveUp, "Give up",
-                new Size(_inGameMenu.Width, _fieldCellSize.Item1),
-                new Point(0, last.Location.Y + last.Size.Height));
-            giveUp.Click += Givup_Click;
+                declineLastMove.Click += DeclineLastMove_Click;
 
+                Button sendDrawOffer = new Button();
+                 last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
+                GivePurumsToInGameMenuButtons(sendDrawOffer, "Send draw offer",
+                    new Size(_inGameMenu.Width, _fieldCellSize.Item1),
+                    new Point(0, last.Location.Y + last.Size.Height));
+
+                Button giveUp = new Button();
+                last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
+                GivePurumsToInGameMenuButtons(giveUp, "Give up",
+                    new Size(_inGameMenu.Width, _fieldCellSize.Item1),
+                    new Point(0, last.Location.Y + last.Size.Height));
+                giveUp.Click += Givup_Click;
+            }
+            else//Its replay
+            {
+                Button declineLastMove = new Button();
+                GivePurumsToInGameMenuButtons(declineLastMove, "Decline last move",
+                    new Size(_inGameMenu.Width, _fieldCellSize.Item1),
+                    new Point(0, whoStepsName.Location.Y + whoStepsName.Size.Height));
+
+                declineLastMove.Click += DeclineLastMove_Click;
+
+                Button nextMove = new Button();
+                GivePurumsToInGameMenuButtons(nextMove, "Go to next Move",
+                new Size(_inGameMenu.Width, _fieldCellSize.Item1),
+                 new Point(0, declineLastMove.Location.Y + declineLastMove.Size.Height));
+            }
 
             last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
             Label movesHist = new Label();
@@ -918,31 +943,46 @@ namespace ChessDiploma.Windows
             movesList.FlowDirection = FlowDirection.TopDown;
             checkPanel.Controls.Add(movesList);
 
+
+            if (_formType == ReplayOrGame.Replay)//add moves in flowLayoutPanel
+            {
+                FillMoveHistoryPanelForReplay(movesList);
+            }
+        }
+        private void FillMoveHistoryPanelForReplay(Panel panel)
+        {
+            List<Move> moves = Data._game.GetMoveHistory();
+
+            for (int i = 0; i < moves.Count; i++)
+            {
+                AddMoveInMovesHistory(moves[i],
+                moves[i].GetPlayerColor().ToString());
+            }
         }
         private void Givup_Click(object sender, EventArgs e)
         {
             Player winer = Data._game.GetAnoutherPlayer();
-            
+
 
             MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
 
             Data.InitGamesEndDate();
             Data.InitGameInDB();
         }
-/*        public void AddMoveToMoveHist(string move)
-        {
-            Label newMove = new Label();
-            newMove.AutoSize = false;
-            newMove.Size = new Size(_inGameMenu.Width, _firstCellLock.Item2 * 2);
-            newMove.Text = move;
-            newMove.Font = new Font("Times New Roman", 14);
+        /*        public void AddMoveToMoveHist(string move)
+                {
+                    Label newMove = new Label();
+                    newMove.AutoSize = false;
+                    newMove.Size = new Size(_inGameMenu.Width, _firstCellLock.Item2 * 2);
+                    newMove.Text = move;
+                    newMove.Font = new Font("Times New Roman", 14);
 
-            int panelHistIndex = GetMoveHistoryPanelIndex();
-            if (panelHistIndex != -1)
-            {
-                _inGameMenu.Controls[panelHistIndex].Controls.Add(newMove);
-            }
-        }*/
+                    int panelHistIndex = GetMoveHistoryPanelIndex();
+                    if (panelHistIndex != -1)
+                    {
+                        _inGameMenu.Controls[panelHistIndex].Controls.Add(newMove);
+                    }
+                }*/
         public int GetMoveHistoryPanelIndex()
         {
             for (int i = 0; i < _inGameMenu.Controls.Count; i++)
@@ -1003,6 +1043,8 @@ namespace ChessDiploma.Windows
             //Delete from Hit In Player Panel
             DeleteFromHitFiguresPanel(lastMove);
         }
+
+
         private void DeclineLastMove(Move move)
         {
             //castling
@@ -1083,6 +1125,11 @@ namespace ChessDiploma.Windows
         private void AddGameToDB()
         {
             DbUsage.InsertGame(Data._game);
+        }
+
+        private void FieldFrom_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Data._game.StopTimers();
         }
     }
 }

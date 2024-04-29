@@ -239,6 +239,7 @@ namespace ChessLib
         }
         public void InitTime(int time)
         {
+            _time = time;
             for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
@@ -251,16 +252,6 @@ namespace ChessLib
         public string GetPlayerCurrentTime(int playerIndex)
         {
             return Players[playerIndex] is User ? ((User)Players[playerIndex]).GetTimerInString() : "";
-        }
-        public void InitTimers()
-        {
-            for (int i = 0; i < Players.Count; i++)
-            {
-                if (Players[i] is User)
-                {
-                    ((User)Players[i]).InitTimer();
-                }
-            }
         }
         public int GetTime()
         {
@@ -313,6 +304,25 @@ namespace ChessLib
             else move.InitCastling(CastlingType.Short);
         }
 
+        public  void StopTimers()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    ((User)Players[i]).StopTimer();
+                }
+                
+            }
+        }
+        public List<Move> GetMoveHistory()
+        {
+            return AllField.GetMoveHistory();
+        }
+        public void InitMoveHistory(List<Move> moves)
+        {
+            AllField.InitMovesHistory(moves);
+        }
         public Move GetMoveForBot()
         {
             Move res = new Move();
