@@ -10,6 +10,8 @@ using ChessLib;
 using ChessLib.Enums.Game;
 using ChessLib.Enums.Players;
 using ChessLib.Other;
+using ChessLib.Figures;
+using ChessLib.Enums.Field;
 
 namespace ChessDiploma.Models
 {
@@ -146,7 +148,6 @@ namespace ChessDiploma.Models
         private static int GetPlayerColorId(PlayerColor color)
         {
             int res = -1;
-
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -189,9 +190,9 @@ namespace ChessDiploma.Models
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "SELECT TOP 1 [Id] FROM [Game] ORDER BY [Id] DESC";
+                string query = "SELECT TOP 1 [Id] FROM [Games] ORDER BY [Id] DESC";
 
-                SqlCommand command = new SqlCommand();
+                SqlCommand command = new SqlCommand(query, connection);
                 res = (int)command.ExecuteScalar();
 
                 connection.Close();
@@ -500,59 +501,291 @@ namespace ChessDiploma.Models
 
         public static void InsertMove(Move move)
         {
-            using (SqlConnection connection = new SqlConnection())
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
-                string query = "INSERT INTO [Moves]([GameId], " +
+                string query = "INSERT INTO [Move]([GameId], " +
                     "[MoveFromX], [MoveFromY]," +
                     "[MoveToX], [MoveToY]," +
                     "[HitFigType], [ConvertFigType], " +
-                    "[PlayerColor], [TimeOnTimer]) " +
+                    "[PlayerColor], [TimeOnTimer], [CastlingId]) " +
                     "Values(@gameId, @moveFromX, @moveFromY, @moveToX, @moveToY, " +
-                    "@hitFigType, @convertFigType, @playerColor, @timeOnTimer)";
-
+                    "@hitFigType, @convertFigType, @playerColor, @timeOnTimer, @castling)";
 
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@gameId", GetLastGameId());
-                command.Parameters.AddWithValue("@moveFromX", GetYCord(move.OneMove[0].Item2, move));
-                command.Parameters.AddWithValue("@moveFromY", GetYCord(move.OneMove[0].Item1, move));
-                command.Parameters.AddWithValue("@moveToX", GetYCord(move.OneMove[1].Item2, move));
-                command.Parameters.AddWithValue("@moveToY", GetYCord(move.OneMove[1].Item1, move));
-                command.Parameters.AddWithValue("@hitFigType",);
-                command.Parameters.AddWithValue("@convertFigType", GetFigureId(move.ConvertFigure.ToString()));
-                command.Parameters.AddWithValue("@playerColor",);
-                command.Parameters.AddWithValue("@timeOnTimer",);
+
+
+                int gameId = GetLastGameId();
+
+                int? moveFromX = GetXCord(move.OneMove[0].Item2, move);
+                int? moveFromY = GetYCord(move.OneMove[0].Item1, move);
+
+                int? moveToX = GetXCord(move.OneMove[1].Item2, move);
+                int? moveToY = GetYCord(move.OneMove[1].Item1, move);
+
+                int? hitFigId = GetHitFigureType(move.HitFigure);
+                int? convertFigId = GetFigureId(move.ConvertFigure.ToString());
+                int playerColorId = GetPlayerColorId(move.GetPlayerColor());
+                int timeOnTimer = move.GetTimeOnTimer();
+                int? castlingId = GetCastlingId(move.GetCastlingType());
+
+
+                command.Parameters.AddWithValue("@gameId", gameId);
+
+                command.Parameters.AddWithValue("@moveFromX", CheckForNull(moveFromX));
+                command.Parameters.AddWithValue("@moveFromY", CheckForNull(moveFromY));
+
+                command.Parameters.AddWithValue("@moveToX", CheckForNull(moveToX));
+                command.Parameters.AddWithValue("@moveToY", CheckForNull(moveToY));
+
+                command.Parameters.AddWithValue("@hitFigType", CheckForNull(hitFigId));
+                command.Parameters.AddWithValue("@convertFigType", CheckForNull(convertFigId));
+                command.Parameters.AddWithValue("@playerColor", playerColorId);
+                command.Parameters.AddWithValue("@timeOnTimer", timeOnTimer);
+                command.Parameters.AddWithValue("@castling", CheckForNull(castlingId));
+
+                command.ExecuteNonQuery();
                 connection.Close();
             }
         }
-        public static char? GetYCord(int cord, Move move)
+
+        private static object CheckForNull(object smth)
+        {
+            return smth == null ? DBNull.Value : smth;
+        }
+        private static int? GetCastlingId(CastlingType? type)
+        {
+            if (type is null) return null;
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT TOP 1[Id] FROM [Castling] WHERE [Type] = @type";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@type", type.ToString());
+
+                int res = (int)command.ExecuteScalar();
+                connection.Close();
+
+                return res;
+            }
+            return null;
+
+        }
+        private static int? GetHitFigureType(Figure figure)
+        {
+            if (figure is null) return null;
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM [FigureType]";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int id = -1;
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        string colName = reader.GetName(i);
+                        if (colName == "Id") id = (int)reader[i];
+                        else
+                        {
+                            string type = reader[i].ToString();
+                            if (figure is Pawn && type == "Pawn" ||
+                                figure is Rook && type == "Rook" ||
+                                figure is Horse && type == "Horse" ||
+                                figure is Bishop && type == "Bishop" ||
+                                figure is Queen && type == "Queen")
+                            {
+                                return id;
+                            }
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            return null;
+        }
+        private static char? GetYCord(int cord, Move move)
         {
             if (move.OneMove.Count > 2)
             {
                 return null;
             }
             List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
-            return _lettersToSave[cord];
+
+            return (char?)GetYCordLetterId(_lettersToSave[cord]);
         }
 
+        private static int? GetYCordLetterId(char letter)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1[Id] FROM [Vertical] WHERE [Value] = @letter";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@letter", letter);
+
+                int res = (int)command.ExecuteScalar();
+
+                connection.Close();
+
+                return res;
+            }
+        }
+
+        private static int? GetXCord(int cord, Move move)
+        {
+            if (move.OneMove.Count > 2) return null;
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1 [Id] FROM [Horizontal] WHERE [Value] = @cord";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@cord", cord);
+
+                int res = (int)command.ExecuteScalar();
+
+                connection.Close();
+                return res;
+            }
+        }
         private static int? GetFigureId(string figureName)
         {
-            int res? = -1;
-            using(SqlConnection connection = new SqlConnection(_connectionString))
+            int? res = -1;
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
                 string query = "SELECT TOP 1 [Id] FROM [FigureType] WHERE [Type] = @type";
                 SqlCommand command = new SqlCommand(query, connection);
-                
+
                 command.Parameters.AddWithValue("@type", figureName);
 
-                res = (int)command.ExecuteScalar();
+                res = (int?)command.ExecuteScalar();
 
                 connection.Close();
             }
             return res;
         }
+
+        public static void UpdateUsersResults(User user)
+        {
+            int userId = GetUserIdByLogin(user.Login);
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "UPDATE [PlayerRating] SET [GameAmount] = @gameAmount, [Wons] = @wons," +
+                    " [Losts] = @losts, [Draws] = @draws WHERE [UserId] = @id";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@gameAmount", (user.Wons + user.Losts + user.Draws));
+                command.Parameters.AddWithValue("@wons", user.Wons);
+                command.Parameters.AddWithValue("@losts", user.Losts);
+                command.Parameters.AddWithValue("@draws", user.Draws);
+                command.Parameters.AddWithValue("@id", userId);
+
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
+
+        }
+        private static int GetUserIdByLogin(string login)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1 [Id] FROM [Players] WHERE [Login] = @login";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@login", login);
+
+                int res = (int)command.ExecuteScalar();
+
+
+                connection.Close();
+                return res;
+            }
+        }
+        public static List<Move> GetGameMoves(Game game)
+        {
+            List<Move> res = new List<Move>();
+            int gameId = GetGameIdByGame(game);
+
+            using(SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM [Move] WHERE [GameId] = @gameId";
+                SqlCommand command = new SqlCommand(query, connection);
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    for(int i = 0; i < reader.FieldCount; i++)
+                    {
+
+                    }
+                }
+
+                connection.Close();
+            }
+            return res;
+        }
+        private static int GetGameIdByGame(Game game)
+        {
+            using(SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1 [Id] FROM [Game] WHERE [FirstPlayer] = @firstPlayerId AND " +
+                    "[SecondPlayer] = @secondPlayerId AND [StartTime] = @startDate AND [EndTime] = @endDate AND [Result] = @result";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@firstPlayerId", GetPlayerId(game.Players[0].Login));
+                command.Parameters.AddWithValue("@secondPlayerId", GetPlayerId(game.Players[1].Login));
+                command.Parameters.AddWithValue("@startDate", game.StartTime);
+                command.Parameters.AddWithValue("@endDate", game.EndTime);
+                command.Parameters.AddWithValue("@result", GetResultId(game.GameExodus));
+
+                int res = (int)command.ExecuteScalar();
+                connection.Close();
+                return res;
+            }
+        }
+        private static int GetResultId(GameResult result)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT TOP 1 [Id] WHERE [Result] = @res";
+                SqlCommand command = new SqlCommand();
+
+                command.Parameters.AddWithValue("@res", result.ToString());
+
+                int res = (int)command.ExecuteScalar();
+
+                connection.Close();
+                return res;
+            }
+        }
+
+
     }
 }

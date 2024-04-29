@@ -10,7 +10,7 @@ namespace ChessLib.Other
     {
         public List<Move> PossibleMoves { get; set; }
 
-        public bool Containss(Move move)
+        public bool Contains(Move move)
         {
             return PossibleMoves.Any(x => x.Equals(move));
         }

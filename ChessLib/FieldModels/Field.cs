@@ -60,6 +60,9 @@ namespace ChessLib.FieldModels
         private (int, int) _firstPlayerQueenCord = (7, 3);
         private (int, int) _firstPlayerKingCord = (7, 4);
 
+        private List<(int, int)> _centralCell = new List<(int, int)>()
+        { (3,3), (3,4), (4,3), (4,4)};
+
         private int _tempFigureId = 0;
         //Showr Casling
         private const int _firstInShortCastling = 0;
@@ -87,6 +90,7 @@ namespace ChessLib.FieldModels
 
         private bool _ifNeedToConvertFig = false;
         private Figure _movedFigureForDecline = null;
+        private double _scoreForMovedKing = 0.01;
 
         public Field(List<Player> players)
         {
@@ -664,6 +668,225 @@ namespace ChessLib.FieldModels
         public bool IfMoveCanBeDeclined()
         {
             return _movedFigsInHistory.Count != 0;
+        }
+        public List<Move> GetMoveHistory()
+        {
+            return _movesHistory;
+        }
+
+        public AllMoves GetSortedMoves(Player player)
+        {
+            AllMoves res = new AllMoves();
+            AllMoves allMoves = GetAllMoves(player);
+
+            AllMoves queenMoves = new AllMoves();
+            AllMoves hitMoves = new AllMoves();
+            AllMoves pawnMoves = new AllMoves();
+            AllMoves figuresInCenter = new AllMoves();
+            AllMoves elseMoves = new AllMoves();
+
+            for (int i = 0; i < allMoves.PossibleMoves.Count; i++)
+            {
+                (int, int) lastCord = allMoves.PossibleMoves[i].OneMove.Last();
+                (int, int) firstCord = allMoves.PossibleMoves[i].OneMove.First();
+
+                if (AllCells[lastCord.Item1, lastCord.Item2].Figure != null)
+                {
+                    hitMoves.PossibleMoves.Add(allMoves.PossibleMoves[i]);
+                }
+                else if (_centralCell.Contains(lastCord))
+                {
+                    figuresInCenter.PossibleMoves.Add(allMoves.PossibleMoves[i]);
+                }
+                else if (AllCells[firstCord.Item1, firstCord.Item2].Figure is Pawn)
+                {
+                    pawnMoves.PossibleMoves.Add(allMoves.PossibleMoves[i]);
+                }
+                else if (AllCells[firstCord.Item1, firstCord.Item2].Figure is Queen)
+                {
+                    queenMoves.PossibleMoves.Add(allMoves.PossibleMoves[i]);
+                }
+                else
+                {
+                    elseMoves.PossibleMoves.Add(allMoves.PossibleMoves[i]);
+                }
+            }
+
+            res.PossibleMoves.AddRange(hitMoves.PossibleMoves);
+            res.PossibleMoves.AddRange(figuresInCenter.PossibleMoves);
+            res.PossibleMoves.AddRange(queenMoves.PossibleMoves);
+            res.PossibleMoves.AddRange(pawnMoves.PossibleMoves);
+            res.PossibleMoves.AddRange(elseMoves.PossibleMoves);
+
+            return res;
+        }
+        public double GetScoreForExodusVersionTwo(Player tempPlayer,
+        Player startPlayer, int amountOfMoves)
+        {
+            if (amountOfMoves == 0)
+            {
+                if (tempPlayer == startPlayer)
+                {
+                    (int, int) kingCord = GetKingsCord(startPlayer);
+                    if (IfKingCanBeHit(startPlayer, kingCord))
+                    {
+                        return _valueForLostMate;
+                    }
+                    return GetMaterialScoreForFigures(startPlayer);
+                }
+                else
+                {
+                    (int, int) kingCord = GetKingsCord(tempPlayer);
+                    if (IfKingCanBeHit(tempPlayer, kingCord))
+                    {
+                        return _valueForWonMate;
+                    }
+                    return GetMaterialScoreForFigures(tempPlayer);
+                }
+            }
+            return (GetScoreForField(startPlayer) + (startPlayer == tempPlayer ? _scoreForMovedKing : -_scoreForMovedKing));
+        }
+        public double GetMaterialScoreForFigures(Player player)
+        {
+            double matScore = 0;
+
+            for (int i = 0; i < AllCells.GetLength(0); i++)
+            {
+                for (int j = 0; j < AllCells.GetLength(1); j++)
+                {
+                    if (AllCells[i, j].Figure != null)
+                    {
+                        if (AllCells[i, j].Figure.FigureColor == player.Color)
+                        {
+                            matScore += AllCells[i, j].Figure.GetScoreForFigure();
+                        }
+                        else
+                        {
+                            matScore -= AllCells[i, j].Figure.GetScoreForFigure();
+                        }
+                    }
+                }
+            }
+            return matScore;
+        }
+        public double GetScoreForField(Player startPlayer)
+        {
+            double resScore = 0;
+            Player enemy = GetAnoutherPlayer(startPlayer);
+            for (int i = 0; i < AllCells.GetLength(0); i++)
+            {
+                for (int j = 0; j < AllCells.GetLength(1); j++)
+                {
+                    if (AllCells[i, j].Figure != null)
+                    {
+                        if (AllCells[i, j].Figure.FigureColor == startPlayer.Color)
+                        {
+                            resScore += AllCells[i, j].Figure.GetScoreForFigure();
+                            resScore += AllCells[i, j].Figure.GetScoreForFigPositionOnBoard((i, j));
+
+                        }
+                        else
+                        {
+                            resScore -= AllCells[i, j].Figure.GetScoreForFigure();
+                            resScore -= AllCells[i, j].Figure.GetScoreForFigPositionOnBoard((i, j));
+
+                        }
+                    }
+                }
+            }
+            return Math.Round(resScore, 3);
+        }
+        public AllMoves GetUniqueHitMovesFromOtherMoves(
+            AllMoves tempAllMoves, AllMoves toCompare)
+        {
+            AllMoves res = new AllMoves();
+
+            for (int i = 0; i < tempAllMoves.PossibleMoves.Count; i++)
+            {
+                (int, int) toStepOn = tempAllMoves.PossibleMoves[i].OneMove.Last();
+                bool isUnique = false;
+                if (AllCells[toStepOn.Item1, toStepOn.Item2].Figure != null)
+                {
+                    for (int j = 0; j < toCompare.PossibleMoves.Count; j++)
+                    {
+                        if (tempAllMoves.PossibleMoves[i].Equals(toCompare.PossibleMoves[j]))
+                        {
+                            isUnique = true;
+                            break;
+                        }
+                    }
+                    if (!isUnique)
+                    {
+                        res.PossibleMoves.Add(tempAllMoves.PossibleMoves[i]);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return res;
+        }
+        public AllMoves GetHitMovesVersionTwo(Player player) 
+        {
+            AllMoves legalMoves = new AllMoves();
+
+            for (int i = 0; i < AllCells.GetLength(0); i++)
+            {
+                for (int j = 0; j < AllCells.GetLength(1); j++)
+                {
+                    if (IfChipIsPlayers(player, (i, j)))
+                    {
+                        legalMoves.PossibleMoves.AddRange(AllCells[i, j].Figure.GetHitMoves(this, player, (i, j)).PossibleMoves);
+                    }
+                }
+            }
+
+            KingRays rays = new KingRays();
+            rays.GetKingsRayses(this, player);
+
+            AllMoves res = new AllMoves();
+
+            for (int i = 0; i < legalMoves.PossibleMoves.Count; i++)
+            {
+                (int, int) first = legalMoves.PossibleMoves[i].OneMove.First();
+                (int, int) last = legalMoves.PossibleMoves[i].OneMove.Last();
+
+                if (rays.FigsThatHitsKing.Count == 1 &&
+                    !rays.FigsThatProtectsKing.Contains(first) &&
+                    rays.FigsThatHitsKing.Contains(last))
+                {
+                    res.PossibleMoves.Add(legalMoves.PossibleMoves[i]);
+                }
+                else
+                {
+                    for (int j = 0; j < rays.AllRays.Count; j++)
+                    {
+                        if (rays.AllRays[j].Contains(first) &&
+                            rays.AllRays[j].Contains(last))
+                        {
+                            res.PossibleMoves.Add(legalMoves.PossibleMoves[i]);
+                            break;
+                        }
+                        else if (rays.FigsThatHitsKing.Count == 0 &&
+                                !rays.FigsThatProtectsKing.Contains(first) &&
+                                !rays.FigsThatHitsKing.Contains(last))
+                        {
+                            res.PossibleMoves.Add(legalMoves.PossibleMoves[i]);
+                            break;
+                        }
+                    }
+                }
+
+            }
+            return res;
+        }
+        public AllMoves GetHitMoves(AllMoves moves)
+        {
+            AllMoves res = new AllMoves();
+            res.PossibleMoves = moves.PossibleMoves.Where(u => AllCells[u.OneMove.Last().Item1,
+                u.OneMove.Last().Item2].Figure != null).ToList();
+            return res;
         }
     }
 }

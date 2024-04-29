@@ -87,6 +87,7 @@ namespace ChessDiploma.Windows
         public FieldFrom(Game game, ReplayOrGame type)
         {
             _formType = type;
+            
             InitGameParams();
         }
         public FieldFrom()
@@ -619,7 +620,11 @@ namespace ChessDiploma.Windows
         }
         public void ReassignMove(Move move)
         {
-            //Move reassigned in logic 
+            //Move reassigned in logic
+
+            Data._game.AssignTimeOnTimerInMove(move);
+            Data._game.InitCastlingType(move);
+
             Image toFill = null;
             for (int i = 0; i < move.OneMove.Count; i++)
             {
@@ -880,6 +885,8 @@ namespace ChessDiploma.Windows
             GivePurumsToInGameMenuButtons(giveUp, "Give up",
                 new Size(_inGameMenu.Width, _fieldCellSize.Item1),
                 new Point(0, last.Location.Y + last.Size.Height));
+            giveUp.Click += Givup_Click;
+
 
             last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
             Label movesHist = new Label();
@@ -911,9 +918,18 @@ namespace ChessDiploma.Windows
             movesList.FlowDirection = FlowDirection.TopDown;
             checkPanel.Controls.Add(movesList);
 
-
         }
-        public void AddMoveToMoveHist(string move)
+        private void Givup_Click(object sender, EventArgs e)
+        {
+            Player winer = Data._game.GetAnoutherPlayer();
+            
+
+            MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
+
+            Data.InitGamesEndDate();
+            Data.InitGameInDB();
+        }
+/*        public void AddMoveToMoveHist(string move)
         {
             Label newMove = new Label();
             newMove.AutoSize = false;
@@ -926,7 +942,7 @@ namespace ChessDiploma.Windows
             {
                 _inGameMenu.Controls[panelHistIndex].Controls.Add(newMove);
             }
-        }
+        }*/
         public int GetMoveHistoryPanelIndex()
         {
             for (int i = 0; i < _inGameMenu.Controls.Count; i++)

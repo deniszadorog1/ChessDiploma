@@ -46,7 +46,7 @@ namespace ChessLib.PlayerModels
             Password = "";
             Email = "";
             DateBirth = new DateTime();
-            _gameTimer = new System.Timers.Timer();
+            InitTimer();
         }
         public User(string email, string login, string password, DateTime birth)
         {
@@ -54,6 +54,7 @@ namespace ChessLib.PlayerModels
             Password = password;
             Email = email;
             DateBirth = birth;
+            InitTimer();
         }
         public void InitTimer()
         {
@@ -103,6 +104,10 @@ namespace ChessLib.PlayerModels
                 }
                 throw new ArgumentException("Incorretc property name!");
             }
+        }
+        public int GetCurrnetTimeOnTimer()
+        {
+            return _currentTime;
         }
     }
 }

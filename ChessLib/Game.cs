@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Reflection;
 
 using ChessLib.FieldModels;
 using ChessLib.PlayerModels;
@@ -12,7 +13,7 @@ using ChessLib.Figures;
 using ChessLib.Enums.Players;
 using ChessLib.Enums.Figures;
 using ChessLib.Enums.Game;
-using System.Reflection;
+using ChessLib.Enums.Field;
 
 namespace ChessLib
 {
@@ -36,8 +37,8 @@ namespace ChessLib
         private int _chosenEqualMovesToCheckForDraw = 4;
         private int _drawByMovesWithOutHitting = 50;
 
-
-
+        private const int _dotsInUsualMove = 2;
+        private const int _dotsInCastlingMove = 4;
 
         public Game(Player firstPlayer, Player secondPlayer, DateTime start, DateTime end, GameResult exodus)
         {
@@ -97,7 +98,14 @@ namespace ChessLib
         }
         public AllMoves GetMovesForFigure((int, int) figCord)
         {
-            return AllField.GetMovesForFigure(figCord, _steper);
+            AllMoves moves = AllField.GetMovesForFigure(figCord, _steper);
+
+            for (int i = 0; i < moves.PossibleMoves.Count; i++)
+            {
+                moves.PossibleMoves[i].ChangeSteperColor(_steper.Color);
+            }
+
+            return moves;
         }
         public void ReassignMove(Move move)
         {
@@ -116,7 +124,7 @@ namespace ChessLib
         {
             Player player = Players.Find(x => x.Color == PlayerColor.White);
 
-            if(!(player is null) && player is User)
+            if (!(player is null) && player is User)
             {
                 ((User)player)._gameTimer.Start();
             }
@@ -231,12 +239,12 @@ namespace ChessLib
         }
         public void InitTime(int time)
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
                 {
-                    ((User)Players[i]).startTime = time ;
-                    ((User)Players[i])._currentTime = time ;
+                    ((User)Players[i]).startTime = time;
+                    ((User)Players[i])._currentTime = time;
                 }
             }
         }
@@ -246,7 +254,7 @@ namespace ChessLib
         }
         public void InitTimers()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
                 {
@@ -261,6 +269,57 @@ namespace ChessLib
         public void InitSteper()
         {
             _steper = Players.Find(x => x.Color == PlayerColor.White);
+        }
+
+        public void StepperPushedGIveupButton()
+        {
+            //Init game into db
+            //init movesInto DB
+        }
+        public Player GetAnoutherPlayer()
+        {
+            return Players.Find(x => x.Login != _steper.Login);
+        }
+
+        public void UpdetePlayersWhenSteperGaveUp()
+        {
+            for (int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    if (Players[i].Login == _steper.Login)
+                    {
+                        ((User)_steper).Losts++;
+                    }
+                    else //winner
+                    {
+                        ((User)Players[i]).Wons++;
+                    }
+                }
+            }
+        }
+        public void AssignTimeOnTimerInMove(Move move)
+        {
+            if (_steper is User)
+            {
+                move.AssignTime(((User)_steper).GetCurrnetTimeOnTimer());
+            }
+        }
+        public void InitCastlingType(Move move)
+        {
+            if (move.OneMove.Count == _dotsInUsualMove) return;
+
+            if (move.OneMove[0].Item2 - move.OneMove[2].Item2 != -3) move.InitCastling(CastlingType.Long); 
+            else move.InitCastling(CastlingType.Short);
+        }
+
+        public Move GetMoveForBot()
+        {
+            Move res = new Move();
+
+            ((Bot)_steper).GetMove(AllField, _steper, null, 0);
+
+            return res;
         }
     }
 }

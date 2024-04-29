@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using ChessLib.Enums.Figures;
 using ChessLib.Figures;
+using ChessLib.Enums.Players;
+using ChessLib.Enums.Field;
 
 namespace ChessLib.Other
 {
@@ -17,8 +19,12 @@ namespace ChessLib.Other
         public (int, int)? HitCellCordForBeatingOnThePass { get; set; }
         public Figure HitFigure { get; set; }
 
-        private List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
 
+        private List<char> _lettersToSave = new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+        private int _timerOnMove = -1;
+        private PlayerColor _playersColor;
+        private CastlingType? _castling = null; 
+ 
         public Move(List<(int, int)> oneMove, int[] arr, Figure hitFigure)
         {
             OneMove = oneMove;
@@ -71,6 +77,30 @@ namespace ChessLib.Other
         public char GetConvertedChar(int number)
         {
             return _lettersToSave[number];
+        }
+        public PlayerColor GetPlayerColor()
+        {
+            return _playersColor;
+        }
+        public int GetTimeOnTimer()
+        {
+            return _timerOnMove;
+        }
+        public CastlingType? GetCastlingType()
+        {
+            return _castling;
+        }
+        public void ChangeSteperColor(PlayerColor color)
+        {
+            _playersColor = color;
+        }
+        public void AssignTime(int time)
+        {
+            _timerOnMove = time;
+        }
+        public void InitCastling(CastlingType castling)
+        {
+            _castling = castling;
         }
     }
 }
