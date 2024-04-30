@@ -92,6 +92,12 @@
     <Compile Include="Windows\UserMenuWindows\ShowUserParamsWindows\ShowUserParams.Designer.cs">
       <DependentUpon>ShowUserParams.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\UserMenuWindows\UserCorrection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\UserCorrection.Designer.cs">
+      <DependentUpon>UserCorrection.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\UserMenuWindows\UserMenu.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -127,6 +133,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\UserMenuWindows\ShowUserParamsWindows\ShowUserParams.resx">
       <DependentUpon>ShowUserParams.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\UserMenuWindows\UserCorrection.resx">
+      <DependentUpon>UserCorrection.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\UserMenuWindows\UserMenu.resx">
       <DependentUpon>UserMenu.cs</DependentUpon>

@@ -104,7 +104,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
                 MessageBox.Show("Somthing went wrong!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            MessageBox.Show("Game can be started!", "Success");
+            //MessageBox.Show("Game can be started!", "Success");
 
             InitColorToPlayer();
             Player enemy = GetEnemyToPlay();

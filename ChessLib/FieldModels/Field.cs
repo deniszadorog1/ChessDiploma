@@ -20,6 +20,7 @@ namespace ChessLib.FieldModels
 
         private List<Move> _movesHistory = new List<Move>();
         private List<Figure> _movedFigsInHistory = new List<Figure>();
+        private int _moveIndexForReplay = -1;
 
         private const int _fieldHeight = 8;
         private const int _fieldWidth = 8;
@@ -598,16 +599,15 @@ namespace ChessLib.FieldModels
         {
             return GetAllMoves(GetAnoutherPlayer(player)).PossibleMoves.Count == 0;
         }
-        public void DeclineMove()
+        public void DeclineMove(Move move)
         {
-            Move lastMove = _movesHistory.Last();
             //If its castling move
-            if (lastMove.OneMove.Count > 2)
+            if (move.OneMove.Count > 2)
             {
-                (int, int) kingStartPos = lastMove.OneMove[0];
-                (int, int) rookStartPos = lastMove.OneMove[2];
-                Move backMove = new Move(new List<(int, int)> { lastMove.OneMove[1],
-                    lastMove.OneMove[0], lastMove.OneMove[3], lastMove.OneMove[2] });
+                (int, int) kingStartPos = move.OneMove[0];
+                (int, int) rookStartPos = move.OneMove[2];
+                Move backMove = new Move(new List<(int, int)> { move.OneMove[1],
+                    move.OneMove[0], move.OneMove[3], move.OneMove[2] });
                 ReassignMove(backMove);
 
                 ((King)AllCells[kingStartPos.Item1, kingStartPos.Item2].Figure).IfFirstMoveMaken = false;
@@ -616,11 +616,11 @@ namespace ChessLib.FieldModels
                 return;
             }
             /////
-            (int, int) from = lastMove.OneMove.First();
-            (int, int) to = lastMove.OneMove.Last();
+            (int, int) from = move.OneMove.First();
+            (int, int) to = move.OneMove.Last();
             
             //if figure was converted
-            if(!(lastMove.ConvertFigure is null))
+            if(!(move.ConvertFigure is null))
             {
                 Figure convertFig = AllCells[to.Item1, to.Item2].Figure;
                 AllCells[to.Item1, to.Item2].Figure = new Pawn(convertFig.FigureColor,
@@ -633,9 +633,9 @@ namespace ChessLib.FieldModels
             AllCells[to.Item1, to.Item2].Figure = null;
 
             //if figure hit another figure
-            if(!(lastMove.HitFigure is null))
+            if(!(move.HitFigure is null))
             {
-                AllCells[to.Item1, to.Item2].Figure = lastMove.HitFigure.GetCopy();
+                AllCells[to.Item1, to.Item2].Figure = move.HitFigure.GetCopy();
             }
         }
         
@@ -649,6 +649,7 @@ namespace ChessLib.FieldModels
             (int, int) figToMove = move.OneMove.First();
             _movedFigsInHistory.Add(AllCells[figToMove.Item1, figToMove.Item2].Figure.GetCopy());
         }
+        
         public void DeleteMovedFigure()
         {
             _movedFigsInHistory.RemoveAt(_movedFigsInHistory.Count - 1);
@@ -892,5 +893,91 @@ namespace ChessLib.FieldModels
                 u.OneMove.Last().Item2].Figure != null).ToList();
             return res;
         }
+        public int GetMoveIndexForReplay()
+        {
+            return _moveIndexForReplay;
+        }
+        public void NextMoveForReplay()
+        {
+            _moveIndexForReplay++;
+        }
+        public void PreviousMoveForReplay()
+        {
+            _moveIndexForReplay--;
+        }
+        public bool IfCanGetNextMove()
+        {
+            return _moveIndexForReplay + 1 < _movesHistory.Count ;
+        }
+        public bool IfCanGetPreviousMove()
+        {
+            return _moveIndexForReplay >= 0;
+        }
+        public Move GetMoveForReplay()
+        {
+            return _movesHistory[_moveIndexForReplay];
+        }
+        public Move GetMoveFromHistory(int index)
+        {
+            return _movesHistory[index];
+        }
+        public void AddMovesFigureInReplayMode(Move move, int moveIndex)
+        {
+            if (_movedFigsInHistory.Count <= moveIndex)
+            {
+
+                (int, int) figToMove = move.OneMove.First();
+                _movedFigsInHistory.Add(AllCells[figToMove.Item1, figToMove.Item2].Figure.GetCopy());
+            }
+        }
+
+        private const int _moveToDrawByEqualMoves = 6;
+        public bool CheckForDrawByThreeEqualMoves()
+        {
+            List<Move> moves = new List<Move>(); 
+            for(int i = _movesHistory.Count - 1; i >= 0; i--)
+            {
+                if (i == _moveToDrawByEqualMoves) break;
+                moves.Add(_movesHistory[i]);
+            }
+
+            //take last 6 moves
+            //check by % 2 if first(or zero are equal)
+            Move first = null;
+            Move second = null;
+            for(int i = 0; i < moves.Count; i++)
+            {
+                if (i == 0)
+                {
+                    first = moves[i];
+                }
+                else if (i == 1)
+                {
+                    second = moves[i];
+                }
+                else if (i % 2 == 0 && !first.IfMovesAreEqualByHistory(moves[i])) return false;
+                else if (!second.IfMovesAreEqualByHistory(moves[i])) return false;//(i % 2 != 0)
+            }
+            return true;
+        }
+        private const int _movesWithoutHotCounter = 50;
+        public bool CheckForMovesWithoutHit()
+        {
+            int moveCounter = 0;
+            for(int i = _movesHistory.Count - 1; i >= 0; i--)
+            {
+                if (_movesHistory[i].HitFigure != null)
+                {
+                    return false;
+                }
+                if(moveCounter == _movesWithoutHotCounter)
+                {
+                    return true;
+                }
+                moveCounter++;
+            }
+            return false;
+        }
+
     }
 }

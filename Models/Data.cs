@@ -41,7 +41,7 @@ namespace ChessDiploma.Models
                 game.Players[1]
             };
             _game.AllField = new ChessLib.FieldModels.Field(_game.Players);
-            _game.InitTime(game.GetTime());
+            //_game.InitTime(game.GetTime());
             _game.InitSteper();
             _game.InitMoveHistory(moves);
 

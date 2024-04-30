@@ -1002,7 +1002,7 @@ namespace ChessDiploma.Models
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@value", value);
 
-                int res = (int)command.ExecuteScalar();
+                int res = Convert.ToInt32(command.ExecuteScalar());
 
                 connection.Close();
                 return res;
@@ -1047,11 +1047,11 @@ namespace ChessDiploma.Models
                 int res = (int)command.ExecuteScalar();
                 connection.Close();
                 return res;
-            }
-            
-        }
-        
 
+            }
+
+
+        }
         private static int GetResultId(GameResult result)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -1069,8 +1069,6 @@ namespace ChessDiploma.Models
                 return res;
             }
         }
-
-
         private static HitFigureParams GetHitFigureParams(int moveId, int gameId)
         {
             HitFigureParams res = new HitFigureParams();
@@ -1159,6 +1157,38 @@ namespace ChessDiploma.Models
                 return ((Rook)figure).IfFirstMoveMaken ? 1 : 0;
             }
             return null;
+        }
+
+        public static void UpdateUser(string email, string login, string passwrod, User user)
+        {
+            using(SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "UPDATE [Players] SET [Login] = @login, [Password] = @password, [Email] = @email, [DateBirth] = @date " +
+                    "WHERE [Login] = @compLogin AND [Password] = @compPassword AND [Email] = @compEmail";
+
+                SqlCommand command = new SqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("login", user.Login);
+                command.Parameters.AddWithValue("password", user.Password);
+                command.Parameters.AddWithValue("email", user.Email);
+                command.Parameters.AddWithValue("date", user.DateBirth);
+
+                command.Parameters.AddWithValue("compLogin", login);
+                command.Parameters.AddWithValue("compPassword", passwrod);
+                command.Parameters.AddWithValue("compEmail", email);
+
+
+                command.ExecuteNonQuery();
+
+                //string query = "UPDATE [PlayerRating] SET [GameAmount] = @gameAmount, [Wons] = @wons," +
+                //    " [Losts] = @losts, [Draws] = @draws WHERE [UserId] = @id";
+
+
+                connection.Close();
+            }
+
         }
 
     }

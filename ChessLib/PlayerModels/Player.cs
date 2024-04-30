@@ -45,6 +45,17 @@ namespace ChessLib.PlayerModels
                 ("queen", 0),
             };
         }
+        public void ClearHitList()
+        {
+            HitFigures = new List<(string name, int amount)>()
+            {
+                ("pawn", 0),
+                ("rook", 0),
+                ("horse", 0),
+                ("bishop", 0),
+                ("queen", 0),
+            };
+        }
 
 
 

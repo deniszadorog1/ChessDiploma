@@ -27,7 +27,6 @@ namespace ChessLib
 
         public Player _steper;
 
-        private int _timeInSeconds = 0;
         private int _time;
 
         private int _movesCounter = 0;
@@ -179,15 +178,20 @@ namespace ChessLib
         }
         public void AddHitFigure(Figure hitFigure, int updater)
         {
-            _steper.UpdateHitFigures(hitFigure, updater);
+            GetPlayerThatHitFigure(hitFigure).UpdateHitFigures(hitFigure, updater);
+            //_steper.UpdateHitFigures(hitFigure, updater);
+        }
+        public Player GetPlayerThatHitFigure(Figure figure)
+        {
+            return Players.Find(x => x.Color != figure.FigureColor);
         }
         public int GetAmountOfHitFigureList()
         {
             return _steper.HitFigures.Count;
         }
-        public (string name, int amount) GetPlayerHitFigure(int hitIndex)
+        public (string name, int amount) GetPlayerHitFigure(int hitIndex, Player player)
         {
-            return _steper.HitFigures[hitIndex];
+            return player.HitFigures[hitIndex];
         }
         public PlayerColor GetPlayerColor()
         {
@@ -217,9 +221,9 @@ namespace ChessLib
         {
             AllField.DeleteLastMoveInHistory();
         }
-        public void DeclineLastMove()
+        public void DeclineMove(Move move)
         {
-            AllField.DeclineMove();
+            AllField.DeclineMove(move);
         }
         public PlayerColor GetFigureColor((int, int) cord)
         {
@@ -331,5 +335,81 @@ namespace ChessLib
 
             return res;
         }
+        public int GetMoveIndexForReplay()
+        {
+            return AllField.GetMoveIndexForReplay();
+        }
+        public void NextMoveForReplay()
+        {
+            AllField.NextMoveForReplay();
+        }
+        public void PreviousMoveForReplay()
+        {
+            AllField.PreviousMoveForReplay();
+        }
+        public bool IfCanGetNextMove()
+        {
+            return AllField.IfCanGetNextMove();
+        }
+        public bool IfCanGetPreviousMove()
+        {
+            return AllField.IfCanGetPreviousMove();
+        }
+        public Move GetMoveForReplay()
+        {
+            return AllField.GetMoveForReplay();
+        }
+        public Move GetMoveFromHistory(int index)
+        {
+            return AllField.GetMoveFromHistory(index);
+        }
+        public void AddMovedFigureInDisplayMode(Move move, int moveIndex)
+        {
+            AllField.AddMovesFigureInReplayMode(move, moveIndex);
+        }
+        public void GameEndedByDraw()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    ((User)Players[i]).Draws++;
+                }
+            }
+        }
+        public void StepperWonTheGame()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (Players[i] is User)
+                {
+                    if (Players[i].Login == _steper.Login)
+                    {
+                        ((User)Players[i]).Wons++;
+                    }
+                    else
+                    {
+                        ((User)Players[i]).Losts++;
+                    }
+                }
+            }
+        }
+        public void ClearPlayersHitLists()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                Players[i].ClearHitList();
+            }
+        }
+
+        public bool CheckForDrawByEqualMoves()
+        {
+            return false;
+        }
+        public bool IfItsDrawByMovesWithoutHitting()
+        {
+            return false;
+        }
+
     }
 }

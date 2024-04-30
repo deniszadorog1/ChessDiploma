@@ -279,6 +279,7 @@
             this.CorrectAccount.TabIndex = 2;
             this.CorrectAccount.Text = "Correct Account";
             this.CorrectAccount.UseVisualStyleBackColor = true;
+            this.CorrectAccount.Click += new System.EventHandler(this.CorrectAccount_Click);
             // 
             // Exit
             // 

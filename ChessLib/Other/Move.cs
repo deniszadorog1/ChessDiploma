@@ -122,5 +122,20 @@ namespace ChessLib.Other
                 OneMove = new List<(int, int)>() { (7, 4), (7, 2), (7, 0), (7, 3) };
             }
         }
+        public bool IfMoveContainsTime()
+        {
+            return _timerOnMove != -1;
+        }
+
+        public bool IfMovesAreEqualByHistory(Move toCompare)
+        {
+            if (OneMove.Count != toCompare.OneMove.Count) return false;
+
+            for(int i = 0; i < OneMove.Count; i++)
+            {
+                if (OneMove[i] != toCompare.OneMove[i]) return false;  
+            }
+            return true;
+        }
     }
 }
