@@ -18,5 +18,9 @@ namespace ChessLib.Other
         {
             PossibleMoves = new List<Move>();
         }
+        public AllMoves(List<Move> possibleMoves)
+        {
+            PossibleMoves = possibleMoves;
+        }
     }
 }

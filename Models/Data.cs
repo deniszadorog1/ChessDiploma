@@ -25,7 +25,7 @@ namespace ChessDiploma.Models
             };
             _game.AllField = new ChessLib.FieldModels.Field(_game.Players);
             //_game.InitTimers();
-            _game.InitTime(time * 60);
+            _game.InitTime(time == -1 ? -1 : time * 60);
             _game.InitSteper();
 
         }
@@ -64,6 +64,16 @@ namespace ChessDiploma.Models
         {
             _game.UpdetePlayersWhenSteperGaveUp();
             for(int i = 0; i < _game.Players.Count; i++)
+            {
+                if (_game.Players[i] is User)
+                {
+                    DbUsage.UpdateUsersResults((User)_game.Players[i]);
+                }
+            }
+        }
+        public static void UpdatePlayersInDB()
+        {
+            for (int i = 0; i < _game.Players.Count; i++)
             {
                 if (_game.Players[i] is User)
                 {

@@ -101,7 +101,7 @@ namespace ChessLib.PlayerModels
                     }
                     return;
                 }
-                throw new ArgumentException("Incorretc property name!");
+                throw new ArgumentException("Incorretct property name!");
             }
         }
         public int GetCurrnetTimeOnTimer()

@@ -28,7 +28,6 @@ namespace ChessDiploma.Windows.UserMenuWindows
             FillMainParamsPanel();
             FillOtherParamsPanel();
         }
-        
         public void FillMainParamsPanel()
         {
             LoginLB.Text = _user.Login;
@@ -54,6 +53,9 @@ namespace ChessDiploma.Windows.UserMenuWindows
             PlayGameParams playGame = new PlayGameParams(_user, _allUsers);
             playGame.ShowDialog();
             Show();
+
+            FillMainParamsPanel();
+            FillOtherParamsPanel();
         }
         private void SeeAllPlayers_Click(object sender, EventArgs e)
         {
@@ -69,9 +71,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             ShowGames gameReplay = new ShowGames();
             gameReplay.ShowDialog();
             Show();
-                
         }
-
         private void CorrectAccount_Click(object sender, EventArgs e)
         {
             User copy = new User(_user.Email, _user.Login, _user.Password, _user.DateBirth);
@@ -83,6 +83,17 @@ namespace ChessDiploma.Windows.UserMenuWindows
 
             LoginLB.Text = _user.Login;
             EmailLb.Text = _user.Email;
+        }
+        private void SendStat_Click(object sender, EventArgs e)
+        {
+            EmailSender emailSender = new EmailSender(_user);
+            bool check = emailSender.SendMessage();
+
+            if (!check)
+            {
+                MessageBox.Show("cant send email");
+            }
+            else MessageBox.Show("sent!");
 
         }
     }

@@ -88,14 +88,45 @@ namespace ChessDiploma.Models
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
                         string colName = reader.GetName(i);
-                        if (colName != "Id") newUser[colName] = reader[i];
+                        if (colName != "Id")
+                        {
+                            newUser[colName] = reader[i];
+                        }
+                        else
+                        {
+                            InitResParamsFormPlayer(int.Parse(reader[i].ToString()), newUser);
+                        }
                     }
                     users.Add(newUser);
+                }
+                connection.Close();
+            }
+            return users;
+        }
+
+        private static void InitResParamsFormPlayer(int id, User player)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM [PlayerRating] WHERE [UserId] = @id";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@id", id);
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    player["Draws"] = int.Parse(reader["Draws"].ToString());
+                    player["Wons"] = int.Parse(reader["Wons"].ToString());
+                    player["Losts"] = int.Parse(reader["Losts"].ToString());
+                    player["Rating"] = int.Parse(reader["Rating"].ToString());
                 }
 
                 connection.Close();
             }
-            return users;
         }
 
         public static void InsertGame(Game game)
@@ -272,7 +303,7 @@ namespace ChessDiploma.Models
                             {
                                 exodus = GetGameResult((int)reader[i]);
                             }
-                            else if(colName == "Time")
+                            else if (colName == "Time")
                             {
                                 time = reader[i] == DBNull.Value ? -1 : (int)reader[i];
                             }
@@ -555,7 +586,7 @@ namespace ChessDiploma.Models
 
                 command.ExecuteNonQuery();
 
-                if(!(hitFigId is null))
+                if (!(hitFigId is null))
                 {
                     InsertHitFigureParmas(move.HitFigure, GetLastMoveId(), gameId);
                 }
@@ -564,7 +595,7 @@ namespace ChessDiploma.Models
         }
         private static int GetLastMoveId()
         {
-            using(SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 
@@ -779,7 +810,7 @@ namespace ChessDiploma.Models
 
                         move.OneMove = oneMove;
                     }
-                    
+
                     //Get player Color
                     move.ChangeSteperColor(GetPlaeyrColorById((int)reader["PlayerColor"]));
 
@@ -800,7 +831,7 @@ namespace ChessDiploma.Models
                     if (reader["CastlingId"] != DBNull.Value)
                     {
                         move.InitCastling(GetCastlingType((int)reader["CastlingId"]));
-                        move.InitMoveInCastling((CastlingType)move.GetCastlingType(), 
+                        move.InitMoveInCastling((CastlingType)move.GetCastlingType(),
                             GetPlayerSide(game.Players, move.GetPlayerColor()));
                     }
 
@@ -819,7 +850,7 @@ namespace ChessDiploma.Models
 
         private static PlayerSide GetPlayerSide(List<Player> players, PlayerColor color)
         {
-            for(int i = 0; i < players.Count; i++)
+            for (int i = 0; i < players.Count; i++)
             {
                 if (players[i].Color == color)
                 {
@@ -861,7 +892,7 @@ namespace ChessDiploma.Models
             }
             else if (figType == "Horse")
             {
-                return new Horse(hitFigParams.FigColor, hitFigParams.FigureId, 
+                return new Horse(hitFigParams.FigColor, hitFigParams.FigureId,
                     hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
             else if (figType == "Bishop")
@@ -874,7 +905,7 @@ namespace ChessDiploma.Models
                 return new Queen(hitFigParams.FigColor, hitFigParams.FigureId,
                     hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
-            return null; 
+            return null;
         }
         private static ConvertPawn GetFigureTypeById(int id)
         {
@@ -1012,7 +1043,7 @@ namespace ChessDiploma.Models
         {
             List<Game> games = GetAllGames();
 
-            for(int i = 0; i < games.Count; i++)
+            for (int i = 0; i < games.Count; i++)
             {
                 if (games[i].Players[0].Login == game.Players[0].Login &&
                     games[i].Players[1].Login == game.Players[1].Login &&
@@ -1113,7 +1144,7 @@ namespace ChessDiploma.Models
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                
+
 
                 string query = "INSERT INTO [HitFigureParams]([MoveId], [GameId], [FigureColor], [IfFirstMoveMaken], " +
                     "[CordX], [CordY], [OwnerSide], [FigureId]) " +
@@ -1121,7 +1152,7 @@ namespace ChessDiploma.Models
                 SqlCommand command = new SqlCommand(query, connection);
 
                 int colorId = GetPlayerColorId(figure.FigureColor);
-                
+
                 int xCord = GetXIDByValue(figure.FigureCord.Item2);
                 int yCord = GetYIDByValue(figure.FigureCord.Item1);
 
@@ -1161,7 +1192,7 @@ namespace ChessDiploma.Models
 
         public static void UpdateUser(string email, string login, string passwrod, User user)
         {
-            using(SqlConnection connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
 

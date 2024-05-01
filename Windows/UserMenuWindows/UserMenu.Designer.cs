@@ -50,6 +50,7 @@
             this.SeeAllGames = new System.Windows.Forms.Button();
             this.CorrectAccount = new System.Windows.Forms.Button();
             this.Exit = new System.Windows.Forms.Button();
+            this.SendStat = new System.Windows.Forms.Button();
             this.MainParams.SuspendLayout();
             this.OtherParams.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -231,6 +232,7 @@
             this.MainMenu.Controls.Add(this.SeeAllPlayers);
             this.MainMenu.Controls.Add(this.SeeAllGames);
             this.MainMenu.Controls.Add(this.CorrectAccount);
+            this.MainMenu.Controls.Add(this.SendStat);
             this.MainMenu.Controls.Add(this.Exit);
             this.MainMenu.Location = new System.Drawing.Point(560, 12);
             this.MainMenu.Name = "MainMenu";
@@ -284,13 +286,24 @@
             // Exit
             // 
             this.Exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Exit.Location = new System.Drawing.Point(3, 267);
+            this.Exit.Location = new System.Drawing.Point(3, 333);
             this.Exit.Name = "Exit";
             this.Exit.Size = new System.Drawing.Size(199, 60);
             this.Exit.TabIndex = 3;
             this.Exit.Text = "Exit";
             this.Exit.UseVisualStyleBackColor = true;
             this.Exit.Click += new System.EventHandler(this.Exit_Click);
+            // 
+            // SendStat
+            // 
+            this.SendStat.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.SendStat.Location = new System.Drawing.Point(3, 267);
+            this.SendStat.Name = "SendStat";
+            this.SendStat.Size = new System.Drawing.Size(199, 60);
+            this.SendStat.TabIndex = 5;
+            this.SendStat.Text = "Send statistic to email ";
+            this.SendStat.UseVisualStyleBackColor = true;
+            this.SendStat.Click += new System.EventHandler(this.SendStat_Click);
             // 
             // UserMenu
             // 
@@ -335,5 +348,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button SeeAllGames;
+        private System.Windows.Forms.Button SendStat;
     }
 }

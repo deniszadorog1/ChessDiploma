@@ -149,6 +149,7 @@ namespace ChessDiploma
         {
             CreateAccount create = new CreateAccount(_users);
             create.ShowDialog();
+            _users = DbUsage.GetAllUsers();
         }
 
         public void InitParamsForButtonsInLoginPanel(Button but, string text)

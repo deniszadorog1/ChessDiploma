@@ -93,6 +93,10 @@ namespace ChessLib.FieldModels
         private Figure _movedFigureForDecline = null;
         private double _scoreForMovedKing = 0.01;
 
+        private const int _movesWithoutHotCounter = 50;
+        private const int _moveToTakeToCheckForEqaulDraw = 12;
+        private const int _moveToDrawByEqualMoves = 3;
+
         public Field(List<Player> players)
         {
             _players = players;
@@ -247,11 +251,6 @@ namespace ChessLib.FieldModels
                 {
                     AllCells[move.OneMove[i].Item1, move.OneMove[i].Item2].Figure = toReassign.GetCopy();
                 }
-
-
-                /*                AllCells[move.OneMove[i + 1].Item1, move.OneMove[i + 1].Item2].FigureInCell =
-                                    AllCells[move.OneMove[i].Item1, move.OneMove[i].Item2].FigureInCell;
-                                AllCells[move.OneMove[i].Item1, move.OneMove[i].Item2].FigureInCell = null;*/
             }
 
             if (move.ConvertFigure != new ConvertPawn())
@@ -806,6 +805,8 @@ namespace ChessLib.FieldModels
         {
             AllMoves res = new AllMoves();
 
+            if (toCompare is null) toCompare = new AllMoves();
+
             for (int i = 0; i < tempAllMoves.PossibleMoves.Count; i++)
             {
                 (int, int) toStepOn = tempAllMoves.PossibleMoves[i].OneMove.Last();
@@ -931,13 +932,17 @@ namespace ChessLib.FieldModels
             }
         }
 
-        private const int _moveToDrawByEqualMoves = 6;
-        public bool CheckForDrawByThreeEqualMoves()
+        public bool IfItsDrawByThreeEqualMoves()
         {
+            if (_movedFigsInHistory.Count < _moveToTakeToCheckForEqaulDraw) return false;
+
             List<Move> moves = new List<Move>(); 
             for(int i = _movesHistory.Count - 1; i >= 0; i--)
             {
-                if (i == _moveToDrawByEqualMoves) break;
+                if (i == _movesHistory.Count - 1 - _moveToTakeToCheckForEqaulDraw)
+                {
+                    break;
+                }
                 moves.Add(_movesHistory[i]);
             }
 
@@ -945,6 +950,10 @@ namespace ChessLib.FieldModels
             //check by % 2 if first(or zero are equal)
             Move first = null;
             Move second = null;
+
+            int firstMoveCounter = 0;
+            int secondMoveCounter = 0;
+
             for(int i = 0; i < moves.Count; i++)
             {
                 if (i == 0)
@@ -955,14 +964,21 @@ namespace ChessLib.FieldModels
                 {
                     second = moves[i];
                 }
-                else if (i % 2 == 0 && !first.IfMovesAreEqualByHistory(moves[i])) return false;
-                else if (!second.IfMovesAreEqualByHistory(moves[i])) return false;//(i % 2 != 0)
+                if (first.IfMovesAreEqualByHistory(moves[i]))
+                {
+                    firstMoveCounter++;
+                }
+                else if (second.IfMovesAreEqualByHistory(moves[i])) 
+                {
+                    secondMoveCounter++;
+                }
             }
-            return true;
+            return firstMoveCounter >= _moveToDrawByEqualMoves || 
+                secondMoveCounter >= _moveToDrawByEqualMoves;
         }
-        private const int _movesWithoutHotCounter = 50;
-        public bool CheckForMovesWithoutHit()
+        public bool IfItsDrawByMovesWithoutHit()
         {
+            if (_movedFigsInHistory.Count <= _movesWithoutHotCounter) return false;
             int moveCounter = 0;
             for(int i = _movesHistory.Count - 1; i >= 0; i--)
             {

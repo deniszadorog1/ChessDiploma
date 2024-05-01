@@ -18,6 +18,7 @@ using ChessLib.PlayerModels;
 using ChessLib;
 using ChessLib.Enums.Game;
 using ChessDiploma.Windows.UserMenuWindows;
+using ChessDiploma.Windows.UserMenuWindows.GameWindows;
 
 namespace ChessDiploma.Windows
 {
@@ -32,6 +33,7 @@ namespace ChessDiploma.Windows
         private Color _borderColor = Color.FromArgb(56, 56, 56);//BorderColor
 
         private Font _defaultFont = new Font("Times New Roman", 22);
+
 
         private bool _fillingFieldMarker = true;
 
@@ -125,7 +127,10 @@ namespace ChessDiploma.Windows
             FillGameMenuPanel();
             FillMainMenuPanel();
 
-            if (_formType == ReplayOrGame.Game) Data._game.StartFirstTimer();
+            if (_formType == ReplayOrGame.Game && Data._game.GetTime() != -1) Data._game.StartFirstTimer();
+
+            //Check for bot step
+            BotStep();
         }
         public void FillMainMenuPanel()
         {
@@ -350,31 +355,13 @@ namespace ChessDiploma.Windows
 
                 //Check for three equals moves 
                 //Check for 50 moves without hit
+                CheckForDrawByWithOutHitAndEqualMove();
 
-                if (Data._game.CheckForDrawByEqualMoves())
-                {
-                    MessageBox.Show("Players made 3 equal moves. Its Draw!");
-                    //Assign draw(for players);
-                    Close();
-                }
-                else if (Data._game.IfItsDrawByMovesWithoutHitting())
-                {
-                    MessageBox.Show("Made too much moves without hitting!");
-                    //Assign draw(for players);
-                    Close();
-                }
                 if (_field[cord.x, cord.y].BackColor == Color.Yellow && _chosenStepIndex != -1)
                 {
-                    //Add fig to move in history with not maken move
-                    Data._game.AddFigToMoveInHistory(_moves.PossibleMoves[_chosenStepIndex]);
-                    //reassign in logic
-                    Data._game.ReassignMove(_moves.PossibleMoves[_chosenStepIndex]);
+                    TotalMoveReassign(_moves.PossibleMoves[_chosenStepIndex]);
 
-                    //reassign in form
-                    ReassignMove(_moves.PossibleMoves[_chosenStepIndex]);
-                    Data._game.IfSpecialFigIsMoves(_moves.PossibleMoves[_chosenStepIndex]);
-
-                    AddMoveInHistory(_chosenStepIndex, false);
+                    AddMoveInHistory(_moves.PossibleMoves[_chosenStepIndex], false);
 
                     if (!(_moves.PossibleMoves[_chosenStepIndex].HitFigure is null))
                     {
@@ -388,12 +375,19 @@ namespace ChessDiploma.Windows
                     {
                         MessageBox.Show("Game ended. " + Data._game._steper.Login + " WON", "Game ended!", MessageBoxButtons.OK);
                         Data._game.StepperWonTheGame();
+
+                        GameEnded();
+
+                        //Data.UpdatePlayersInDB();
                         Close();
                     }
                     else if (Data._game.IfGameEndedByPate())
                     {
                         MessageBox.Show("Game ended. Its Draw(Pate)");
                         Data._game.GameEndedByDraw();
+
+                        GameEnded();
+                        //Data.UpdatePlayersInDB();
                         Close();
                     }
                     if (Data._game.IfPawnCameToTheEndOfBoard())
@@ -403,6 +397,9 @@ namespace ChessDiploma.Windows
                     else
                     {
                         ChangeSteper();
+
+                        //Check for bot step
+                        BotStep();
                     }
                     return;
                 }
@@ -419,7 +416,56 @@ namespace ChessDiploma.Windows
             };
             _fieldPanel.Controls.Add(_field[cord.x, cord.y]);
         }
-        
+
+        private void BotStep()
+        {
+            if (Data._game.IfSteperIsBot())
+            {
+                Move move = GetMoveFromBot();
+                TotalMoveReassign(move);
+                AddMoveInHistory(move, false);
+                ChangeSteper();
+            }
+
+        }
+
+        public Move GetMoveFromBot()
+        {
+            Move move = Data._game.GetMoveForBot();
+            return move;
+        }
+        public void CheckForDrawByWithOutHitAndEqualMove()
+        {
+            if (Data._game.IfItsDrawByEqualMoves())
+            {
+                MessageBox.Show("Players made 3 equal moves. Its Draw!");
+                Data._game.GameEndedByDraw();
+
+                GameEnded();
+                Close();
+            }
+            else if (Data._game.IfItsDrawByMovesWithoutHitting())
+            {
+                MessageBox.Show("Made too much moves without hitting!");
+                Data._game.GameEndedByDraw();
+
+                GameEnded();
+                Close();
+            }
+        }
+        public void TotalMoveReassign(Move move)
+        {
+            //Add fig to move in history with not maken move
+            Data._game.AddFigToMoveInHistory(move);
+            //reassign in logic
+            Data._game.ReassignMove(move);
+
+            //reassign in form
+            ReassignMove(move);
+            //ReassignMove(move);
+            Data._game.IfSpecialFigIsMoves(move);
+        }
+
         public void UpdateHitFiguresPanel(Figure figure)
         {
             Player player = Data._game.GetPlayerThatHitFigure(figure);
@@ -434,13 +480,13 @@ namespace ChessDiploma.Windows
             InitHitFiguresPanel(GetHitFigsPanel(player), player);
         }
 
-        public void AddMoveInHistory(int moveIndex, bool ifConvertionIsHappend)
+        public void AddMoveInHistory(Move move, bool ifConvertionIsHappend)
         {
-            if (ifConvertionIsHappend || _moves.PossibleMoves[moveIndex].ConvertFigure is null)
+            if (ifConvertionIsHappend || move.ConvertFigure is null)
             {
-                AddMoveInMovesHistory(_moves.PossibleMoves[moveIndex],
+                AddMoveInMovesHistory(move,
                     Data._game.GetPlayerColor().ToString());
-                Data._game.AddMoveInHistory(_moves.PossibleMoves[moveIndex]);
+                Data._game.AddMoveInHistory(move);
             }
         }
 
@@ -631,7 +677,7 @@ namespace ChessDiploma.Windows
                     Data._game.ClearConvertationVariable();
 
                     _moves.PossibleMoves[_chosenStepIndex].ConvertFigure = convert;
-                    AddMoveInHistory(_chosenStepIndex, true);
+                    AddMoveInHistory(_moves.PossibleMoves[_chosenStepIndex], true);
 
                     HideConvertPanels();
                     ChangeSteper();
@@ -757,7 +803,7 @@ namespace ChessDiploma.Windows
             FillPlayerPlanels(_firstPlayerPanel, firstPlayer);
             FillPlayerPlanels(_secondPlayerPanel, secondPlayer);
 
-            if (_formType == ReplayOrGame.Game)
+            if (_formType == ReplayOrGame.Game && Data._game.GetTime() != -1)
             {
                 FillTimer(_firstPlayerPanel, Data._game.GetPlayerCurrentTime(0), 0);
                 FillTimer(_secondPlayerPanel, Data._game.GetPlayerCurrentTime(1), 1);
@@ -949,6 +995,8 @@ namespace ChessDiploma.Windows
                     new Size(_inGameMenu.Width, _fieldCellSize.Item1),
                     new Point(0, last.Location.Y + last.Size.Height));
 
+                sendDrawOffer.Click += SendDraw_Click;
+
                 Button giveUp = new Button();
                 last = _inGameMenu.Controls[_inGameMenu.Controls.Count - 1];
                 GivePurumsToInGameMenuButtons(giveUp, "Give up",
@@ -1008,6 +1056,30 @@ namespace ChessDiploma.Windows
             {
                 FillMoveHistoryPanelForReplay(movesList);
             }
+        }
+
+        private void SendDraw_Click(object sender, EventArgs e)
+        {
+            Player player = Data._game.GetAnoutherPlayer();
+
+            if(player is Bot)
+            {
+                MessageBox.Show("Decline!");
+            }
+            TradeOffer offer = new TradeOffer(Data._game._steper);
+            offer.ShowDialog();
+            if (offer._answer)
+            {
+                MessageBox.Show("Accepted!");
+                Data._game.GameEndedByDraw();
+                Data.UpdatePlayersInDB();
+                Close();
+            }
+            else
+            {
+                MessageBox.Show("offer declined!");
+            }
+            
         }
         private void GoToPreviousMove_Click(object sender, EventArgs e)
         {
@@ -1182,9 +1254,13 @@ namespace ChessDiploma.Windows
         private void Givup_Click(object sender, EventArgs e)
         {
             Player winer = Data._game.GetAnoutherPlayer();
-
             MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
 
+            GameEnded();
+        }
+
+        public void GameEnded()
+        {
             Data.InitGamesEndDate();
             Data.InitGameInDB();
         }
@@ -1235,7 +1311,10 @@ namespace ChessDiploma.Windows
             Data._game.DeleteFigToMove();
             ChangeSteper();
             //Delete from Hit In Player Panel
-            DeleteFromHitFiguresPanel(lastMove);
+            if (!(lastMove.HitFigure is null))
+            {
+                DeleteFromHitFiguresPanel(lastMove);
+            }
         }
 
 
@@ -1304,7 +1383,6 @@ namespace ChessDiploma.Windows
                        null;
             }
             return null;
-
         }
         public Image GetPawnImage(PlayerColor color)
         {

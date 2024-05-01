@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\DbUsage.cs" />
+    <Compile Include="Models\EmailSender.cs" />
     <Compile Include="Windows\StartWindows\CreateAccount.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -73,6 +74,12 @@
     </Compile>
     <Compile Include="Windows\UserMenuWindows\ChoosePlayer.Designer.cs">
       <DependentUpon>ChoosePlayer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\GameWindows\TradeOffer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\UserMenuWindows\GameWindows\TradeOffer.Designer.cs">
+      <DependentUpon>TradeOffer.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\UserMenuWindows\PlayGameParams.cs">
       <SubType>Form</SubType>
@@ -124,6 +131,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\UserMenuWindows\ChoosePlayer.resx">
       <DependentUpon>ChoosePlayer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\UserMenuWindows\GameWindows\TradeOffer.resx">
+      <DependentUpon>TradeOffer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\UserMenuWindows\PlayGameParams.resx">
       <DependentUpon>PlayGameParams.cs</DependentUpon>

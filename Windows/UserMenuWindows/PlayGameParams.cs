@@ -19,9 +19,12 @@ namespace ChessDiploma.Windows.UserMenuWindows
         private User _user;
         private List<User> _allUsers;
 
-        private User _enemy = null;
+        private Player _enemy = null;
         private const int _spaceBetweenEnemyLogins = 25;
         private List<int> _gameTimer = new List<int>() { -1, 5, 10, 20, 30 };
+
+        private List<string> _botHardLevels = new List<string>() { "Easy", "Normal", "Hard" };
+        private const string _botName = "Bot bob";
         public PlayGameParams(User user, List<User> allUsers)
         {
             _user = user;
@@ -34,11 +37,12 @@ namespace ChessDiploma.Windows.UserMenuWindows
             EnemyPanel.Controls.Clear();
             if (UserRadio.Checked)
             {
+                _enemy = null;
                 FillEnemyUsersInPanel();
             }
             else if (BotRadio.Checked)
             {
-
+                _enemy = new Bot();
             }
             else//Nothing checked
             {
@@ -107,13 +111,12 @@ namespace ChessDiploma.Windows.UserMenuWindows
             //MessageBox.Show("Game can be started!", "Success");
 
             InitColorToPlayer();
-            Player enemy = GetEnemyToPlay();
 
-            if (enemy is null)
+            if (_enemy is Bot)
             {
-                MessageBox.Show("Somthing went wrong!", "Mistake!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                _enemy.Login = _botName;
             }
+            FillEnemy();
 
             Hide();
             Data.InitPlayerAndTimerInGame(_user, _enemy, _gameTimer[GameTimeBox.SelectedIndex]);
@@ -121,6 +124,12 @@ namespace ChessDiploma.Windows.UserMenuWindows
             game.ShowDialog();
             Show();
         }
+        public void FillEnemy()
+        {
+            _enemy.Side = _user.Side == PlayerSide.Up ? PlayerSide.Down : PlayerSide.Up;
+            _enemy.Color = _user.Color == PlayerColor.White ? PlayerColor.Black : PlayerColor.White;
+        }
+
         public void InitColorToPlayer()
         {
             _user.Side = PlayerSide.Down;

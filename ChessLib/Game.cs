@@ -331,9 +331,13 @@ namespace ChessLib
         {
             Move res = new Move();
 
-            ((Bot)_steper).GetMove(AllField, _steper, null, 0);
+            res  = ((Bot)_steper).GetMove(AllField, _steper, null, 0);
 
             return res;
+        }
+        public bool IfSteperIsBot()
+        {
+            return _steper is Bot;
         }
         public int GetMoveIndexForReplay()
         {
@@ -401,14 +405,13 @@ namespace ChessLib
                 Players[i].ClearHitList();
             }
         }
-
-        public bool CheckForDrawByEqualMoves()
+        public bool IfItsDrawByEqualMoves()
         {
-            return false;
+            return AllField.IfItsDrawByThreeEqualMoves();
         }
         public bool IfItsDrawByMovesWithoutHitting()
         {
-            return false;
+            return AllField.IfItsDrawByMovesWithoutHit();
         }
 
     }
