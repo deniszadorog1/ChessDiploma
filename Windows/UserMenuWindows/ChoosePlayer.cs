@@ -34,22 +34,23 @@ namespace ChessDiploma.Windows.UserMenuWindows
             {
                 if (serchText == "")
                 {
-                    loc = CreateUserLabel(_users[i], loc);
+                    loc = CreateUserButtons(_users[i], loc);
                 }
                 else if (_users[i].Login.Contains(serchText))
                 {
-                    loc = CreateUserLabel(_users[i], loc);
+                    loc = CreateUserButtons(_users[i], loc);
                 }
 
             }
         }
-        public Point CreateUserLabel(User printUser, Point location)
+        public Point CreateUserButtons(User printUser, Point location)
         {
-            Label user = new Label();
+            Button user = new Button();
             user.Text = printUser.Login;
             user.Font = new Font("Times New Roman", 14);
             user.Click += Player_Click;
             user.Location = location;
+            user.Size = new Size(PlayersList.Width - 15, 50);
             PlayersList.Controls.Add(user);
             return new Point(0, location.Y + _distansBetweenLogins);
         }
@@ -60,7 +61,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             {
                 PlayersList.Controls[i].ForeColor = Color.Black;
             }
-            if (sender is Label clickedLabel)
+            if (sender is Button clickedLabel)
             {
                 clickedLabel.ForeColor = Color.Green;
                 _chosenUser = _users.Find(x => x.Login == clickedLabel.Text);

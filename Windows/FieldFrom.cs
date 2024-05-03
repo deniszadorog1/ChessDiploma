@@ -86,8 +86,8 @@ namespace ChessDiploma.Windows
         private ReplayOrGame? _formType = null;
 
         private const int _timerWidth = 125;
+        private bool _ifCellIsClicked = false;
 
-        private int _tempMoveIndexToShowOnReplay = 0;
         public FieldFrom(Game game, ReplayOrGame type)
         {
             _formType = type;
@@ -112,6 +112,9 @@ namespace ChessDiploma.Windows
         }
         public void InitGameParams()
         {
+            InitEndTimerEvent();
+            InitFormToCloseByTimer();
+
             InitSizes();
             InitGamePanels();
 
@@ -321,7 +324,7 @@ namespace ChessDiploma.Windows
             _fieldPanel.BorderStyle = BorderStyle.FixedSingle;
             _fieldPanel.BackColor = _borderColor;
             _fieldPanel.AutoScroll = false;
-
+            _fieldPanel.AllowDrop = true;
             Controls.Add(_fieldPanel);
         }
         public Color GetTempColor()
@@ -338,6 +341,10 @@ namespace ChessDiploma.Windows
             _fillingFieldMarker = !_fillingFieldMarker;
             return _secondCellColor;
         }
+
+        private PictureBox draggedPictureBox = null;
+        private Point offset;
+
         public void AddPictureBox(Color color, (int, int) loc, (int x, int y) cord)
         {
             _field[cord.x, cord.y].BorderStyle = BorderStyle.FixedSingle;
@@ -345,8 +352,76 @@ namespace ChessDiploma.Windows
             _field[cord.x, cord.y].Size = new Size(50, 50);
             _field[cord.x, cord.y].Location = new Point(loc.Item1, loc.Item2);
             _field[cord.x, cord.y].BorderStyle = BorderStyle.None;
+            _field[cord.x, cord.y].AllowDrop = true;
 
             _originalColors[cord.x, cord.y] = color;
+
+            _field[cord.x, cord.y].MouseEnter += (sender, e) =>
+            {
+                if (Data._game.IfStepersFigIsInCell(cord) && !_ifCellIsClicked && 
+                _formType == ReplayOrGame.Game)
+                {
+                    _field[cord.x, cord.y].BackColor = Color.Yellow;
+                }
+            };
+            _field[cord.x, cord.y].MouseLeave += (sender, e) =>
+            {
+                if (!_ifCellIsClicked)
+                {
+                    _field[cord.x, cord.y].BackColor = _originalColors[cord.x, cord.y];
+                }
+            };
+
+
+
+            _field[cord.x, cord.y].MouseMove += (sender, e) =>
+            {
+                if (draggedPictureBox != null)
+                {
+                    Point newLocation = _fieldPanel.PointToClient(MousePosition);
+                    newLocation.Offset(-offset.X, -offset.Y);
+                    draggedPictureBox.Location = newLocation;
+                }
+            };
+
+            _field[cord.x, cord.y].MouseDown += (sender, e) =>
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    draggedPictureBox = sender as PictureBox;
+                    offset = e.Location;
+                }
+            };
+            _field[cord.x, cord.y].MouseUp += (sender, e) =>
+            {
+                draggedPictureBox = null;
+            };
+
+            _field[cord.x, cord.y].DragEnter += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.Bitmap))
+                {
+                    e.Effect = DragDropEffects.Move;
+                }
+                else
+                {
+                    e.Effect = DragDropEffects.None;
+                }
+            };
+
+            _fieldPanel.DragDrop += (sender, e) =>
+            {
+                if (e.Data.GetDataPresent(DataFormats.Bitmap))
+                {
+                    PictureBox pictureBox = new PictureBox();
+                    pictureBox.Image = (Bitmap)e.Data.GetData(DataFormats.Bitmap);
+                    pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                    pictureBox.Size = new Size(100, 100);
+                    _fieldPanel.Controls.Add(pictureBox);
+                    pictureBox.Location = _fieldPanel.PointToClient(new Point(e.X, e.Y));
+                }
+            };
+
 
             _field[cord.x, cord.y].Click += (sender, e) =>
             {
@@ -357,10 +432,9 @@ namespace ChessDiploma.Windows
                 //Check for 50 moves without hit
                 CheckForDrawByWithOutHitAndEqualMove();
 
-                if (_field[cord.x, cord.y].BackColor == Color.Yellow && _chosenStepIndex != -1)
+                if (_field[cord.x, cord.y].BackColor == Color.Yellow && _chosenStepIndex != -1 && _ifCellIsClicked)
                 {
                     TotalMoveReassign(_moves.PossibleMoves[_chosenStepIndex]);
-
                     AddMoveInHistory(_moves.PossibleMoves[_chosenStepIndex], false);
 
                     if (!(_moves.PossibleMoves[_chosenStepIndex].HitFigure is null))
@@ -371,25 +445,8 @@ namespace ChessDiploma.Windows
 
                     AssignOriginalColors();
 
-                    if (Data._game.IfSteperCheckMated())
-                    {
-                        MessageBox.Show("Game ended. " + Data._game._steper.Login + " WON", "Game ended!", MessageBoxButtons.OK);
-                        Data._game.StepperWonTheGame();
+                    IfCheckMateOrPate();
 
-                        GameEnded();
-
-                        //Data.UpdatePlayersInDB();
-                        Close();
-                    }
-                    else if (Data._game.IfGameEndedByPate())
-                    {
-                        MessageBox.Show("Game ended. Its Draw(Pate)");
-                        Data._game.GameEndedByDraw();
-
-                        GameEnded();
-                        //Data.UpdatePlayersInDB();
-                        Close();
-                    }
                     if (Data._game.IfPawnCameToTheEndOfBoard())
                     {
                         ShowConvertPanel(cord);
@@ -404,9 +461,11 @@ namespace ChessDiploma.Windows
                     return;
                 }
                 AssignOriginalColors();
+                _ifCellIsClicked = false;
                 if (!(_field[cord.x, cord.y].Image is null) && Data._game.IfFigureIsStepers(cord))
                 {
                     _field[cord.x, cord.y].BackColor = Color.Yellow;
+                    _ifCellIsClicked = true;
                     _moves = new AllMoves();
 
                     _moves = Data._game.GetMovesForFigure(cord);
@@ -421,18 +480,34 @@ namespace ChessDiploma.Windows
         {
             if (Data._game.IfSteperIsBot())
             {
-                Move move = GetMoveFromBot();
+                Move move = Data._game.GetMoveForBot();
                 TotalMoveReassign(move);
                 AddMoveInHistory(move, false);
+                IfCheckMateOrPate();
                 ChangeSteper();
             }
-
         }
-
-        public Move GetMoveFromBot()
+        public void IfCheckMateOrPate()
         {
-            Move move = Data._game.GetMoveForBot();
-            return move;
+            if (Data._game.IfSteperCheckMated())
+            {
+                MessageBox.Show("Game ended. " + Data._game._steper.Login + " WON", "Game ended!", MessageBoxButtons.OK);
+                Data._game.StepperWonTheGame();
+                Data._game.InitWinnerGameResult();
+                GameEnded();
+
+                //Data.UpdatePlayersInDB();
+                Close();
+            }
+            else if (Data._game.IfGameEndedByPate())
+            {
+                MessageBox.Show("Game ended. Its Draw(Pate)");
+                Data._game.GameEndedByDraw();
+                Data._game.InitGameResultDraw();
+                GameEnded();
+                //Data.UpdatePlayersInDB();
+                Close();
+            }
         }
         public void CheckForDrawByWithOutHitAndEqualMove()
         {
@@ -440,6 +515,7 @@ namespace ChessDiploma.Windows
             {
                 MessageBox.Show("Players made 3 equal moves. Its Draw!");
                 Data._game.GameEndedByDraw();
+                Data._game.InitGameResultDraw();
 
                 GameEnded();
                 Close();
@@ -448,6 +524,7 @@ namespace ChessDiploma.Windows
             {
                 MessageBox.Show("Made too much moves without hitting!");
                 Data._game.GameEndedByDraw();
+                Data._game.InitGameResultDraw();
 
                 GameEnded();
                 Close();
@@ -490,7 +567,7 @@ namespace ChessDiploma.Windows
             }
         }
 
-        public void AddMoveInMovesHistory(Move move, string steperColor)
+        public Control AddMoveInMovesHistory(Move move, string steperColor)
         {
             FlowLayoutPanel movesPanel = (FlowLayoutPanel)FindFlowLayotPanel(_inGameMenu);
 
@@ -503,6 +580,8 @@ namespace ChessDiploma.Windows
             newMove.Font = new Font("Times New Roman", 14);
             movesPanel.Controls.Add(newMove);
 
+
+            return newMove;
             //MessageBox.Show("asd");
         }
         public void RemoveLastMove()
@@ -688,8 +767,9 @@ namespace ChessDiploma.Windows
         }
         public void ChangeSteper()
         {
+            _ifCellIsClicked = false;
             Data._game.ChangeSteper();
-
+           
             int inGameMenuSteperIndex = GetInGameMenuSteperIndex();
             if (inGameMenuSteperIndex != -1)
             {
@@ -1054,15 +1134,30 @@ namespace ChessDiploma.Windows
 
             if (_formType == ReplayOrGame.Replay)//add moves in flowLayoutPanel
             {
-                FillMoveHistoryPanelForReplay(movesList);
+                FillMoveHistoryPanelForReplay();
+
+                InitGameExodus(movesList);
             }
+        }
+        public void InitGameExodus(Panel panel)
+        {
+            GameResult res = Data._game.GameExodus;
+            string message = res == GameResult.FirstWon ? $"Won - {Data._game.GetFirstPlayerName()}" :
+                res == GameResult.SecondWon ? $"Won - {Data._game.GetSecondPlayerName()}" :
+                res == GameResult.Draw ? "Its Draw" : "Game was closed";
+
+            Label lb = new Label();
+            lb.Size = new Size(panel.Width, _fieldCellSize.Item1);
+            lb.Font = new Font("Times New Roman", 16);
+            lb.Text = message;
+            panel.Controls.Add(lb);
         }
 
         private void SendDraw_Click(object sender, EventArgs e)
         {
             Player player = Data._game.GetAnoutherPlayer();
 
-            if(player is Bot)
+            if (player is Bot)
             {
                 MessageBox.Show("Decline!");
             }
@@ -1072,14 +1167,17 @@ namespace ChessDiploma.Windows
             {
                 MessageBox.Show("Accepted!");
                 Data._game.GameEndedByDraw();
-                Data.UpdatePlayersInDB();
+                Data._game.InitGameResultDraw();
+                //Data.UpdatePlayersInDB();
+                GameEnded();
+
                 Close();
             }
             else
             {
                 MessageBox.Show("offer declined!");
             }
-            
+
         }
         private void GoToPreviousMove_Click(object sender, EventArgs e)
         {
@@ -1181,7 +1279,24 @@ namespace ChessDiploma.Windows
                 UpdateHitFiguresPanel(fig);
             }
         }
+        private void FillMoveHistoryPanelForReplay()
+        {
+            List<Move> moves = Data._game.GetMoveHistory();
 
+            for (int i = 0; i < moves.Count; i++)
+            {
+                Control newControl = AddMoveInMovesHistory(moves[i],
+                moves[i].GetPlayerColor().ToString());
+
+                /*                newControl.Click += (sender, e) =>
+                                {
+                                    FlowLayoutPanel movesPanel = (FlowLayoutPanel)FindFlowLayotPanel(_inGameMenu);
+
+                                    //get inde
+
+                                };*/
+            }
+        }
         public void ReassignMoveInNextMoveInReplayMode(int moveIndex)
         {
             //get move to reassing
@@ -1240,30 +1355,37 @@ namespace ChessDiploma.Windows
                 }
             }
         }
-
-        private void FillMoveHistoryPanelForReplay(Panel panel)
-        {
-            List<Move> moves = Data._game.GetMoveHistory();
-
-            for (int i = 0; i < moves.Count; i++)
-            {
-                AddMoveInMovesHistory(moves[i],
-                moves[i].GetPlayerColor().ToString());
-            }
-        }
         private void Givup_Click(object sender, EventArgs e)
         {
             Player winer = Data._game.GetAnoutherPlayer();
             MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
+            Data._game.InitResultSteperGaveUp();
+            Data._game.UpdetePlayersWhenSteperGaveUp();
 
             GameEnded();
+            Close();
         }
-
         public void GameEnded()
         {
             Data.InitGamesEndDate();
+
+            ShowRaintingAfterGamedEnded();
+
             Data.InitGameInDB();
         }
+        public void ShowRaintingAfterGamedEnded()
+        {
+            (int, int) res = Data._game.CalcPlayersRainting();
+
+            if (res != (-1, -1))
+            {
+                string text = Data._game.GetFirstPlayerName() + " earned - " + res.Item1.ToString() + "\n" +
+                    Data._game.GetSecondPlayerName() + " earned - " + res.Item2.ToString();
+
+                MessageBox.Show(text, "Game ended!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         public int GetInGameMovesHistPanelHeight()
         {
             int res = _inGameMenu.Height;
@@ -1403,5 +1525,40 @@ namespace ChessDiploma.Windows
         {
             Data._game.StopTimers();
         }
+        public delegate void CloseFormDelegate(Form form);
+
+        private static void Timer_TimerFinished(object sender, EventArgs e, Form form)
+        {
+            Player winer = Data._game.GetAnoutherPlayer();
+            //MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
+            Data._game.InitResultSteperGaveUp();
+            Data._game.UpdetePlayersWhenSteperGaveUp();
+
+            Data.InitGamesEndDate();
+            Data.InitGameInDB();
+            form.Close();
+        }
+
+        private void InitEndTimerEvent()
+        {
+            for(int i = 0; i < Data._game.Players.Count; i++)
+            {
+                if (Data._game.Players[i] is User)
+                {
+                    ((User)Data._game.Players[i]).TimerFinished += Timer_TimerFinished;
+                }
+            }
+        }
+        private void InitFormToCloseByTimer()
+        {
+            for (int i = 0; i < Data._game.Players.Count; i++)
+            {
+                if (Data._game.Players[i] is User)
+                {
+                    ((User)Data._game.Players[i]).GetFormToCloseByTimer(this);
+                }
+            }
+        }
+
     }
 }

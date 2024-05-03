@@ -140,8 +140,8 @@ namespace ChessDiploma.Models
                     "VALUES(@firstPlayerId, @secondPlayerId, @startTime, @endTime, @resultId, @time)";
 
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@firstPlayerId", GetPlayerId(game.Players[0].Login));
-                command.Parameters.AddWithValue("@secondPlayerId", GetPlayerId(game.Players[1].Login));
+                command.Parameters.AddWithValue("@firstPlayerId", GetPlayersIdCheckForBot(game.Players[0]));
+                command.Parameters.AddWithValue("@secondPlayerId", GetPlayersIdCheckForBot(game.Players[1]));
                 command.Parameters.AddWithValue("@startTime", game.StartTime);
                 command.Parameters.AddWithValue("@endTime", game.EndTime);
                 command.Parameters.AddWithValue("@resultId", GetGameExodusId(game.GameExodus));
@@ -173,6 +173,12 @@ namespace ChessDiploma.Models
 
                 connection.Close();
             }
+        }
+
+        private static object GetPlayersIdCheckForBot(Player player)
+        {
+            if(player is Bot) return DBNull.Value;
+            else return GetPlayerId(player.Login);
         }
 
         private static int GetRatingForSecondPlayer(Player player)
@@ -282,14 +288,21 @@ namespace ChessDiploma.Models
                             {
                                 User player = GetPlayerById((int)reader[i]);
                                 FillSideAndColorForUser(player, gameId, PlayerNumber.First);
-                                firstPlayer = player;
+                                firstPlayer = GetPlayerCheckingForType((int)reader[i], null, gameId, PlayerNumber.First);
+                                Console.WriteLine();
                             }
                             else if (colName == "SecondPlayer")
                             {
                                 //Check if ITSBot downLoaded!
-                                User player = GetPlayerById((int)reader[i]);
-                                FillSideAndColorForUser(player, gameId, PlayerNumber.Second);
-                                secondPlayer = player;
+
+                                int? id;
+                                if(reader[i] == DBNull.Value) id = null;
+                                else id = (int)reader[i];
+
+
+                                secondPlayer = GetPlayerCheckingForType(id, firstPlayer, gameId, PlayerNumber.Second);
+                                Console.WriteLine();
+
                             }
                             else if (colName == "StartTime")
                             {
@@ -316,6 +329,34 @@ namespace ChessDiploma.Models
             }
             return res;
         }
+
+        private static Player GetPlayerCheckingForType(int? id, Player anPlayer, int gameId, PlayerNumber number)
+        {
+            if(id == null)//Bot
+            {
+                Bot bot = new Bot();
+                bot.Login = "Bot Bob";
+                bot.Color = anPlayer is null ? PlayerColor.White :
+                anPlayer.Color == PlayerColor.White ? PlayerColor.Black : PlayerColor.White;
+                bot.Side = anPlayer is null ? PlayerSide.Down :
+                    anPlayer.Side == PlayerSide.Down ? PlayerSide.Up : PlayerSide.Down;
+                return bot;
+            }
+            else//User
+            {
+                User player = GetPlayerById(int.Parse(id.ToString()));
+                FillSideAndColorForUser(player, gameId, number);
+
+                if(!(anPlayer is null) && anPlayer.Color == player.Color)
+                {
+                    player.Color = anPlayer.Color == PlayerColor.White ? PlayerColor.Black : PlayerColor.White;
+                    player.Side =  anPlayer.Side == PlayerSide.Down ? PlayerSide.Up : PlayerSide.Down;
+                }
+                return player;
+            }
+        }
+
+
         private static GameResult GetGameResult(int id)
         {
             GameResult res = new GameResult();
@@ -745,13 +786,14 @@ namespace ChessDiploma.Models
                 connection.Open();
 
                 string query = "UPDATE [PlayerRating] SET [GameAmount] = @gameAmount, [Wons] = @wons," +
-                    " [Losts] = @losts, [Draws] = @draws WHERE [UserId] = @id";
+                    " [Losts] = @losts, [Draws] = @draws, [Rating] = @raiting WHERE [UserId] = @id";
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@gameAmount", (user.Wons + user.Losts + user.Draws));
                 command.Parameters.AddWithValue("@wons", user.Wons);
                 command.Parameters.AddWithValue("@losts", user.Losts);
                 command.Parameters.AddWithValue("@draws", user.Draws);
+                command.Parameters.AddWithValue("@raiting", user.Rating);
                 command.Parameters.AddWithValue("@id", userId);
 
                 command.ExecuteNonQuery();

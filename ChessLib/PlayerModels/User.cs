@@ -12,11 +12,12 @@ using ChessLib.Enums.Players;
 
 namespace ChessLib.PlayerModels
 {
+    public delegate void TimerEventHandler(object sender, EventArgs e, Form form);
     public class User : Player
     {
         public string Password { get; set; }
         public string Email { get; set; }
-        public DateTime DateBirth { get; set; } 
+        public DateTime DateBirth { get; set; }
         public int Rating { get; set; }
         public int Wons { get; set; }
         public int Losts { get; set; }
@@ -24,12 +25,15 @@ namespace ChessLib.PlayerModels
 
         public System.Timers.Timer _gameTimer = new System.Timers.Timer();
         public Label checkTimer = new Label();
-        
-        
+
         public int _currentTime = -1;
         public int startTime = -1;
 
-        public User(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures, 
+        public event TimerEventHandler TimerFinished;
+
+        private Form _fromToCloseByTimer;
+
+        public User(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures,
             string password, string email, DateTime dateBirth, int rating, int wons, int losts, int draws) :
         base(name, playerColor, side, hitFigures)
         {
@@ -70,9 +74,16 @@ namespace ChessLib.PlayerModels
                 }
                 else
                 {
-                    //Player Lost
+                    _gameTimer.Stop();
+                    OnTimerFinished();
+                    //_fromToCloseByTimer.Close();
                 }
             };
+        }
+        protected virtual void OnTimerFinished()
+        {
+            TimerEventHandler handler = TimerFinished;
+            handler?.Invoke(this, EventArgs.Empty, _fromToCloseByTimer);
         }
         public void InitLabel(Label lb)
         {
@@ -92,10 +103,10 @@ namespace ChessLib.PlayerModels
             }
             set
             {
-                if(typeof(User).GetProperties().Any(x => x.Name.Equals(name)))
+                if (typeof(User).GetProperties().Any(x => x.Name.Equals(name)))
                 {
                     PropertyInfo propertInfo = typeof(User).GetProperty(name);
-                    if(propertInfo != null && propertInfo.CanWrite)
+                    if (propertInfo != null && propertInfo.CanWrite)
                     {
                         propertInfo.SetValue(this, value);
                     }
@@ -112,5 +123,11 @@ namespace ChessLib.PlayerModels
         {
             _gameTimer.Stop();
         }
+
+        public void GetFormToCloseByTimer(Form form)
+        {
+            _fromToCloseByTimer = form;
+        }
+
     }
 }

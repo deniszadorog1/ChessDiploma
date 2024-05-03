@@ -25,6 +25,10 @@ namespace ChessDiploma.Windows.UserMenuWindows
 
         private List<string> _botHardLevels = new List<string>() { "Easy", "Normal", "Hard" };
         private const string _botName = "Bot bob";
+
+        private const int _userButtonWidthError = 15;
+        private const int _userButtonHeight = 50;
+
         public PlayGameParams(User user, List<User> allUsers)
         {
             _user = user;
@@ -43,6 +47,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             else if (BotRadio.Checked)
             {
                 _enemy = new Bot();
+                EnemyLoginLB.Text = "Enemy is Bot";
             }
             else//Nothing checked
             {
@@ -64,12 +69,13 @@ namespace ChessDiploma.Windows.UserMenuWindows
             {
                 if (_allUsers[i].Login != _user.Login)
                 {
-                    Label newEnemy = new Label();
-                    newEnemy.Text = _allUsers[i].Login;
-                    newEnemy.Font = new Font("Times New Roman", 14);
-                    newEnemy.Location = loc;
-                    newEnemy.Click += NewEnemy_Click;
-                    EnemyPanel.Controls.Add(newEnemy);
+                    Button enemyBut = new Button();
+                    enemyBut.Click += NewEnemy_Click;
+                    enemyBut.Text = _allUsers[i].Login;
+                    enemyBut.Font = new Font("Times New Roman", 14);
+                    enemyBut.Location = loc;
+                    enemyBut.Size = new Size(EnemyPanel.Width - _userButtonWidthError, _userButtonHeight);
+                    EnemyPanel.Controls.Add(enemyBut);
                     loc = new Point(0, loc.Y + _spaceBetweenEnemyLogins);
                 }
             }
@@ -78,15 +84,15 @@ namespace ChessDiploma.Windows.UserMenuWindows
         {
             for (int i = 0; i < EnemyPanel.Controls.Count; i++)
             {
-                if (EnemyPanel.Controls[i] is Label)
+                if (EnemyPanel.Controls[i] is Button)
                 {
-                    ((Label)EnemyPanel.Controls[i]).ForeColor = Color.Black;
+                    ((Button)EnemyPanel.Controls[i]).ForeColor = Color.Black;
                 }
             }
-            if (sender is Label clickedLabel)
+            if (sender is Button clickedButton)
             {
-                clickedLabel.ForeColor = Color.DarkGreen;
-                _enemy = _allUsers.Find(x => x.Login == clickedLabel.Text);
+                clickedButton.ForeColor = Color.DarkGreen;
+                _enemy = _allUsers.Find(x => x.Login == clickedButton.Text);
                 EnemyLoginLB.Text = _enemy.Login;
             }
         }

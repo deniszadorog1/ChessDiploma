@@ -8,6 +8,7 @@ using ChessLib;
 using ChessLib.PlayerModels;
 using ChessLib.Enums.Players;
 using ChessLib.Other;
+using System.Windows.Forms;
 
 namespace ChessDiploma.Models
 {
@@ -34,7 +35,7 @@ namespace ChessDiploma.Models
             List<Move> moves = DbUsage.GetGameMoves(game);
 
             UpdateGame();
-
+            _game.GameExodus = game.GameExodus;
             _game.Players = new List<Player>()
             {
                 game.Players[0],
@@ -62,7 +63,7 @@ namespace ChessDiploma.Models
         }
         public static void UpdatePlayerAfterStepperGaveUp()
         {
-            _game.UpdetePlayersWhenSteperGaveUp();
+            //_game.UpdetePlayersWhenSteperGaveUp();
             for(int i = 0; i < _game.Players.Count; i++)
             {
                 if (_game.Players[i] is User)

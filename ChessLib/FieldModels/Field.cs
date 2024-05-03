@@ -165,7 +165,7 @@ namespace ChessLib.FieldModels
 
             return null;
 
-            //var - we dont now which type we want to compare
+/*            //var - we dont now which type we want to compare
             //_ - we dont care which type value has
             //when - key word in comparation which allows to show additional conditions in comporation 
             switch (cord)
@@ -175,7 +175,7 @@ namespace ChessLib.FieldModels
                 default:
                     break;
             }
-
+*/
 
 
 
@@ -328,8 +328,13 @@ namespace ChessLib.FieldModels
         }
         public bool IfKingCanBeHitInDirection((int, int) direction, (int, int) figCord, Player player)
         {
+            int check = 0;
             do
             {
+                if(check >= 50)
+                {
+                    return false;
+                }
                 figCord = (figCord.Item1 + direction.Item1, figCord.Item2 + direction.Item2);
 
                 if (IfChipIsOutOfRange(figCord))
@@ -347,6 +352,8 @@ namespace ChessLib.FieldModels
                     }
                     return false;
                 }
+
+                check++;
             } while (true);
         }
         public bool IfFigureCanBeHitByPawn(Player player, (int, int) figCord)
@@ -427,8 +434,14 @@ namespace ChessLib.FieldModels
             {
                 (int, int) temp = kingCord;
                 List<(int, int)> tempCaslingWay = new List<(int, int)>() { kingCord };
+                int check = 0;
                 do
                 {
+                    if(check >= 50)
+                    {
+
+                        break;
+                    }
                     temp = (temp.Item1 + _castlingDirections[i].Item1, temp.Item2 + _castlingDirections[i].Item2);
                     tempCaslingWay.Add(temp);
 
@@ -446,6 +459,7 @@ namespace ChessLib.FieldModels
                         }
                         break;
                     }
+                    check++;
                 } while (true);
             }
 
@@ -908,7 +922,7 @@ namespace ChessLib.FieldModels
         }
         public bool IfCanGetNextMove()
         {
-            return _moveIndexForReplay + 1 < _movesHistory.Count ;
+            return _moveIndexForReplay + 1 < _movesHistory.Count;
         }
         public bool IfCanGetPreviousMove()
         {
@@ -993,6 +1007,11 @@ namespace ChessLib.FieldModels
                 moveCounter++;
             }
             return false;
+        }
+        public bool IfSteppersFigIsInUnit((int,int) cord, Player player)
+        {
+            return AllCells[cord.Item1, cord.Item2].Figure != null &&
+                AllCells[cord.Item1, cord.Item2].Figure.FigureColor == player.Color;
         }
 
     }

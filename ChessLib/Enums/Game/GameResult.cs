@@ -9,7 +9,7 @@ namespace ChessLib.Enums.Game
     public enum GameResult
     {
         FirstWon = 0,
-        SwcondWon,
+        SecondWon,
         Draw, 
         Closed
     }

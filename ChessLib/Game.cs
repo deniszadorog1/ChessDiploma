@@ -29,15 +29,13 @@ namespace ChessLib
 
         private int _time;
 
-        private int _movesCounter = 0;
-        private List<Move> _сheckForEqualMoves = new List<Move>();
-        private int _movesWithoutHitCounter = 0;
-        private int _toStartCheckForDraw = 12;
-        private int _chosenEqualMovesToCheckForDraw = 4;
-        private int _drawByMovesWithOutHitting = 50;
+        private const int _stateScoreEarnForGame = 8;
+        private const int _muchMoreWinnerDifferance = 4;
+        private const int _muchMorePointsLosser = 2;
+
+        private const int _muchMorePointWinner = _stateScoreEarnForGame - _muchMoreWinnerDifferance;
 
         private const int _dotsInUsualMove = 2;
-        private const int _dotsInCastlingMove = 4;
 
         public Game(Player firstPlayer, Player secondPlayer, DateTime start, DateTime end, GameResult exodus)
         {
@@ -201,6 +199,10 @@ namespace ChessLib
         {
             return Players[0].Login;
         }
+        public string GetSecondPlayerName()
+        {
+            return Players[1].Login;
+        }
         public string GetLastPlayerName()
         {
             return Players[Players.Count - 1].Login;
@@ -329,11 +331,7 @@ namespace ChessLib
         }
         public Move GetMoveForBot()
         {
-            Move res = new Move();
-
-            res  = ((Bot)_steper).GetMove(AllField, _steper, null, 0);
-
-            return res;
+            return ((Bot)_steper).GetMove(new Field(AllField), _steper, null, 0);
         }
         public bool IfSteperIsBot()
         {
@@ -413,6 +411,116 @@ namespace ChessLib
         {
             return AllField.IfItsDrawByMovesWithoutHit();
         }
+        public void InitWinnerGameResult()
+        {
+            GameExodus = _steper.Login == Players[0].Login ? 
+                GameResult.FirstWon : GameResult.SecondWon;
+        }
+        public void InitResultSteperGaveUp()
+        {
+            GameExodus = _steper.Login == Players[0].Login ?
+                GameResult.SecondWon : GameResult.FirstWon;
+        }
+        public void InitGameResultDraw()
+        {
+            GameExodus = GameResult.Draw;
+        }
+        public void InitGameResultGameClosed()
+        {
+            GameExodus = GameResult.Closed;
+        }
+        public bool IfStepersFigIsInCell((int,int) cord)
+        {
+            return AllField.IfSteppersFigIsInUnit(cord, _steper);
+        }
 
+
+        public (int,int) CalcPlayersRainting()
+        {
+            if (GameExodus == GameResult.Draw || !(Players[0] is User) || !(Players[1] is User)) return (-1, -1);
+
+            //Lost which has much more points < 20
+            //Lost which has a little more points  20 > x > 0 
+            //Lost which has a little less point (20 > x > 0)
+            //Lost which has a much les points (20+)
+
+            (int, int) res = (-1, -1);
+            if(GameExodus == GameResult.FirstWon)
+            {
+                res = RaintingAddingTable((User)Players[0], (User)Players[1]);
+                CheckForRaitingLowerThenZero();
+                return res;
+            }
+            else if(GameExodus == GameResult.SecondWon)
+            {
+                res = RaintingAddingTable((User)Players[1], (User)Players[0]);
+                CheckForRaitingLowerThenZero();
+                return (res.Item2, res.Item1);
+            }
+            else if(GameExodus == GameResult.Draw)
+            {
+                return (0, 0);
+            }
+            CheckForRaitingLowerThenZero();
+            return (-1, -1);
+        }
+        public void CheckForRaitingLowerThenZero()
+        {
+            for(int i = 0; i < Players.Count; i++)
+            {
+                if (((User)Players[i]).Rating < 0)
+                {
+                    ((User)Players[i]).Rating = 0;
+                }
+            }
+        }
+        public (int, int) RaintingAddingTable(User winner, User losser)
+        {
+            int differance = winner.Rating - losser.Rating;
+            (int, int) res = (-1, -1);
+            if (differance >= 20)
+            {
+                res = WinnerHasMuchMoreRaitingThenLosser(winner, losser);
+            }
+            else if (differance >= 5)
+            {
+                res = WinnerHasLittleMorePoints(winner, losser);
+            }
+            else if (differance <= 5 && differance >= -5)
+            {
+                res = WinnerAndLosserHasEqualPoints(winner, losser);
+            }
+            else if (differance < -5)
+            {
+                res = WinnerHadLessPointsThanLosser(winner, losser);
+            }
+            return res;
+        }
+
+        public (int,int) WinnerHasMuchMoreRaitingThenLosser(User winner, User losser)
+        {
+            ((User)winner).Rating += _muchMorePointWinner;
+            ((User)losser).Rating -= _muchMorePointsLosser;
+            return (_muchMorePointWinner, -_muchMorePointsLosser);
+        }
+        public (int, int) WinnerAndLosserHasEqualPoints(User winner, User losser)
+        {
+            winner.Rating += _stateScoreEarnForGame;
+            losser.Rating -= _stateScoreEarnForGame;
+            return (_stateScoreEarnForGame, -_stateScoreEarnForGame);
+        }
+        public (int, int) WinnerHasLittleMorePoints(User winner, User losser)
+        {
+            winner.Rating += _stateScoreEarnForGame - _muchMorePointsLosser;
+            losser.Rating -= _muchMoreWinnerDifferance;
+            return (_stateScoreEarnForGame - _muchMorePointsLosser, -_muchMoreWinnerDifferance);
+        }
+        public (int, int) WinnerHadLessPointsThanLosser(User winner, User losser)
+        {
+            winner.Rating += _stateScoreEarnForGame + _muchMoreWinnerDifferance;
+            losser.Rating -= _stateScoreEarnForGame + _muchMorePointsLosser;
+            return (_stateScoreEarnForGame + _muchMoreWinnerDifferance, 
+                -_stateScoreEarnForGame - _muchMorePointsLosser);
+        }
     }
 }

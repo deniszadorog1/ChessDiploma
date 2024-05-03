@@ -8,6 +8,7 @@ using ChessLib.Enums.Players;
 using ChessLib.Other;
 using ChessLib.FieldModels;
 using ChessLib.Figures;
+using System.Threading;
 
 namespace ChessLib.PlayerModels
 {
@@ -55,7 +56,7 @@ namespace ChessLib.PlayerModels
                             return movesToCheck.PossibleMoves.First();
                         }*/
 
-            return GetTheBestMove(field, player, movesToCheck);
+            //return GetTheBestMove(field, player, movesToCheck);
             return GetTheBestMoveAsyncTest(field, player, movesToCheck).Result;
             #endregion
         }
@@ -76,48 +77,23 @@ namespace ChessLib.PlayerModels
         public async Task<Move> GetTheBestMoveAsyncTest(Field field,
             Player player, AllMoves moves)
         {
-            object locker = new object();
-
-            List<double> scores = new List<double>();
-
-            List<Task<double>> test = new List<Task<double>>();
             List<(int, double)> results = new List<(int, double)>();
-
-            DateTime start = DateTime.Now;
 
             for (int i = 0; i < moves.PossibleMoves.Count; i++)
             {
                 int index = i;
-
-                test.Add(Task.Run(async () =>
-                {
-
-                    double result = await GetScoreForMove
-                    (field, player, moves.PossibleMoves[index]);
-
-                    lock (locker)
-                    {
-                        results.Add((index, result));
-                    }
-                    //Console.WriteLine(DateTime.Now - startTask + "  Pot end index: " + index);
-                    return result;
-                    
-                }));
+                double result = await GetScoreForMoveAsync(field, player, moves.PossibleMoves[i]);
+                results.Add((index, result));
             }
-            await Task.WhenAll(test);
 
             return GetResMoves(results, moves).PossibleMoves.First();
         }
-
-        public AllMoves GetResMoves(List<(int, double)> indexAndScoreForMoves, AllMoves allMoves)
+        public async Task<double> GetScoreForMoveAsync(Field field, Player player, Move move)
         {
-            AllMoves resMoves = new AllMoves();
-            double maxScore = int.MinValue;
-            maxScore = indexAndScoreForMoves.Max(x => x.Item2);
-            resMoves.PossibleMoves = indexAndScoreForMoves.Where(x => x.Item2 == maxScore).
-                Select(x => allMoves.PossibleMoves[x.Item1]).ToList();
-            return resMoves;
+            double result = await GetScoreForMove(field, player, move);
+            return result;
         }
+
         public async Task<double> GetScoreForMove(Field field, Player player, Move move)
         {
             Field tempField = new Field(field);
@@ -128,6 +104,58 @@ namespace ChessLib.PlayerModels
             return GetScoresForMovesInDepth(tempField,
                 _depth - 1, false, _startAlphaValue, _startBetaValue, player, field.GetAnoutherPlayer(player), null);
         }
+        /* public async Task<Move> GetTheBestMoveAsyncTest(Field field, Player player, AllMoves moves)
+         {
+             SemaphoreSlim semaphore = new SemaphoreSlim(1, 1); // Initialize a semaphore
+             List<Task<double>> tasks = new List<Task<double>>();
+             List<(int Index, double Score)> results = new List<(int Index, double Score)>();
+
+             DateTime start = DateTime.Now;
+
+             for (int i = 0; i < moves.PossibleMoves.Count; i++)
+             {
+                 int currentIndex = i; // Create a local variable
+
+                 tasks.Add(Task.Run(async () =>
+                 {
+                     double result = await GetScoreForMove(field, player, moves.PossibleMoves[currentIndex]);
+
+                     await semaphore.WaitAsync(); // Acquire the semaphore
+                     try
+                     {
+                         results.Add((currentIndex, result));
+                     }
+                     finally
+                     {
+                         semaphore.Release(); // Release the semaphore
+                     }
+                     //Console.WriteLine(DateTime.Now - startTask + "  Pot end index: " + currentIndex);
+                     return result;
+                 }));
+             }
+            try
+             {
+                 await Task.WhenAll(tasks);
+             }
+             catch (Exception ex)
+             {
+                 Console.WriteLine($"Exception occurred: {ex}");
+                 // Handle the exception or log it appropriately
+             }
+
+             return GetResMoves(results, moves).PossibleMoves.FirstOrDefault();
+         }*/
+
+        public AllMoves GetResMoves(List<(int, double)> indexAndScoreForMoves, AllMoves allMoves)
+        {
+            AllMoves resMoves = new AllMoves();
+            double maxScore = int.MinValue;
+            maxScore = indexAndScoreForMoves.Max(x => x.Item2);
+            resMoves.PossibleMoves = indexAndScoreForMoves.Where(x => x.Item2 == maxScore).
+                Select(x => allMoves.PossibleMoves[x.Item1]).ToList();
+            return resMoves;
+        }
+
         public double GetScoresForMovesInDepth(Field field, int depth, bool minOrMaxValue,
             double alpha, double beta, Player startPlayer, Player tempPlayer, AllMoves hitsToCheckAtTheEnd)
         {
