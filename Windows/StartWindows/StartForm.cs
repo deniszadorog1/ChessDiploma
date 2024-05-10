@@ -35,6 +35,13 @@ namespace ChessDiploma
 
         private List<User> _users = DbUsage.GetAllUsers();
 
+        private const int _butWidth = 145;
+        private const int _butHeight = 50;
+        private const int _enterPanelHeight = 150;
+        private const int _halfDevider = 2;
+
+
+
         public StartForm()
         {
             InitializeComponent();
@@ -65,7 +72,8 @@ namespace ChessDiploma
             shortProgName.ForeColor = _leftPanelTextColor;
             shortProgName.Text = "Chess program";
             shortProgName.Font = new Font("Times New Roman", 32);
-            shortProgName.Location = new Point(0, _leftPanel.Height / 2 - shortProgName.Height);
+            shortProgName.Location = new Point(0, 
+                _leftPanel.Height / _halfDevider - shortProgName.Height);
             shortProgName.AutoSize = true;
 
             Label programName = new Label();
@@ -73,9 +81,9 @@ namespace ChessDiploma
             programName.Font = new Font("Times New Roman", 24);
             programName.Location = new Point(0, shortProgName.Location.Y + shortProgName.Size.Height);
             programName.AutoSize = true;
-            programName.Location = new Point(programName.Location.X, programName.Location.Y + programName.Height);
+            programName.Location = new Point(programName.Location.X, 
+                programName.Location.Y + programName.Height);
             programName.Text = "Application for training the game of chess";
-
 
             _leftPanel.Controls.Add(shortProgName);
             _leftPanel.Controls.Add(programName);
@@ -88,9 +96,11 @@ namespace ChessDiploma
         {
             Panel enterPanel = new Panel();
 
-            enterPanel.Size = new Size(Width / 2 - _enterPanelSpaces * 2, 150);
+            enterPanel.Size = new Size(Width / _halfDevider - _enterPanelSpaces * 
+                _halfDevider, _enterPanelHeight);
             //enterPanel.BorderStyle = BorderStyle.FixedSingle;
-            enterPanel.Location = new Point(_enterPanelSpaces, Height / 2 - enterPanel.Height / 2);
+            enterPanel.Location = new Point(_enterPanelSpaces, 
+                Height / _halfDevider - enterPanel.Height / _halfDevider);
 
             Label loginLB = new Label();
             InitParamsForEnterLogingPanelLBs(loginLB, "Login");
@@ -115,7 +125,8 @@ namespace ChessDiploma
 
             _createAccount = new Button();
             InitParamsForButtonsInLoginPanel(_createAccount, "Create account");
-            _createAccount.Location = new Point(_loginIn.Width + _spaceInEnterLoginPanel * 2, _loginIn.Location.Y);
+            _createAccount.Location = new Point(_loginIn.Width + _spaceInEnterLoginPanel * 
+                _halfDevider, _loginIn.Location.Y);
             _createAccount.Click += CreateAccount_Click;
 
             enterPanel.Controls.Add(loginLB);
@@ -154,7 +165,7 @@ namespace ChessDiploma
 
         public void InitParamsForButtonsInLoginPanel(Button but, string text)
         {
-            but.Size = new Size(145, 50 - _spaceInEnterLoginPanel);
+            but.Size = new Size(_butWidth, _butHeight - _spaceInEnterLoginPanel);
             but.Text = text;
             but.Font = _loginPanelLBsFont;
         }
@@ -166,9 +177,12 @@ namespace ChessDiploma
         }
         public void InitParamsForEnterLoginTextBoxes(TextBox box)
         {
+            const int maxLengthInTextBox = 32;
+            const int boxWidth = 300;
+
             box.Font = new Font("Times new Roman", 14);
-            box.MaxLength = 32;
-            box.Width = 300;
+            box.MaxLength = maxLengthInTextBox;
+            box.Width = boxWidth;
             box.BackColor = SystemColors.Control;
         }
 

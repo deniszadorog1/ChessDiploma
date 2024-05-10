@@ -9,12 +9,13 @@ using ChessLib.Other;
 using ChessLib.PlayerModels;
 using ChessLib.FieldModels;
 using ChessLib.Enums.Figures;
+using ChessLib.Figures.Interfaces;
 
 namespace ChessLib.Figures
 {
-    public class Pawn : Figure
+    public class Pawn : Figure, IFirstMove
     {
-        public bool IfFirstMoveMaken { get; set; }
+        public bool IsFirstMoveMaken { get; set; }
 
         private readonly (int, int) _divisionToMoveForFirstPlayer = (-1, 0);
         public List<(int, int)> _divisionToHitForFirstPlayer = new List<(int, int)>() { (-1, -1), (-1, 1) };
@@ -41,7 +42,7 @@ namespace ChessLib.Figures
             base(figColor, figureId, figCord, ownerSide)
         {
             FigureColor = figColor;
-            IfFirstMoveMaken = ifMakenOneMove;
+            IsFirstMoveMaken = ifMakenOneMove;
             FigureID = figureId;
             FigureCord = figCord;
             OwnerSide = ownerSide;
@@ -54,7 +55,7 @@ namespace ChessLib.Figures
         }
         public override Figure GetCopy()
         {
-            return new Pawn(FigureColor, IfFirstMoveMaken, FigureID, FigureCord, OwnerSide);
+            return new Pawn(FigureColor, IsFirstMoveMaken, FigureID, FigureCord, OwnerSide);
         }
         public override double GetScoreForFigure()
         {
@@ -210,7 +211,7 @@ namespace ChessLib.Figures
             //List<(int, int)> res = new List<(int, int)>();
 
             (int, int) usualStepDivision = (player.Side == PlayerSide.Down) ? _divisionToMoveForFirstPlayer : _divisionToMoveForSecondPlayer;
-            int distanse = IfFirstMoveMaken ? _shortMove : _longMoveDistance;
+            int distanse = IsFirstMoveMaken ? _shortMove : _longMoveDistance;
             List<(int, int)> getHitDivision = (player.Side == PlayerSide.Down) ? _divisionToHitForFirstPlayer : _divisionToHitForSecondPlayer;
 
             //Getting usual moves

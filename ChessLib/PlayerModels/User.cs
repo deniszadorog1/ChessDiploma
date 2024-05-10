@@ -8,7 +8,7 @@ using System.Timers;
 using System.Windows.Forms;
 
 using ChessLib.Enums.Players;
-
+using ChessLib.Enums.Figures;
 
 namespace ChessLib.PlayerModels
 {
@@ -33,7 +33,7 @@ namespace ChessLib.PlayerModels
 
         private Form _fromToCloseByTimer;
 
-        public User(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures,
+        public User(string name, PlayerColor playerColor, PlayerSide side, List<(FigType name, int amount)> hitFigures,
             string password, string email, DateTime dateBirth, int rating, int wons, int losts, int draws) :
         base(name, playerColor, side, hitFigures)
         {

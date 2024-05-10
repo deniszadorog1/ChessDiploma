@@ -34,7 +34,6 @@ namespace ChessDiploma.Windows
 
         private Font _defaultFont = new Font("Times New Roman", 22);
 
-
         private bool _fillingFieldMarker = true;
 
         private Panel _fieldPanel = new Panel();
@@ -87,6 +86,7 @@ namespace ChessDiploma.Windows
 
         private const int _timerWidth = 125;
         private bool _ifCellIsClicked = false;
+        private const int _amountOfNmbersOnBoard = 8;
 
         public FieldFrom(Game game, ReplayOrGame type)
         {
@@ -171,7 +171,7 @@ namespace ChessDiploma.Windows
             {
                 Label label = new Label();
 
-                if (Data._game.Players[playerIndex] is User)
+                if (Data._game.IfPlayerIsUser(playerIndex))
                 {
                     ((User)Data._game.Players[playerIndex]).checkTimer = label;
                 }
@@ -193,25 +193,26 @@ namespace ChessDiploma.Windows
             int cellSizePar = _fieldCellSize.Item1;
             int heightIters = 0;
             (int, int) tempLock = _firstCellLock;
+            string str;
             for (int i = 0; i < _field.GetLength(0); i++)
             {
                 for (int j = 0; j < _field.GetLength(1); j++)
                 {
                     _field[i, j] = new PictureBox();
                     Figure figure = Data._game.InitCord((i, j));
-
+                    str = $"({i},{j})";
                     if (j == 0)
                     {
                         tempLock = _firstCellLock;
                         int heightMultyplier = cellSizePar * heightIters;
                         tempLock = (_firstCellLock.Item1, tempLock.Item2 + heightMultyplier);
-                        AddPictureBox(GetTempColor(), tempLock, (i, j));
+                        AddPictureBox(GetTempColor(), tempLock, (i, j), str);
                         heightIters++;
                     }
                     else
                     {
                         tempLock = (tempLock.Item1 + cellSizePar, tempLock.Item2);
-                        AddPictureBox(GetCellColor(), tempLock, (i, j));
+                        AddPictureBox(GetCellColor(), tempLock, (i, j), str);
                     }
                     InitImageInCell(GetImageForCell(figure), (i, j));
                 }
@@ -288,33 +289,38 @@ namespace ChessDiploma.Windows
         }
         public void InitSizes()
         {
+            const int thirdPart = 3;
+            const int half = 2;
+            const int fourthPart = 4;
+            const double fieldWidthMuliplier = 1.25;
+
             //Main menu params
-            _mainMenuSize.Width = Width / 4;
+            _mainMenuSize.Width = Width / fourthPart;
             _mainMenuSize.Height = Height;
 
             //InGame menu params
-            _inGameMenuSize.Width = Width / 4;
+            _inGameMenuSize.Width = Width / fourthPart;
             _inGameMenuSize.Height = Height;
-            _inGameMenuLocation.X = Width / 4 * 3;
+            _inGameMenuLocation.X = Width / fourthPart * thirdPart;
             _inGameMenuLocation.Y = 0;
 
             //field params
             int sizeParam = _fieldCellSize.Item1 * (_amountOfSquaresInField /
                 _amountOfRows) + _fieldBorederSize.Item1; //420
             _fieldPanel.Size = new Size(sizeParam, sizeParam);
-            _fieldPanel.Location = new Point(Width / 2 - sizeParam / 2, Height / 2 - sizeParam / 2);
+            _fieldPanel.Location = new Point(Width / half - sizeParam / half, Height / half - sizeParam / half);
 
             //first player params
-            int playerPanelWidthParam = (int)(_fieldPanel.Width * 1.25);
-            int playerPanelHeightParam = _fieldPanel.Location.Y - _indentPlayerPanelBorder * 2;
+            int playerPanelWidthParam = (int)(_fieldPanel.Width * fieldWidthMuliplier);
+            int playerPanelHeightParam = _fieldPanel.Location.Y - _indentPlayerPanelBorder * half;
 
             int firstPlayerPanelYLocation = _fieldPanel.Location.Y + _fieldPanel.Size.Height + _indentPlayerPanelBorder;
             _firstPlayerPanelSize = new Size(playerPanelWidthParam, playerPanelHeightParam);
-            _firstPlayerPlanelLocation = new Point(Width / 2 - _firstPlayerPanelSize.Width / 2, firstPlayerPanelYLocation);
+            _firstPlayerPlanelLocation = new Point(Width / half - _firstPlayerPanelSize.Width / half, firstPlayerPanelYLocation);
 
             //second player params
             _secondPlayerPanelSize = new Size(playerPanelWidthParam, playerPanelHeightParam);
-            _secondPlanelLocation = new Point(Width / 2 - _firstPlayerPanelSize.Width / 2, _indentPlayerPanelBorder);
+            _secondPlanelLocation = new Point(Width / half - _firstPlayerPanelSize.Width / half, _indentPlayerPanelBorder);
         }
         //CREATING FIELD 
         //FIELD - Panel
@@ -342,27 +348,32 @@ namespace ChessDiploma.Windows
             return _secondCellColor;
         }
 
-        private PictureBox draggedPictureBox = null;
-        private Point offset;
+        string startTag, endTag;
+        Cursor _cursor;
+        private bool _ifDroped = false;
 
-        public void AddPictureBox(Color color, (int, int) loc, (int x, int y) cord)
+        public void AddPictureBox(Color color, (int, int) loc, (int x, int y) cord, string tag)
         {
             _field[cord.x, cord.y].BorderStyle = BorderStyle.FixedSingle;
             _field[cord.x, cord.y].BackColor = color;
-            _field[cord.x, cord.y].Size = new Size(50, 50);
+            _field[cord.x, cord.y].Size = new Size(_fieldCellSize.Item1, _fieldCellSize.Item2);
             _field[cord.x, cord.y].Location = new Point(loc.Item1, loc.Item2);
             _field[cord.x, cord.y].BorderStyle = BorderStyle.None;
             _field[cord.x, cord.y].AllowDrop = true;
+            _field[cord.x, cord.y].Tag = tag;
 
             _originalColors[cord.x, cord.y] = color;
 
             _field[cord.x, cord.y].MouseEnter += (sender, e) =>
             {
-                if (Data._game.IfStepersFigIsInCell(cord) && !_ifCellIsClicked && 
+                _field[cord.x, cord.y].Cursor = Cursors.Default;
+
+                if (Data._game.IfStepersFigIsInCell(cord) && !_ifCellIsClicked &&
                 _formType == ReplayOrGame.Game)
                 {
                     _field[cord.x, cord.y].BackColor = Color.Yellow;
                 }
+
             };
             _field[cord.x, cord.y].MouseLeave += (sender, e) =>
             {
@@ -372,64 +383,157 @@ namespace ChessDiploma.Windows
                 }
             };
 
+            _field[cord.x, cord.y].GiveFeedback += (sender, e) =>
+            {
+                e.UseDefaultCursors = false;
+                _field[cord.x, cord.y].Cursor = _cursor;
+            };
+
 
 
             _field[cord.x, cord.y].MouseMove += (sender, e) =>
             {
-                if (draggedPictureBox != null)
+                if (!(sender is PictureBox pic)) return;
+                if (pic.Image is null) return;
+
+                /*Cursor cursor = new Cursor(((Bitmap)pic.Image).GetHicon());
+                pic.Cursor = cursor;*/
+            };
+            _field[cord.x, cord.y].MouseDown += (sender, e) =>
+            {
+                //return if its replay mode
+                if (_formType == ReplayOrGame.Replay) return;
+
+                if (!(sender is PictureBox pic)) return;
+                if (pic.Image is null) return;
+
+                //if figure is steppes
+                if (!IfFigureIsStepers(cord)) return;
+
+                Cursor cursor = new Cursor(((Bitmap)pic.Image).GetHicon());
+                pic.Cursor = cursor;
+                _cursor = cursor;
+
+                startTag = pic.Tag.ToString();
+
+                //get moves, paint BGs cords to step on in yellow
+                InitMoveForStepper(cord);
+
+                if (pic.DoDragDrop(pic.Image, DragDropEffects.Move) == DragDropEffects.Move)
                 {
-                    Point newLocation = _fieldPanel.PointToClient(MousePosition);
-                    newLocation.Offset(-offset.X, -offset.Y);
-                    draggedPictureBox.Location = newLocation;
+                    if (_ifDroped)
+                    {
+                        (int, int) endTagCord = GetCordByTag(endTag);
+
+                        if (endTagCord != (-1, -1) && startTag != endTag &&
+                        _field[endTagCord.Item1, endTagCord.Item2].BackColor == Color.Yellow)
+                        {
+                            pic.Visible = false;
+                            RasingMoveDragDrop(endTagCord);
+                            pic.Image = null;
+                            pic.Visible = true;
+                        }
+                    }
+                }
+                AssignOriginalColors();
+                if (Data._game._ifGameEnded)
+                {
+                    MessageBox.Show(GetGameResString(), "Game Ended!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Close();
+                }
+                _ifCellIsClicked = false;
+            };
+
+            _field[cord.x, cord.y].DragOver += (sender, e) =>
+            {
+                PictureBox pictureBox = sender as PictureBox;
+
+                if (pictureBox != null && pictureBox.Image != null)
+                {
+                    e.Effect = DragDropEffects.Move;
+                }
+                if (_field[cord.x, cord.y].BackColor == Color.Yellow && Data._game.IfFigureIsEnemysOrEmpty(cord))
+                {
+                    const int diffPicLength = 2;
+                    const int penSize = 1;
+                    Graphics g = pictureBox.CreateGraphics();
+
+                    // Задаем цвет и толщину рамки (границы)
+                    Pen pen = new Pen(_borderColor, diffPicLength);
+
+                    // Получаем размеры PictureBox (без учета границ)
+                    int pbWidth = pictureBox.Width - diffPicLength; // -2 для учета границ
+                    int pbHeight = pictureBox.Height - diffPicLength; // -2 для учета границ
+
+                    // Рисуем рамку внутри границ PictureBox
+                    g.DrawRectangle(pen, penSize, penSize, pbWidth, pbHeight);
+
+                    // Освобождаем ресурсы
+                    pen.Dispose();
+                    g.Dispose();
+                }
+            };
+            _field[cord.x, cord.y].DragLeave += (sender, e) =>
+            {
+                PictureBox box = sender as PictureBox;
+                if (_field[cord.x, cord.y].BackColor == Color.Yellow)
+                {
+                    // Получаем объект Graphics для рисования на PictureBox
+                    Graphics g = box.CreateGraphics();
+
+                    // Очищаем содержимое PictureBox
+
+                    //g.Clear(box.BackColor);
+
+                    _field[cord.x, cord.y].Invalidate();
+
+
+                    // Освобождаем ресурсы
+                    g.Dispose();
                 }
             };
 
-            _field[cord.x, cord.y].MouseDown += (sender, e) =>
+            _field[cord.x, cord.y].DragDrop += (sender, e) =>
             {
-                if (e.Button == MouseButtons.Left)
+                //if figure can step on this cell
+                if (_field[cord.x, cord.y].BackColor != Color.Yellow)
                 {
-                    draggedPictureBox = sender as PictureBox;
-                    offset = e.Location;
+                    _ifDroped = false;
+                    return;
                 }
-            };
-            _field[cord.x, cord.y].MouseUp += (sender, e) =>
-            {
-                draggedPictureBox = null;
+                Image img = (Bitmap)e.Data.GetData(DataFormats.Bitmap);
+                ((PictureBox)sender).Image = img;
+
+                endTag = ((PictureBox)sender).Tag.ToString();
+                _ifDroped = true;
             };
 
             _field[cord.x, cord.y].DragEnter += (sender, e) =>
             {
+                PictureBox box = sender as PictureBox;
+
                 if (e.Data.GetDataPresent(DataFormats.Bitmap))
                 {
                     e.Effect = DragDropEffects.Move;
                 }
-                else
-                {
-                    e.Effect = DragDropEffects.None;
-                }
             };
-
-            _fieldPanel.DragDrop += (sender, e) =>
+            _field[cord.x, cord.y].MouseLeave += (sender, e) =>
             {
-                if (e.Data.GetDataPresent(DataFormats.Bitmap))
+                if (sender is PictureBox pic)
                 {
-                    PictureBox pictureBox = new PictureBox();
-                    pictureBox.Image = (Bitmap)e.Data.GetData(DataFormats.Bitmap);
-                    pictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-                    pictureBox.Size = new Size(100, 100);
-                    _fieldPanel.Controls.Add(pictureBox);
-                    pictureBox.Location = _fieldPanel.PointToClient(new Point(e.X, e.Y));
+                    pic.Cursor = Cursors.Default;
                 }
             };
+            _fieldPanel.MouseLeave += (sender, e) =>
+            {
+                Cursor = Cursors.Default;
+            };
 
-
-            _field[cord.x, cord.y].Click += (sender, e) =>
+            _field[cord.x, cord.y].MouseUp += (sender, e) =>
             {
                 if (_formType == ReplayOrGame.Replay) return;
                 _chosenStepIndex = GetMoveIndexToMake(cord);
 
-                //Check for three equals moves 
-                //Check for 50 moves without hit
                 CheckForDrawByWithOutHitAndEqualMove();
 
                 if (_field[cord.x, cord.y].BackColor == Color.Yellow && _chosenStepIndex != -1 && _ifCellIsClicked)
@@ -475,6 +579,71 @@ namespace ChessDiploma.Windows
             };
             _fieldPanel.Controls.Add(_field[cord.x, cord.y]);
         }
+        private void RasingMoveDragDrop((int, int) cord)
+        {
+            _chosenStepIndex = GetMoveIndexToMake(cord);
+
+            TotalMoveReassign(_moves.PossibleMoves[_chosenStepIndex]);
+            AddMoveInHistory(_moves.PossibleMoves[_chosenStepIndex], false);
+
+            AssignOriginalColors();
+
+            if (!(_moves.PossibleMoves[_chosenStepIndex].HitFigure is null))
+            {
+                Figure fig = _moves.PossibleMoves[_chosenStepIndex].HitFigure;
+                UpdateHitFiguresPanel(fig);
+            }
+            CheckForDrawByWithOutHitAndEqualMove();
+
+            if(IfCheckMateOrPate()) return;
+
+            if (Data._game.IfPawnCameToTheEndOfBoard())
+            {
+                ShowConvertPanel(cord);
+            }
+            else
+            {
+                ChangeSteper();
+                BotStep();
+            }
+        }
+        private void InitMoveForStepper((int x, int y) cord)
+        {
+            if (!(_field[cord.x, cord.y].Image is null) && Data._game.IfFigureIsStepers(cord))
+            {
+                _field[cord.x, cord.y].BackColor = Color.Yellow;
+                _ifCellIsClicked = true;
+                _moves = new AllMoves();
+
+                _moves = Data._game.GetMovesForFigure(cord);
+
+                ShowEndPointsToMove();
+            }
+        }
+        public bool IfFigureIsStepers((int x, int y) cord)
+        {
+            return Data._game.IfFigureIsStepers(cord);
+        }
+        public (int, int) GetCordByTag(string picBoxTag)
+        {
+            (int x, int y) cord = (-1, -1);
+
+            int counter = 0;
+            for (int i = 0; i < picBoxTag.Length; i++)
+            {
+                if (counter == 0 && Char.IsDigit(picBoxTag[i]))
+                {
+                    int.TryParse(picBoxTag[i].ToString(), out cord.x);
+                    counter++;
+                }
+                else if (counter == 1 && Char.IsDigit(picBoxTag[i]))
+                {
+                    int.TryParse(picBoxTag[i].ToString(), out cord.y);
+                    return cord;
+                }
+            }
+            return cord;
+        }
 
         private void BotStep()
         {
@@ -487,47 +656,52 @@ namespace ChessDiploma.Windows
                 ChangeSteper();
             }
         }
-        public void IfCheckMateOrPate()
+        public bool IfCheckMateOrPate()
         {
             if (Data._game.IfSteperCheckMated())
             {
-                MessageBox.Show("Game ended. " + Data._game._steper.Login + " WON", "Game ended!", MessageBoxButtons.OK);
+                Data._game.StopTimers();
+                Data._game.InitGameResult(Data._game.GetWinnerResult());
                 Data._game.StepperWonTheGame();
+
                 Data._game.InitWinnerGameResult();
                 GameEnded();
-
-                //Data.UpdatePlayersInDB();
-                Close();
+                Data._game._ifGameEnded = true;
+                return true;
             }
             else if (Data._game.IfGameEndedByPate())
             {
-                MessageBox.Show("Game ended. Its Draw(Pate)");
+                Data._game.StopTimers();
                 Data._game.GameEndedByDraw();
                 Data._game.InitGameResultDraw();
                 GameEnded();
-                //Data.UpdatePlayersInDB();
-                Close();
+                Data._game.InitGameResult(GameResult.Draw);
+
+                Data._game._ifGameEnded = true;
+                return true;
             }
+            return false;
         }
         public void CheckForDrawByWithOutHitAndEqualMove()
         {
             if (Data._game.IfItsDrawByEqualMoves())
             {
-                MessageBox.Show("Players made 3 equal moves. Its Draw!");
+                Data._game.StopTimers();
                 Data._game.GameEndedByDraw();
                 Data._game.InitGameResultDraw();
 
                 GameEnded();
-                Close();
+                //Close();
             }
             else if (Data._game.IfItsDrawByMovesWithoutHitting())
             {
-                MessageBox.Show("Made too much moves without hitting!");
+                Data._game.StopTimers();
+                Data._game.InitGameResult(GameResult.Draw);
                 Data._game.GameEndedByDraw();
                 Data._game.InitGameResultDraw();
 
                 GameEnded();
-                Close();
+                //Close();
             }
         }
         public void TotalMoveReassign(Move move)
@@ -573,13 +747,15 @@ namespace ChessDiploma.Windows
 
             string toSaveString = InitMoveInMoveList(move, steperColor);
 
+            const int sizeWidth = 10;
+            const int heightWidth = 10;
+
             Label newMove = new Label();
             newMove.AutoSize = true;
-            newMove.Size = new Size(10, 50);
+            newMove.Size = new Size(sizeWidth, heightWidth);
             newMove.Text = toSaveString;
             newMove.Font = new Font("Times New Roman", 14);
             movesPanel.Controls.Add(newMove);
-
 
             return newMove;
             //MessageBox.Show("asd");
@@ -619,18 +795,24 @@ namespace ChessDiploma.Windows
             //Hiiting {From}x{To}
 
             string result = "";
-            int castlingMoveAmount = 4;
+            const int castlingMoveAmount = 4;
+            const string moveDevider = " - ";
+            const string shortCastling = "O-O";
+            const string largeCastling = "O-O-O";
+            const string hitSign = " x ";
+
+
             if (move.OneMove.Count == castlingMoveAmount)
             {
-                result = stepperColor + " - ";
-                result += move.OneMove.Exists(x => x.Item2 == 0) ? "O-O-O" : "O-O";
+                result = stepperColor + moveDevider;
+                result += move.OneMove.Exists(x => x.Item2 == 0) ? largeCastling : shortCastling;
             }
             else if (!(move.HitFigure is null))
             {
                 (int, int) from = move.OneMove.First();
                 (int, int) to = move.OneMove.Last();
 
-                result = stepperColor + " - " + ConvertMove(from.Item2) + ConvertNumber(from.Item1) + " x " +
+                result = stepperColor + moveDevider + ConvertMove(from.Item2) + ConvertNumber(from.Item1) + hitSign +
                     ConvertMove(to.Item2) + ConvertNumber(to.Item1);
             }
             else //usual move
@@ -638,7 +820,7 @@ namespace ChessDiploma.Windows
                 (int, int) from = move.OneMove.First();
                 (int, int) to = move.OneMove.Last();
 
-                result = stepperColor + " - " + ConvertMove(from.Item2) + ConvertNumber(from.Item1) + " - " +
+                result = stepperColor + moveDevider + ConvertMove(from.Item2) + ConvertNumber(from.Item1) + moveDevider +
                     ConvertMove(to.Item2) + ConvertNumber(to.Item1);
             }
             return result;
@@ -649,7 +831,7 @@ namespace ChessDiploma.Windows
         }
         public string ConvertNumber(int number)
         {
-            return (8 - number).ToString();
+            return (_amountOfNmbersOnBoard - number).ToString();
         }
         public void ShowConvertPanel((int x, int y) cord)
         {
@@ -682,10 +864,12 @@ namespace ChessDiploma.Windows
 
         public int GetXLocationForConvertPanel((int y, int x) cord, int panelWidth, int pointX)
         {
+            const int half = 2;
+            const int thirdPart = 3;
             if (!_leftXConvertErrorCords.Contains(cord.x) &&
                 !_rightXConvertErrorCords.Contains(cord.x))
             {
-                return pointX + _fieldCellSize.Item1 / 2 - panelWidth / 2;
+                return pointX + _fieldCellSize.Item1 / half - panelWidth / half;
             }
             else if (_leftXConvertErrorCords.Contains(cord.x))
             {
@@ -693,7 +877,7 @@ namespace ChessDiploma.Windows
             }
             else // cordX - 6 || 7
             {
-                return pointX - _fieldCellSize.Item1 * 3;
+                return pointX - _fieldCellSize.Item1 * thirdPart;
             }
 
             //return 0;
@@ -769,36 +953,34 @@ namespace ChessDiploma.Windows
         {
             _ifCellIsClicked = false;
             Data._game.ChangeSteper();
-           
+
             int inGameMenuSteperIndex = GetInGameMenuSteperIndex();
             if (inGameMenuSteperIndex != -1)
             {
                 (string, string) stepperParams =
                     Data._game.GetSteppersNameAdnColor();
                 _inGameMenu.Controls[inGameMenuSteperIndex].Text =
-                    "Stepper: " + "\n" + stepperParams.Item1 + ". Color - " + stepperParams.Item2;
+                    "Stepper:\n" + stepperParams.Item1 + ". Color - " + stepperParams.Item2;
             }
 
         }
         public int GetInGameMenuSteperIndex()
         {
-            for (int i = 0; i < _inGameMenu.Controls.Count; i++)
-            {
-                if (i == 0 && _inGameMenu.Controls[i] is Label)
-                {
-                    return i;
-                }
-            }
-            return -1;
+            return (_inGameMenu.Controls.Count > 0 && _inGameMenu.Controls[0] is Label) ? 0 : -1;
         }
 
         public ConvertPawn GetFigureTypeToConvert(string figName)
         {
-            if (figName == "WhiteQueen" || figName == "BlackQueen") return ConvertPawn.Queen;
-            if (figName == "WhiteRook" || figName == "BlackRook") return ConvertPawn.Rook;
-            if (figName == "WhiteBishop" || figName == "BlackBishop") return ConvertPawn.Bishop;
-            if (figName == "WhiteHorse" || figName == "BlackHorse") return ConvertPawn.Horse;
-            return new ConvertPawn();
+            return figName.Contains("Queen") ? ConvertPawn.Queen :
+                   figName.Contains("Rook") ? ConvertPawn.Rook :
+                   figName.Contains("Bishop") ? ConvertPawn.Bishop :
+                   figName.Contains("Horse") ? ConvertPawn.Horse : new ConvertPawn();
+
+            /*          if (figName.Contains("Queen")) return ConvertPawn.Queen;
+                        if (figName == "WhiteRook" || figName == "BlackRook") return ConvertPawn.Rook;
+                        if (figName == "WhiteBishop" || figName == "BlackBishop") return ConvertPawn.Bishop;
+                        if (figName == "WhiteHorse" || figName == "BlackHorse") return ConvertPawn.Horse;
+                        return new ConvertPawn();*/
         }
         public void HideConvertPanels()
         {
@@ -809,12 +991,13 @@ namespace ChessDiploma.Windows
         {
             if (!move.IfMoveContainsTime()) Data._game.AssignTimeOnTimerInMove(move);
             Data._game.InitCastlingType(move);
+            const int half = 2;
 
             Image toFill = null;
             for (int i = 0; i < move.OneMove.Count; i++)
             {
                 (int x, int y) cord = move.OneMove[i];
-                if (i % 2 == 0 || i == 0)
+                if (i % half == 0)
                 {
                     toFill = _field[cord.x, cord.y].Image;
                     _field[cord.x, cord.y].Image = null;
@@ -842,16 +1025,18 @@ namespace ChessDiploma.Windows
 
         private void ShowEndPointsToMove()
         {
+            const int pointsInUsualMove = 2;
+            const int pointIndexInCastling = 1;
             for (int i = 0; i < _moves.PossibleMoves.Count; i++)
             {
-                if (_moves.PossibleMoves[i].OneMove.Count == 2)
+                if (_moves.PossibleMoves[i].OneMove.Count == pointsInUsualMove)
                 {
                     (int x, int y) endMovePoint = _moves.PossibleMoves[i].OneMove.Last();
                     _field[endMovePoint.x, endMovePoint.y].BackColor = Color.Yellow;
                 }
                 else
                 {
-                    (int x, int y) endMovePoint = _moves.PossibleMoves[i].OneMove[1];
+                    (int x, int y) endMovePoint = _moves.PossibleMoves[i].OneMove[pointIndexInCastling];
                     _field[endMovePoint.x, endMovePoint.y].BackColor = Color.Yellow;
                 }
             }
@@ -868,6 +1053,16 @@ namespace ChessDiploma.Windows
                     }
                 }
             }
+            for (int i = 0; i < _field.GetLength(0); i++)
+            {
+                for (int j = 0; j < _field.GetLength(1); j++)
+                {
+                    _field[i, j].Refresh();
+                }
+            }
+
+
+
         }
         public void InitGamePanels()
         {
@@ -877,8 +1072,8 @@ namespace ChessDiploma.Windows
             InitPlayerPanel(_firstPlayerPanel, Data._game.GetFirstPlayerName(), "hitFigsFirst", _firstPlayerPanelSize, _firstPlayerPlanelLocation);
             InitPlayerPanel(_secondPlayerPanel, Data._game.GetLastPlayerName(), "hitFigsSecond", _secondPlayerPanelSize, _secondPlanelLocation);
 
-            Player firstPlayer = Data._game.GetPlayer(0);
-            Player secondPlayer = Data._game.GetPlayer(Data._game.Players.Count - 1);
+            Player firstPlayer = Data._game.GetFirstPlayer();
+            Player secondPlayer = Data._game.GetLastPlayer();
 
             FillPlayerPlanels(_firstPlayerPanel, firstPlayer);
             FillPlayerPlanels(_secondPlayerPanel, secondPlayer);
@@ -963,10 +1158,10 @@ namespace ChessDiploma.Windows
             int count = Data._game.GetAmountOfHitFigureList();
             PlayerColor color = player.Color;// Data._game.GetPlayerColor();
 
-            int panelWidth = 75;
+            const int panelWidth = 75;
             for (int i = 0; i < count; i++)
             {
-                (string name, int amount) hitFig = Data._game.GetPlayerHitFigure(i, player);
+                (FigType name, int amount) hitFig = Data._game.GetPlayerHitFigure(i, player);
                 if (hitFig.amount != 0)
                 {
                     Panel newPanel = new Panel();
@@ -996,23 +1191,34 @@ namespace ChessDiploma.Windows
                 }
             }
         }
-        public Image GetHitFigPictureByName(PlayerColor tempPlayerColor, string figName)
+        public Image GetHitFigPictureByName(PlayerColor tempPlayerColor, FigType type)
         {
             if (tempPlayerColor == PlayerColor.White)
             {
-                return figName == "pawn" ? _images.Find(x => x.Tag.ToString() == "BlackPawn") :
-                    figName == "rook" ? _images.Find(x => x.Tag.ToString() == "BlackRook") :
-                    figName == "horse" ? _images.Find(x => x.Tag.ToString() == "BlackHorse") :
-                    figName == "bishop" ? _images.Find(x => x.Tag.ToString() == "BlackBishop") :
-                    figName == "queen" ? _images.Find(x => x.Tag.ToString() == "BlackQueen") : null;
+                return type == FigType.Pawn ? _images.Find(x => x.Tag.ToString() ==
+                FiguresTypesByColors.BlackPawn.ToString()) :
+                    type == FigType.Rook ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.BlackRook.ToString()) :
+                    type == FigType.Horse ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.BlackHorse.ToString()) :
+                    type == FigType.Bishop ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.BlackBishop.ToString()) :
+                    type == FigType.Queen ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.BlackQueen.ToString()) : null;
             }
             else//Black
             {
-                return figName == "pawn" ? _images.Find(x => x.Tag.ToString() == "WhitePawn") :
-                    figName == "rook" ? _images.Find(x => x.Tag.ToString() == "WhiteRook") :
-                    figName == "horse" ? _images.Find(x => x.Tag.ToString() == "WhiteHorse") :
-                    figName == "bishop" ? _images.Find(x => x.Tag.ToString() == "WhiteBishop") :
-                    figName == "queen" ? _images.Find(x => x.Tag.ToString() == "WhiteQueen") : null;
+                return type == FigType.Pawn ? _images.Find(x => x.Tag.ToString() ==
+                FiguresTypesByColors.WhitePawn.ToString()) :
+                    type == FigType.Rook ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.WhiteRook.ToString()) :
+                    type == FigType.Horse ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.WhiteHorse.ToString()) :
+                    type == FigType.Bishop ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.WhiteBishop.ToString()) :
+
+                    type == FigType.Queen ? _images.Find(x => x.Tag.ToString() ==
+                    FiguresTypesByColors.WhiteQueen.ToString()) : null;
             }
         }
         public Panel GetHitFigsPanel(Player player)
@@ -1030,22 +1236,14 @@ namespace ChessDiploma.Windows
             }
             return null;
         }
-        public void UpdateInGameMenuWhoSteps()
-        {
-            if (_inGameMenu.Controls.ContainsKey("whoSteps"))
-            {
-                (string, string) stepperParams =
-                        Data._game.GetSteppersNameAdnColor();
-                _inGameMenu.Controls["whoSteps"].Text =
-                    "Stepper: " + "\n" + stepperParams.Item1 + ". Color - " + stepperParams.Item2;
-            }
-        }
         private string GetWhoStepsString(string common)
         {
             return _formType == ReplayOrGame.Replay ? "This is Replay" : common;
         }
         public void FillGameMenuPanel()
         {
+            const int panelWidthError = 25;
+
             Label whoStepsName = new Label();
             (string, string) stepperParams =
                 Data._game.GetSteppersNameAdnColor();
@@ -1127,7 +1325,7 @@ namespace ChessDiploma.Windows
             movesList.BorderStyle = BorderStyle.FixedSingle;
             movesList.AutoSize = true;
             movesList.Location = new Point(0, 0);
-            movesList.Size = new Size(_inGameMenu.Width - 25, checkPanel.Height);
+            movesList.Size = new Size(_inGameMenu.Width - panelWidthError, checkPanel.Height);
             movesList.FlowDirection = FlowDirection.TopDown;
             checkPanel.Controls.Add(movesList);
 
@@ -1152,7 +1350,6 @@ namespace ChessDiploma.Windows
             lb.Text = message;
             panel.Controls.Add(lb);
         }
-
         private void SendDraw_Click(object sender, EventArgs e)
         {
             Player player = Data._game.GetAnoutherPlayer();
@@ -1161,23 +1358,25 @@ namespace ChessDiploma.Windows
             {
                 MessageBox.Show("Decline!");
             }
-            TradeOffer offer = new TradeOffer(Data._game._steper);
+            DrawOffer offer = new DrawOffer(Data._game.GetSteper());
             offer.ShowDialog();
             if (offer._answer)
             {
+                Data._game.StopTimers();
                 MessageBox.Show("Accepted!");
                 Data._game.GameEndedByDraw();
                 Data._game.InitGameResultDraw();
                 //Data.UpdatePlayersInDB();
                 GameEnded();
+                Data._game.InitGameResult(GameResult.Draw);
 
-                Close();
+
+               // Close();
             }
             else
             {
                 MessageBox.Show("offer declined!");
             }
-
         }
         private void GoToPreviousMove_Click(object sender, EventArgs e)
         {
@@ -1220,11 +1419,18 @@ namespace ChessDiploma.Windows
         }
         private void GoBackMoveInReplayMode(Move move)
         {
+            const int pointInUsualMove = 2;
+            const int firstFigtempPointIndex = 0;
+            const int firstFigStepOnPointIndex = 1;
+            const int secondFigtempPointIndex = 2;
+            const int secondFigStepOnPointIndex = 3;
+
             Move convertedMove = new Move();
-            if (move.OneMove.Count > 2)
+            if (move.OneMove.Count > pointInUsualMove)
             {
                 convertedMove.OneMove = new List<(int, int)>()
-                { move.OneMove[1], move.OneMove[0], move.OneMove[3], move.OneMove[2] };
+                { move.OneMove[firstFigStepOnPointIndex], move.OneMove[firstFigtempPointIndex],
+                    move.OneMove[secondFigStepOnPointIndex], move.OneMove[secondFigtempPointIndex] };
                 ReassignMove(convertedMove);
                 return;
             }
@@ -1285,16 +1491,8 @@ namespace ChessDiploma.Windows
 
             for (int i = 0; i < moves.Count; i++)
             {
-                Control newControl = AddMoveInMovesHistory(moves[i],
+                _ = AddMoveInMovesHistory(moves[i],
                 moves[i].GetPlayerColor().ToString());
-
-                /*                newControl.Click += (sender, e) =>
-                                {
-                                    FlowLayoutPanel movesPanel = (FlowLayoutPanel)FindFlowLayotPanel(_inGameMenu);
-
-                                    //get inde
-
-                                };*/
             }
         }
         public void ReassignMoveInNextMoveInReplayMode(int moveIndex)
@@ -1324,18 +1522,27 @@ namespace ChessDiploma.Windows
         }
         private Image GetConvertImage(ConvertPawn type, PlayerColor steperColor)
         {
+
             return
-            type == ConvertPawn.Rook && steperColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteRook") :
-            type == ConvertPawn.Rook && steperColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackRook") :
+            type == ConvertPawn.Rook && steperColor == PlayerColor.White ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteRook.ToString()) :
+            type == ConvertPawn.Rook && steperColor == PlayerColor.Black ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackRook.ToString()) :
 
-            type == ConvertPawn.Horse && steperColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteHorse") :
-            type == ConvertPawn.Horse && steperColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackHorse") :
+            type == ConvertPawn.Horse && steperColor == PlayerColor.White ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteHorse.ToString()) :
+            type == ConvertPawn.Horse && steperColor == PlayerColor.Black ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackHorse.ToString()) :
 
-            type == ConvertPawn.Bishop && steperColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteBishop") :
-            type == ConvertPawn.Bishop && steperColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackBishop") :
+            type == ConvertPawn.Bishop && steperColor == PlayerColor.White ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteBishop.ToString()) :
+            type == ConvertPawn.Bishop && steperColor == PlayerColor.Black ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackBishop.ToString()) :
 
-            type == ConvertPawn.Queen && steperColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteQueen") :
-            type == ConvertPawn.Queen && steperColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackQueen") : null;
+            type == ConvertPawn.Queen && steperColor == PlayerColor.White ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteQueen.ToString()) :
+            type == ConvertPawn.Queen && steperColor == PlayerColor.Black ?
+            _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackQueen.ToString()) : null;
         }
 
         private void PaintMoveInPanelInReplyMode(Panel panel)
@@ -1357,33 +1564,45 @@ namespace ChessDiploma.Windows
         }
         private void Givup_Click(object sender, EventArgs e)
         {
-            Player winer = Data._game.GetAnoutherPlayer();
-            MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);
+            Data._game.StopTimers();
+            /*            Player winer = Data._game.GetAnoutherPlayer();
+
+                        MessageBox.Show(winer.Login + " won", "Game ended!", MessageBoxButtons.OK);*/
+
+
             Data._game.InitResultSteperGaveUp();
             Data._game.UpdetePlayersWhenSteperGaveUp();
 
             GameEnded();
-            Close();
+
+            Data._game.InitGameResult(Data._game.GetOpositWinner());
+
+            //Close();
         }
+
         public void GameEnded()
         {
             Data.InitGamesEndDate();
 
-            ShowRaintingAfterGamedEnded();
+            InitRaintingAfterGamedEnded();
 
             Data.InitGameInDB();
+
+            Data._game._ifGameEnded = true;
         }
-        public void ShowRaintingAfterGamedEnded()
+        public void InitRaintingAfterGamedEnded()
         {
             (int, int) res = Data._game.CalcPlayersRainting();
 
-            if (res != (-1, -1))
+            Data._game.InitResScore(res);
+
+/*            if (res != (-1, -1))
             {
                 string text = Data._game.GetFirstPlayerName() + " earned - " + res.Item1.ToString() + "\n" +
                     Data._game.GetSecondPlayerName() + " earned - " + res.Item2.ToString();
 
                 MessageBox.Show(text, "Game ended!", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            }*/
         }
 
         public int GetInGameMovesHistPanelHeight()
@@ -1438,15 +1657,19 @@ namespace ChessDiploma.Windows
                 DeleteFromHitFiguresPanel(lastMove);
             }
         }
-
-
         private void DeclineLastMove(Move move)
         {
             //castling
-            if (move.OneMove.Count > 2)
+            const int pointInUsualMove = 2;
+            const int firstFigtempPointIndex = 0;
+            const int firstFigStepOnPointIndex = 1;
+            const int secondFigtempPointIndex = 2;
+            const int secondFigStepOnPointIndex = 3;
+            if (move.OneMove.Count > pointInUsualMove)
             {
                 Move backMove = new Move(new List<(int, int)>()
-                { move.OneMove[1], move.OneMove[0], move.OneMove[3], move.OneMove[2] });
+                { move.OneMove[firstFigStepOnPointIndex], move.OneMove[firstFigtempPointIndex],
+                    move.OneMove[secondFigStepOnPointIndex], move.OneMove[secondFigtempPointIndex] });
                 ReassignMove(backMove);
                 return;
             }
@@ -1473,54 +1696,64 @@ namespace ChessDiploma.Windows
         }
         public Image GetHitFigureImage(Figure figure)
         {
-
             if (figure is Pawn)
             {
-                return figure.FigureColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhitePawn") :
-                       figure.FigureColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackPawn") :
+                return figure.FigureColor == PlayerColor.White ?
+                    _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhitePawn.ToString()) :
+                       figure.FigureColor == PlayerColor.Black ?
+                       _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackPawn.ToString()) :
                        null;
             }
             else if (figure is Rook)
             {
-                return figure.FigureColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteRook") :
-                       figure.FigureColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackRook") :
+                return figure.FigureColor == PlayerColor.White ?
+                    _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteRook.ToString()) :
+                       figure.FigureColor == PlayerColor.Black ?
+                       _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackRook.ToString()) :
                        null;
             }
             else if (figure is Horse)
             {
-                return figure.FigureColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteHorse") :
-                       figure.FigureColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackHorse") :
+                return figure.FigureColor == PlayerColor.White ?
+                    _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteHorse.ToString()) :
+                       figure.FigureColor == PlayerColor.Black ?
+                       _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackHorse.ToString()) :
                        null;
             }
             else if (figure is Bishop)
             {
-                return figure.FigureColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteBishop") :
-                       figure.FigureColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackBishop") :
+                return figure.FigureColor == PlayerColor.White ?
+                    _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteBishop.ToString()) :
+                       figure.FigureColor == PlayerColor.Black ?
+                       _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackBishop.ToString()) :
                        null;
             }
             else if (figure is Queen)
             {
-                return figure.FigureColor == PlayerColor.White ? _images.Find(x => x.Tag.ToString() == "WhiteQueen") :
-                       figure.FigureColor == PlayerColor.Black ? _images.Find(x => x.Tag.ToString() == "BlackQueen") :
+                return figure.FigureColor == PlayerColor.White ?
+                    _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.WhiteQueen.ToString()) :
+                       figure.FigureColor == PlayerColor.Black ?
+                       _images.Find(x => x.Tag.ToString() == FiguresTypesByColors.BlackQueen.ToString()) :
                        null;
             }
             return null;
         }
         public Image GetPawnImage(PlayerColor color)
         {
+            string imgTag = GetPawnTypeColor(color);
             return color == PlayerColor.White ?
-                _images.Find(x => x.Tag.ToString() == "WhitePawn") :
-                _images.Find(x => x.Tag.ToString() == "BlackPawn");
+                _images.Find(x => x.Tag.ToString() == imgTag) :
+                _images.Find(x => x.Tag.ToString() == imgTag);
+        }
+        private string GetPawnTypeColor(PlayerColor color)
+        {
+            return color == PlayerColor.White ? FiguresTypesByColors.WhitePawn.ToString() :
+                FiguresTypesByColors.BlackPawn.ToString();
         }
         private void FieldFrom_Load(object sender, EventArgs e)
         {
 
         }
-        private void AddGameToDB()
-        {
-            DbUsage.InsertGame(Data._game);
-        }
-
         private void FieldFrom_FormClosing(object sender, FormClosingEventArgs e)
         {
             Data._game.StopTimers();
@@ -1538,27 +1771,48 @@ namespace ChessDiploma.Windows
             Data.InitGameInDB();
             form.Close();
         }
-
         private void InitEndTimerEvent()
         {
-            for(int i = 0; i < Data._game.Players.Count; i++)
+            List<Player> players = Data._game.GetPlayers();
+            for (int i = 0; i < players.Count; i++)
             {
-                if (Data._game.Players[i] is User)
+                if (Data._game.IfPlayerIsUser(i))
                 {
-                    ((User)Data._game.Players[i]).TimerFinished += Timer_TimerFinished;
+                    ((User)players[i]).TimerFinished += Timer_TimerFinished;
                 }
             }
         }
         private void InitFormToCloseByTimer()
         {
-            for (int i = 0; i < Data._game.Players.Count; i++)
+            List<Player> players = Data._game.GetPlayers();
+            for (int i = 0; i < players.Count; i++)
             {
-                if (Data._game.Players[i] is User)
+                if (Data._game.IfPlayerIsUser(i))
                 {
-                    ((User)Data._game.Players[i]).GetFormToCloseByTimer(this);
+                    ((User)players[i]).GetFormToCloseByTimer(this);
                 }
             }
         }
 
+        private string GetGameResString()
+        {
+            (int, int) scoreRes = Data._game.GetResScore();
+
+            string scoreStr = "\nFirst got = " + scoreRes.Item1 + "\nSecond got = " + scoreRes.Item2;
+
+            if (Data._game._gameResult == GameResult.FirstWon)
+            {
+                return "first player won" + scoreStr;
+            }
+            else if (Data._game._gameResult == GameResult.SecondWon)
+            {
+                return "second player won" + scoreStr;
+            }
+            else if (Data._game._gameResult == GameResult.Draw)
+            {
+                return "Its draw!" + scoreStr;
+            }
+            return "";
+        }
     }
 }

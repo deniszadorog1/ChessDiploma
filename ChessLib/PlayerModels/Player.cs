@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using ChessLib.Enums.Players;
 using ChessLib.Figures;
-
+using ChessLib.Enums.Figures;
 namespace ChessLib.PlayerModels
 {
     public class Player
@@ -14,21 +14,21 @@ namespace ChessLib.PlayerModels
         public string Login { get; set; }
         public PlayerColor Color { get; set; }
         public PlayerSide Side { get; set; }
-        public List<(string name, int amount)> HitFigures { get; set; }
+        public List<(FigType name, int amount)> HitFigures { get; set; }
 
-        public Player(string name, PlayerColor color, PlayerSide side, List<(string name, int amount)> hitFigures)
+        public Player(string name, PlayerColor color, PlayerSide side, List<(FigType name, int amount)> hitFigures)
         {
             Login = name;
             Color = color;
             Side = side;
             HitFigures = hitFigures.Count != 0 ? hitFigures :
-                new List<(string name, int amount)>()
+                new List<(FigType name, int amount)>()
             {
-                ("pawn", 0),
-                ("rook", 0),
-                ("horse", 0),
-                ("bishop", 0),
-                ("queen", 0),
+                (FigType.Pawn, 0),
+                (FigType.Rook, 0),
+                (FigType.Horse, 0),
+                (FigType.Bishop, 0),
+                (FigType.Queen, 0)
             };
         }
         public Player()
@@ -36,65 +36,63 @@ namespace ChessLib.PlayerModels
             Login = "";
             Color = new PlayerColor();
             Side = new PlayerSide();
-            HitFigures = new List<(string name, int amount)>()
+            HitFigures = new List<(FigType name, int amount)>()
             {
-                ("pawn", 0),
-                ("rook", 0),
-                ("horse", 0),
-                ("bishop", 0),
-                ("queen", 0),
+                (FigType.Pawn, 0),
+                (FigType.Rook, 0),
+                (FigType.Horse, 0),
+                (FigType.Bishop, 0),
+                (FigType.Queen, 0)
             };
         }
         public void ClearHitList()
         {
-            HitFigures = new List<(string name, int amount)>()
+            HitFigures = new List<(FigType name, int amount)>()
             {
-                ("pawn", 0),
-                ("rook", 0),
-                ("horse", 0),
-                ("bishop", 0),
-                ("queen", 0),
+                (FigType.Pawn, 0),
+                (FigType.Rook, 0),
+                (FigType.Horse, 0),
+                (FigType.Bishop, 0),
+                (FigType.Queen, 0)
             };
         }
-
-
 
         public void UpdateHitFigures(Figure fig, int updater)
         {
             if (fig is Pawn)
             {
-                int index = HitFigures.FindIndex(x => x.name == "pawn");
+                int index = HitFigures.FindIndex(x => x.name == FigType.Pawn);
                 int newAmount = HitFigures[index].amount;
                 newAmount += updater;
-                HitFigures[index] = ("pawn", newAmount);
+                HitFigures[index] = (FigType.Pawn, newAmount);
             }
             else if (fig is Rook)
             {
-                int index = HitFigures.FindIndex(x => x.name == "rook");
+                int index = HitFigures.FindIndex(x => x.name == FigType.Rook);
                 int newAmount = HitFigures[index].amount;
                 newAmount += updater;
-                HitFigures[index] = ("rook", newAmount);
+                HitFigures[index] = (FigType.Rook, newAmount);
             }
             else if (fig is Horse)
             {
-                int index = HitFigures.FindIndex(x => x.name == "horse");
+                int index = HitFigures.FindIndex(x => x.name == FigType.Horse);
                 int newAmount = HitFigures[index].amount;
                 newAmount += updater;
-                HitFigures[index] = ("horse", newAmount);
+                HitFigures[index] = (FigType.Horse, newAmount);
             }
             else if (fig is Bishop)
             {
-                int index = HitFigures.FindIndex(x => x.name == "bishop");
+                int index = HitFigures.FindIndex(x => x.name == FigType.Bishop);
                 int newAmount = HitFigures[index].amount;
                 newAmount += updater;
-                HitFigures[index] = ("bishop", newAmount);
+                HitFigures[index] = (FigType.Bishop, newAmount);
             }
             else if (fig is Queen)
             {
-                int index = HitFigures.FindIndex(x => x.name == "queen");
+                int index = HitFigures.FindIndex(x => x.name == FigType.Queen);
                 int newAmount = HitFigures[index].amount;
                 newAmount += updater;
-                HitFigures[index] = ("queen", newAmount);
+                HitFigures[index] = (FigType.Queen, newAmount);
             }
         }
     }

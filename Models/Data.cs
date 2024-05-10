@@ -16,6 +16,8 @@ namespace ChessDiploma.Models
     {
         public static Game _game = new Game();
 
+        private const int _secondsInMinute = 60;
+
         public static void InitPlayerAndTimerInGame(Player player, Player enemy, int time)
         {
             UpdateGame();
@@ -26,7 +28,7 @@ namespace ChessDiploma.Models
             };
             _game.AllField = new ChessLib.FieldModels.Field(_game.Players);
             //_game.InitTimers();
-            _game.InitTime(time == -1 ? -1 : time * 60);
+            _game.InitTime(time == -1 ? time : time * _secondsInMinute);
             _game.InitSteper();
 
         }
@@ -72,7 +74,7 @@ namespace ChessDiploma.Models
                 }
             }
         }
-        public static void UpdatePlayersInDB()
+/*        public static void UpdatePlayersInDB()
         {
             for (int i = 0; i < _game.Players.Count; i++)
             {
@@ -81,7 +83,7 @@ namespace ChessDiploma.Models
                     DbUsage.UpdateUsersResults((User)_game.Players[i]);
                 }
             }
-        }
+        }*/
         public static void InitGamesEndDate()
         {
             _game.EndTime = DateTime.Now;

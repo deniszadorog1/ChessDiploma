@@ -19,3 +19,5 @@ B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.csproj.CoreCompileInputs.cache
 B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.csproj.CopyComplete
 B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.exe
 B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.pdb
+B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.Windows.UserMenuWindows.GameWindows.DrawOffer.resources
+B:\GitHub\ChessDiploma\obj\Release\ChessDiploma.Windows.UserMenuWindows.UserCorrection.resources

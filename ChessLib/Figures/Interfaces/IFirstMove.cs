@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ChessLib.Enums.Game
+namespace ChessLib.Figures.Interfaces
 {
-    public enum GameResult
+    public interface IFirstMove
     {
-        FirstWon = 0,
-        SecondWon,
-        Draw
+        bool IsFirstMoveMaken { get; set; }
     }
 }

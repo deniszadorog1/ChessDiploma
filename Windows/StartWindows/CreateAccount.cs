@@ -27,7 +27,7 @@ namespace ChessDiploma.Windows
         }
         private void CreateBut_Click(object sender, EventArgs e)
         {
-            if(EmailBox.Text == "" || LoginBox.Text == "" || PasswordBox.Text == "" || 
+            if(EmailBox.Text.Equals(string.Empty) || LoginBox.Text.Equals(string.Empty) || PasswordBox.Text.Equals(string.Empty) || 
                _users.Exists(x => x.Login == LoginBox.Text))
             {
                 MessageBox.Show("Cant be add!", "Mistake!");

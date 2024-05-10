@@ -13,6 +13,7 @@ using ChessLib.Other;
 using ChessLib.Figures;
 using ChessLib.Enums.Field;
 using ChessLib.Enums.Figures;
+using ChessLib.Figures.Interfaces;
 
 namespace ChessDiploma.Models
 {
@@ -24,8 +25,19 @@ namespace ChessDiploma.Models
         private static readonly List<char> _lettersToSave =
             new List<char>() { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
 
+        private const int _amountOfDotsInUsualStep = 2;
+        private struct HitFigureParams
+        {
+            public PlayerColor FigColor { get; set; }
+            public (int, int) FigCord { get; set; }
+            public PlayerSide OwnerSide { get; set; }
+            public bool? IfFirstMoveMaken { get; set; }
+            public int FigureId { get; set; }
+        }
+
         public static void InsertPlayer(User player)
         {
+
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -151,6 +163,8 @@ namespace ChessDiploma.Models
                 int lastGameId = GetLastGameId();
 
                 //add players in playerGameRaiting
+
+
                 query = "INSERT INTO [PlayersGameRating]([GameId], " +
                     "[FirstPlayerRating],[FirstPlayerColor], [FirstPlayerSide]," +
                     "[SecondPlayerRating], [SecondPlayerColor], [SecondPlayerSide]) " +
@@ -177,8 +191,7 @@ namespace ChessDiploma.Models
 
         private static object GetPlayersIdCheckForBot(Player player)
         {
-            if(player is Bot) return DBNull.Value;
-            else return GetPlayerId(player.Login);
+            return player is Bot ? DBNull.Value : (object)GetPlayerId(player.Login);
         }
 
         private static int GetRatingForSecondPlayer(Player player)
@@ -273,55 +286,23 @@ namespace ChessDiploma.Models
                 {
                     gameId = (int)reader["id"];
 
-                    Player firstPlayer = null;
-                    Player secondPlayer = null;
-                    DateTime start = new DateTime();
-                    DateTime end = new DateTime();
-                    GameResult exodus = new GameResult();
-                    int time = -1;
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        string colName = reader.GetName(i);
-                        if (colName != "Id")
-                        {
-                            if (colName == "FirstPlayer")
-                            {
-                                User player = GetPlayerById((int)reader[i]);
-                                FillSideAndColorForUser(player, gameId, PlayerNumber.First);
-                                firstPlayer = GetPlayerCheckingForType((int)reader[i], null, gameId, PlayerNumber.First);
-                                Console.WriteLine();
-                            }
-                            else if (colName == "SecondPlayer")
-                            {
-                                //Check if ITSBot downLoaded!
-
-                                int? id;
-                                if(reader[i] == DBNull.Value) id = null;
-                                else id = (int)reader[i];
+                    Player firstPlayer = GetPlayerById(Convert.ToInt32(reader["FirstPlayer"]));
+                    FillSideAndColorForUser((User)firstPlayer, gameId, PlayerNumber.First);
+                    firstPlayer = GetPlayerCheckingForType((int)reader["FirstPlayer"], null, gameId, PlayerNumber.First);
 
 
-                                secondPlayer = GetPlayerCheckingForType(id, firstPlayer, gameId, PlayerNumber.Second);
-                                Console.WriteLine();
+                    Player secondPlayer;
+                    int? id;
+                    if (reader["SecondPlayer"] == DBNull.Value) id = null;
+                    else id = (int)reader["SecondPlayer"];
+                    secondPlayer = GetPlayerCheckingForType(id, firstPlayer, gameId, PlayerNumber.Second);
 
-                            }
-                            else if (colName == "StartTime")
-                            {
-                                start = DateTime.Parse(reader[i].ToString());
-                            }
-                            else if (colName == "EndTime")
-                            {
-                                end = DateTime.Parse(reader[i].ToString());
-                            }
-                            else if (colName == "Result")
-                            {
-                                exodus = GetGameResult((int)reader[i]);
-                            }
-                            else if (colName == "Time")
-                            {
-                                time = reader[i] == DBNull.Value ? -1 : (int)reader[i];
-                            }
-                        }
-                    }
+
+                    DateTime start = DateTime.Parse(reader["StartTime"].ToString());
+                    DateTime end = DateTime.Parse(reader["EndTime"].ToString()); ;
+                    GameResult exodus = GetGameResult((int)reader["Result"]);
+                    int time = reader["Time"] == DBNull.Value ? -1 : (int)reader["Time"];
+
                     res.Add(new Game(firstPlayer, secondPlayer, start, end, exodus));
                     res.Last().InitTime(time);
                 }
@@ -329,10 +310,9 @@ namespace ChessDiploma.Models
             }
             return res;
         }
-
         private static Player GetPlayerCheckingForType(int? id, Player anPlayer, int gameId, PlayerNumber number)
         {
-            if(id == null)//Bot
+            if (id == null)//Bot
             {
                 Bot bot = new Bot();
                 bot.Login = "Bot Bob";
@@ -347,16 +327,14 @@ namespace ChessDiploma.Models
                 User player = GetPlayerById(int.Parse(id.ToString()));
                 FillSideAndColorForUser(player, gameId, number);
 
-                if(!(anPlayer is null) && anPlayer.Color == player.Color)
+                if (!(anPlayer is null) && anPlayer.Color == player.Color)
                 {
                     player.Color = anPlayer.Color == PlayerColor.White ? PlayerColor.Black : PlayerColor.White;
-                    player.Side =  anPlayer.Side == PlayerSide.Down ? PlayerSide.Up : PlayerSide.Down;
+                    player.Side = anPlayer.Side == PlayerSide.Down ? PlayerSide.Up : PlayerSide.Down;
                 }
                 return player;
             }
         }
-
-
         private static GameResult GetGameResult(int id)
         {
             GameResult res = new GameResult();
@@ -377,7 +355,7 @@ namespace ChessDiploma.Models
         }
         private static GameResult GetGameResult(string gameResult)
         {
-            for (int i = 0; i <= (int)GameResult.Closed; i++)
+            for (int i = 0; i <= (int)GameResult.Draw; i++)
             {
                 if (((GameResult)i).ToString() == gameResult)
                 {
@@ -400,40 +378,23 @@ namespace ChessDiploma.Models
 
                 while (reader.Read())
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
+
+                    if (number == PlayerNumber.First)
                     {
-                        string colName = reader.GetName(i);
+                        user.Color = GetPlaeyrColorById((int)reader["FirstPlayerColor"]);
+                        user.Side = GetPlaeyrSide((int)reader["FirstPlayerSide"]);
+                    }
+                    else
+                    {
 
-                        if (number == PlayerNumber.First)
-                        {
-                            if (colName == "FirstPlayerColor")
-                            {
-                                user.Color = GetPlaeyrColorById((int)reader[i]);
-                            }
-                            else if (colName == "FirstPlayerSide")
-                            {
-                                user.Side = GetPlaeyrSide((int)reader[i]);
-                            }
-                        }
-                        else
-                        {
-                            if (colName == "SecondPlayerColor")
-                            {
-                                user.Color = GetPlaeyrColorById((int)reader[i]);
-                            }
-                            else if (colName == "SecondPlayerSide")
-                            {
-                                user.Side = GetPlaeyrSide((int)reader[i]);
-                            }
-                        }
-
+                        user.Color = GetPlaeyrColorById((int)reader["SecondPlayerColor"]);
+                        user.Side = GetPlaeyrSide((int)reader["SecondPlayerSide"]);
                     }
                 }
                 connection.Close();
             }
             return user;
         }
-
         private static PlayerColor GetPlaeyrColorById(int id)
         {
             string color = "";
@@ -492,7 +453,6 @@ namespace ChessDiploma.Models
             }
             return new PlayerSide();
         }
-
         private static User GetPlayerById(int id)
         {
             User player = new User();
@@ -507,39 +467,25 @@ namespace ChessDiploma.Models
                 command.Parameters.AddWithValue("@id", id);
                 SqlDataReader reader = command.ExecuteReader();
 
-                while (reader.Read())
+                if (reader.Read())
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    userId = (int)reader["Id"];
+
+                    player = new User()
                     {
-                        string colName = reader.GetName(i);
-                        if (colName == "Id")
-                        {
-                            userId = (int)reader[i];
-                        }
-                        else if (colName == "Login")
-                        {
-                            player.Login = reader[i].ToString();
-                        }
-                        else if (colName == "Password")
-                        {
-                            player.Password = reader[i].ToString();
-                        }
-                        else if (colName == "Email")
-                        {
-                            player.Email = reader[i].ToString();
-                        }
-                        else if (colName == "DateBirth")
-                        {
-                            player.DateBirth = (DateTime)reader[i];
-                        }
-                    }
+                        Login = reader["Login"].ToString(),
+                        Password = reader["Password"].ToString(),
+                        Email = reader["Email"].ToString(),
+                        DateBirth = DateTime.Parse(reader["DateBirth"].ToString())
+                    };
                 }
 
                 connection.Close();
             }
-            return GetOtherUserParams(player, userId);
+            GetOtherUserParams(ref player, userId);
+            return player;
         }
-        private static User GetOtherUserParams(User user, int id)
+        private static void GetOtherUserParams(ref User user, int id)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -551,34 +497,16 @@ namespace ChessDiploma.Models
                 command.Parameters.AddWithValue("@id", id);
                 SqlDataReader reader = command.ExecuteReader();
 
-                while (reader.Read())
+                if (reader.Read())
                 {
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        string colName = reader.GetName(i);
-                        if (colName == "Raiting")
-                        {
-                            user.Rating = (int)reader[i];
-                        }
-                        else if (colName == "Wons")
-                        {
-                            user.Wons = (int)reader[i];
-                        }
-                        else if (colName == "Losts")
-                        {
-                            user.Losts = (int)reader[i];
-                        }
-                        else if (colName == "Draws")
-                        {
-                            user.Draws = (int)reader[i];
-                        }
-                    }
+                    user.Rating = (int)reader["Rating"];
+                    user.Wons = (int)reader["Wons"];
+                    user.Losts = (int)reader["Losts"];
+                    user.Draws = (int)reader["Draws"];
                 }
                 connection.Close();
             }
-            return user;
         }
-
         public static void InsertMove(Move move)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -613,17 +541,17 @@ namespace ChessDiploma.Models
 
                 command.Parameters.AddWithValue("@gameId", gameId);
 
-                command.Parameters.AddWithValue("@moveFromX", CheckForNull(moveFromX));
-                command.Parameters.AddWithValue("@moveFromY", CheckForNull(moveFromY));
+                command.Parameters.AddWithValue("@moveFromX", GetCheckedObject(moveFromX));
+                command.Parameters.AddWithValue("@moveFromY", GetCheckedObject(moveFromY));
 
-                command.Parameters.AddWithValue("@moveToX", CheckForNull(moveToX));
-                command.Parameters.AddWithValue("@moveToY", CheckForNull(moveToY));
+                command.Parameters.AddWithValue("@moveToX", GetCheckedObject(moveToX));
+                command.Parameters.AddWithValue("@moveToY", GetCheckedObject(moveToY));
 
-                command.Parameters.AddWithValue("@hitFigType", CheckForNull(hitFigId));
-                command.Parameters.AddWithValue("@convertFigType", CheckForNull(convertFigId));
+                command.Parameters.AddWithValue("@hitFigType", GetCheckedObject(hitFigId));
+                command.Parameters.AddWithValue("@convertFigType", GetCheckedObject(convertFigId));
                 command.Parameters.AddWithValue("@playerColor", playerColorId);
                 command.Parameters.AddWithValue("@timeOnTimer", timeOnTimer);
-                command.Parameters.AddWithValue("@castling", CheckForNull(castlingId));
+                command.Parameters.AddWithValue("@castling", GetCheckedObject(castlingId));
 
                 command.ExecuteNonQuery();
 
@@ -640,7 +568,7 @@ namespace ChessDiploma.Models
             {
                 connection.Open();
 
-                string query = "SELECT TOP 1[Id] FROM [Move] ORDER BY [Id] DESC";
+                string query = "SELECT TOP 1 [Id] FROM [Move] ORDER BY [Id] DESC;";
 
                 SqlCommand command = new SqlCommand(query, connection);
 
@@ -650,8 +578,7 @@ namespace ChessDiploma.Models
                 return res;
             }
         }
-
-        private static object CheckForNull(object smth)
+        private static object GetCheckedObject(object smth)
         {
             return smth == null ? DBNull.Value : smth;
         }
@@ -688,24 +615,18 @@ namespace ChessDiploma.Models
 
                 while (reader.Read())
                 {
-                    int id = -1;
-                    for (int i = 0; i < reader.FieldCount; i++)
-                    {
-                        string colName = reader.GetName(i);
-                        if (colName == "Id") id = (int)reader[i];
-                        else
-                        {
-                            string type = reader[i].ToString();
-                            if (figure is Pawn && type == "Pawn" ||
-                                figure is Rook && type == "Rook" ||
-                                figure is Horse && type == "Horse" ||
-                                figure is Bishop && type == "Bishop" ||
-                                figure is Queen && type == "Queen")
-                            {
-                                return id;
-                            }
-                        }
-                    }
+                    int id = (int)reader["Id"];
+                    string type = reader["Type"].ToString();
+
+                    if (figure.GetType().Name == type) return id;
+                    //if (figure is Pawn && figure.GetType() == "Pawn" ||
+                    //    figure is Rook && type == "Rook" ||
+                    //    figure is Horse && type == "Horse" ||
+                    //    figure is Bishop && type == "Bishop" ||
+                    //    figure is Queen && type == "Queen")
+                    //{
+                    //    return id;
+                    //}
                 }
                 connection.Close();
             }
@@ -713,14 +634,9 @@ namespace ChessDiploma.Models
         }
         private static char? GetYCord(int cord, Move move)
         {
-            if (move.OneMove.Count > 2)
-            {
-                return null;
-            }
-
-            return (char?)GetYCordLetterId(_lettersToSave[cord]);
+            return move.OneMove.Count > _amountOfDotsInUsualStep ? null :
+                (char?)GetYCordLetterId(_lettersToSave[cord]);
         }
-
         private static int? GetYCordLetterId(char letter)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -739,10 +655,9 @@ namespace ChessDiploma.Models
                 return res;
             }
         }
-
         private static int? GetXCord(int cord, Move move)
         {
-            if (move.OneMove.Count > 2) return null;
+            if (move.OneMove.Count > _amountOfDotsInUsualStep) return null;
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -776,7 +691,6 @@ namespace ChessDiploma.Models
             }
             return res;
         }
-
         public static void UpdateUsersResults(User user)
         {
             int userId = GetUserIdByLogin(user.Login);
@@ -841,7 +755,6 @@ namespace ChessDiploma.Models
 
                     int moveId = (int)reader["Id"];
 
-                    object asd = reader["MoveFromX"];
                     //Get the OneMove
                     if (reader["MoveFromX"] != DBNull.Value)
                     {
@@ -877,14 +790,11 @@ namespace ChessDiploma.Models
                             GetPlayerSide(game.Players, move.GetPlayerColor()));
                     }
 
-
                     //GetTime on timer
                     move.AssignTime(reader["TimeOnTimer"] == DBNull.Value ? -1 : (int)reader["TimeOnTimer"]);
 
                     res.Add(move);
                 }
-
-
                 connection.Close();
             }
             return res;
@@ -901,7 +811,6 @@ namespace ChessDiploma.Models
             }
             return new PlayerSide();
         }
-
         private static Figure GetHitFigure(int id, int moveId, int gameId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -915,34 +824,43 @@ namespace ChessDiploma.Models
                 string res = command.ExecuteScalar().ToString();
 
                 connection.Close();
-                return GetFigureByString(res, moveId, gameId);
+                return GetFigureByString(GetTypeByString(res), moveId, gameId);
             }
         }
-        private static Figure GetFigureByString(string figType, int moveId, int gameId)
+        private static FigType GetTypeByString(string type)
+        {
+            return type == "Pawn" ? FigType.Pawn :
+                   type == "Rook" ? FigType.Rook :
+                   type == "Horse" ? FigType.Horse :
+                   type == "Bishop" ? FigType.Bishop :
+                   type == "Queen" ? FigType.Queen : 
+                   type == "King" ? FigType.King : new FigType();
+        }
+        private static Figure GetFigureByString(FigType figType, int moveId, int gameId)
         {
             HitFigureParams hitFigParams = GetHitFigureParams(moveId, gameId);
 
-            if (figType == "Pawn")
+            if (figType == FigType.Pawn) 
             {
                 return new Pawn(hitFigParams.FigColor, (bool)hitFigParams.IfFirstMoveMaken,
                     hitFigParams.FigureId, hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
-            else if (figType == "Rook")
+            else if (figType == FigType.Rook)
             {
                 return new Rook(hitFigParams.FigColor, (bool)hitFigParams.IfFirstMoveMaken,
                     hitFigParams.FigureId, hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
-            else if (figType == "Horse")
+            else if (figType == FigType.Horse)
             {
                 return new Horse(hitFigParams.FigColor, hitFigParams.FigureId,
                     hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
-            else if (figType == "Bishop")
+            else if (figType == FigType.Bishop)
             {
                 return new Bishop(hitFigParams.FigColor, hitFigParams.FigureId,
                     hitFigParams.FigCord, hitFigParams.OwnerSide);
             }
-            else if (figType == "Queen")
+            else if (figType == FigType.Queen)
             {
                 return new Queen(hitFigParams.FigColor, hitFigParams.FigureId,
                     hitFigParams.FigCord, hitFigParams.OwnerSide);
@@ -993,7 +911,6 @@ namespace ChessDiploma.Models
                 return GetCastling(res);
             }
         }
-
         private static CastlingType GetCastling(string type)
         {
             for (int i = 0; i <= (int)CastlingType.Long; i++)
@@ -1005,7 +922,6 @@ namespace ChessDiploma.Models
             }
             return new CastlingType();
         }
-
         private static (int, int) GetPointOnOneMove(int xId, int yId)
         {
             return (GetXCordById(xId), GetYCordById(yId));
@@ -1087,17 +1003,19 @@ namespace ChessDiploma.Models
 
             for (int i = 0; i < games.Count; i++)
             {
-                if (games[i].Players[0].Login == game.Players[0].Login &&
-                    games[i].Players[1].Login == game.Players[1].Login &&
-                    games[i].GameExodus == game.GameExodus &&
-                    games[i].StartTime == game.StartTime &&
-                    games[i].EndTime == game.EndTime)
+                if (games[i].Equals(game))
                 {
                     return (i + 1);
                 }
+/*                if (games[i].Players[0].Login == game.Players[0].Login &&
+                    games[i].Players[1].Login == game.Players[1].Login &&
+                    games[i].GameExodus == game.GameExodus &&
+                    games[i].StartTime == game.StartTime &&
+                    games[i].EndTime == game.EndTime) //operator overriding
+                {
+                    return (i + 1);
+                }*/
             }
-
-
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
@@ -1157,7 +1075,7 @@ namespace ChessDiploma.Models
 
                 SqlDataReader reader = command.ExecuteReader();
 
-                while (reader.Read())
+                if (reader.Read())
                 {
                     res.FigColor = GetPlaeyrColorById((int)reader["FigureColor"]);
                     res.FigCord = GetPointOnOneMove((int)reader["CordY"], (int)reader["CordX"]);
@@ -1171,22 +1089,12 @@ namespace ChessDiploma.Models
             return res;
         }
 
-        private struct HitFigureParams
-        {
-            public PlayerColor FigColor { get; set; }
-            public (int, int) FigCord { get; set; }
-            public PlayerSide OwnerSide { get; set; }
-            public bool? IfFirstMoveMaken { get; set; }
-            public int FigureId { get; set; }
-        }
-
 
         private static void InsertHitFigureParmas(Figure figure, int moveId, int gameId)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-
 
                 string query = "INSERT INTO [HitFigureParams]([MoveId], [GameId], [FigureColor], [IfFirstMoveMaken], " +
                     "[CordX], [CordY], [OwnerSide], [FigureId]) " +
@@ -1199,12 +1107,16 @@ namespace ChessDiploma.Models
                 int yCord = GetYIDByValue(figure.FigureCord.Item1);
 
                 int sideId = GetPlayerSideId(figure.OwnerSide);
-                object asd = CheckForNull(IfFigureMadeFirstMove(figure));
 
+                object ifFirstMoveIsMaken = DBNull.Value;
+                if (figure is IFirstMove)
+                {
+                    ifFirstMoveIsMaken = GetCheckedObject(IfFigureMadeFirstMove((IFirstMove)figure));
+                }
                 command.Parameters.AddWithValue("@moveId", moveId);
                 command.Parameters.AddWithValue("@gameId", gameId);
                 command.Parameters.AddWithValue("@colorId", colorId);
-                command.Parameters.AddWithValue("@ifFirstMoveMaken", asd);
+                command.Parameters.AddWithValue("@ifFirstMoveMaken", ifFirstMoveIsMaken);
                 command.Parameters.AddWithValue("@cordXId", xCord);
                 command.Parameters.AddWithValue("@cordYId", yCord);
                 command.Parameters.AddWithValue("@ownerSideId", sideId);
@@ -1214,24 +1126,10 @@ namespace ChessDiploma.Models
                 connection.Close();
             }
         }
-
-        private static int? IfFigureMadeFirstMove(Figure figure)
+        private static int? IfFigureMadeFirstMove(IFirstMove figure)
         {
-            if (figure is Pawn)
-            {
-                return ((Pawn)figure).IfFirstMoveMaken ? 1 : 0;
-            }
-            else if (figure is King)
-            {
-                return ((King)figure).IfFirstMoveMaken ? 1 : 0;
-            }
-            else if (figure is Rook)
-            {
-                return ((Rook)figure).IfFirstMoveMaken ? 1 : 0;
-            }
-            return null;
+            return figure.IsFirstMoveMaken ? 1 : 0;
         }
-
         public static void UpdateUser(string email, string login, string passwrod, User user)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -1261,8 +1159,6 @@ namespace ChessDiploma.Models
 
                 connection.Close();
             }
-
         }
-
     }
 }

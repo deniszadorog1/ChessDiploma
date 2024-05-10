@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 using ChessLib.Enums.Players;
 using ChessLib.Other;
 using ChessLib.FieldModels;
 using ChessLib.Figures;
-using System.Threading;
+using ChessLib.Enums.Figures;
 
 namespace ChessLib.PlayerModels
 {
     public class Bot : Player
     {
-        private const int _depth = 1;
+        private  int _depth = 1;
         private Random rnd;
 
         private const int _upperFloorToTakeRandomMove = 1;
@@ -28,7 +29,7 @@ namespace ChessLib.PlayerModels
         private const int _hitMovePointsAmount = 2;
         private const int _depthToForHittingEachOther = 2;
 
-        public Bot(string name, PlayerColor playerColor, PlayerSide side, List<(string name, int amount)> hitFigures) :
+        public Bot(string name, PlayerColor playerColor, PlayerSide side, List<(FigType name, int amount)> hitFigures) :
             base(name, playerColor, side, hitFigures)
         {
             rnd = new Random();
@@ -37,6 +38,12 @@ namespace ChessLib.PlayerModels
         {
             rnd = new Random();
         }
+        public Bot(int depth)
+        {
+            rnd = new Random();
+            _depth = depth;
+        }
+        
         public Move GetMove(Field field, Player player,
         Move drawMove, int movesCounter)
         {
@@ -320,15 +327,7 @@ namespace ChessLib.PlayerModels
                         bestMoves.PossibleMoves.Add(moves.PossibleMoves[i]);
                     }
                 }
-                DateTime endTemp = DateTime.Now;
-                //Console.WriteLine(endTemp - temp);
             }
-
-            DateTime endEnd = DateTime.Now;
-            Console.WriteLine(endEnd - start);
-
-            //Console.WriteLine(allCounter);
-
             if (bestMoves.PossibleMoves.Count > 0)
             {
                 AllMoves test = DeleteAllNotHitMoves(field, bestMoves);
@@ -338,25 +337,7 @@ namespace ChessLib.PlayerModels
                 //field.IfSpecialChipIsMoved(bestMove.OneMove.Fi);
             }
 
-            DateTime end = DateTime.Now;
-
-            Console.WriteLine(end - start);
-
             return bestMove;
-        }
-        /// <summary>
-        /// Shows move history
-        /// </summary>
-        /// <param name="move">move to show</param>
-        public void ShowOneMove(Move move)
-        {
-            Console.Write("(");
-            for (int i = 0; i < move.OneMove.Count; i++)
-            {
-                Console.Write(move.OneMove[i].Item1 + " " + move.OneMove[i].Item2 + " , ");
-            }
-            Console.Write(")");
-            Console.WriteLine();
         }
         /// <summary>
         /// If there is hit moves, we get only them

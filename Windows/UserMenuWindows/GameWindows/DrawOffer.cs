@@ -12,11 +12,11 @@ using ChessLib.PlayerModels;
 
 namespace ChessDiploma.Windows.UserMenuWindows.GameWindows
 {
-    public partial class TradeOffer : Form
+    public partial class DrawOffer : Form
     {
         private Player _sender;
         public bool _answer;
-        public TradeOffer(Player sender)
+        public DrawOffer(Player sender)
         {
             _sender = sender;
 

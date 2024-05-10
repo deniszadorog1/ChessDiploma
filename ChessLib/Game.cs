@@ -25,7 +25,7 @@ namespace ChessLib
         public DateTime EndTime { get; set; }
         public GameResult GameExodus { get; set; }
 
-        public Player _steper;
+        private Player _steper;
 
         private int _time;
 
@@ -36,6 +36,11 @@ namespace ChessLib
         private const int _muchMorePointWinner = _stateScoreEarnForGame - _muchMoreWinnerDifferance;
 
         private const int _dotsInUsualMove = 2;
+        private const int _diffForLongCastling = -3;
+
+        public bool _ifGameEnded = false;
+        private (int firstPlayer, int secondPlayer) _earnedScoreForGame = (0, 0);
+        public GameResult _gameResult;
 
         public Game(Player firstPlayer, Player secondPlayer, DateTime start, DateTime end, GameResult exodus)
         {
@@ -71,12 +76,27 @@ namespace ChessLib
             AllField = new Field(Players);
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
+        public override bool Equals(object obj)
+        {
+            if (obj == null || this.GetType() != obj.GetType())
+            {
+                return false;
+            }
+            Game other = (Game)obj;
+
+            return Players[0].Login == other.Players[0].Login &&
+                   Players[1].Login == other.Players[1].Login &&
+                   GameExodus == other.GameExodus &&
+                   StartTime == other.StartTime &&
+                   EndTime == other.EndTime;
+        }
+
         public void AddPlaeyrs()
         {
             Players.Add(new User("first", PlayerColor.White, PlayerSide.Down,
-                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
+                new List<(FigType name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
             Players.Add(new User("second", PlayerColor.Black, PlayerSide.Up,
-                new List<(string name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
+                new List<(FigType name, int amount)>(), "", "", new DateTime(), -1, -1, -1, -1));
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
 
@@ -166,9 +186,13 @@ namespace ChessLib
         {
             AllField.IfSpecialChipIsMoved(move);
         }
-        public Player GetPlayer(int playerIndex)
+        public Player GetFirstPlayer()
         {
-            return Players[playerIndex];
+            return Players.First();
+        }
+        public Player GetLastPlayer()
+        {
+            return Players.Last();
         }
         public (string, string) GetSteppersNameAdnColor()
         {
@@ -187,7 +211,7 @@ namespace ChessLib
         {
             return _steper.HitFigures.Count;
         }
-        public (string name, int amount) GetPlayerHitFigure(int hitIndex, Player player)
+        public (FigType name, int amount) GetPlayerHitFigure(int hitIndex, Player player)
         {
             return player.HitFigures[hitIndex];
         }
@@ -268,11 +292,6 @@ namespace ChessLib
             _steper = Players.Find(x => x.Color == PlayerColor.White);
         }
 
-        public void StepperPushedGIveupButton()
-        {
-            //Init game into db
-            //init movesInto DB
-        }
         public Player GetAnoutherPlayer()
         {
             return Players.Find(x => x.Login != _steper.Login);
@@ -288,7 +307,7 @@ namespace ChessLib
                     {
                         ((User)_steper).Losts++;
                     }
-                    else //winner
+                    else
                     {
                         ((User)Players[i]).Wons++;
                     }
@@ -304,21 +323,22 @@ namespace ChessLib
         }
         public void InitCastlingType(Move move)
         {
+
             if (move.OneMove.Count == _dotsInUsualMove) return;
 
-            if (move.OneMove[0].Item2 - move.OneMove[2].Item2 != -3) move.InitCastling(CastlingType.Long); 
+            if (move.OneMove[0].Item2 - move.OneMove[2].Item2 != _diffForLongCastling) move.InitCastling(CastlingType.Long);
             else move.InitCastling(CastlingType.Short);
         }
 
-        public  void StopTimers()
+        public void StopTimers()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
                 {
                     ((User)Players[i]).StopTimer();
                 }
-                
+
             }
         }
         public List<Move> GetMoveHistory()
@@ -371,7 +391,7 @@ namespace ChessLib
         }
         public void GameEndedByDraw()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
                 {
@@ -381,7 +401,7 @@ namespace ChessLib
         }
         public void StepperWonTheGame()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (Players[i] is User)
                 {
@@ -398,7 +418,7 @@ namespace ChessLib
         }
         public void ClearPlayersHitLists()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 Players[i].ClearHitList();
             }
@@ -413,7 +433,7 @@ namespace ChessLib
         }
         public void InitWinnerGameResult()
         {
-            GameExodus = _steper.Login == Players[0].Login ? 
+            GameExodus = _steper.Login == Players[0].Login ?
                 GameResult.FirstWon : GameResult.SecondWon;
         }
         public void InitResultSteperGaveUp()
@@ -425,17 +445,13 @@ namespace ChessLib
         {
             GameExodus = GameResult.Draw;
         }
-        public void InitGameResultGameClosed()
-        {
-            GameExodus = GameResult.Closed;
-        }
-        public bool IfStepersFigIsInCell((int,int) cord)
+        public bool IfStepersFigIsInCell((int, int) cord)
         {
             return AllField.IfSteppersFigIsInUnit(cord, _steper);
         }
 
 
-        public (int,int) CalcPlayersRainting()
+        public (int, int) CalcPlayersRainting()
         {
             if (GameExodus == GameResult.Draw || !(Players[0] is User) || !(Players[1] is User)) return (-1, -1);
 
@@ -445,19 +461,19 @@ namespace ChessLib
             //Lost which has a much les points (20+)
 
             (int, int) res = (-1, -1);
-            if(GameExodus == GameResult.FirstWon)
+            if (GameExodus == GameResult.FirstWon)
             {
                 res = RaintingAddingTable((User)Players[0], (User)Players[1]);
                 CheckForRaitingLowerThenZero();
                 return res;
             }
-            else if(GameExodus == GameResult.SecondWon)
+            else if (GameExodus == GameResult.SecondWon)
             {
                 res = RaintingAddingTable((User)Players[1], (User)Players[0]);
                 CheckForRaitingLowerThenZero();
                 return (res.Item2, res.Item1);
             }
-            else if(GameExodus == GameResult.Draw)
+            else if (GameExodus == GameResult.Draw)
             {
                 return (0, 0);
             }
@@ -466,7 +482,7 @@ namespace ChessLib
         }
         public void CheckForRaitingLowerThenZero()
         {
-            for(int i = 0; i < Players.Count; i++)
+            for (int i = 0; i < Players.Count; i++)
             {
                 if (((User)Players[i]).Rating < 0)
                 {
@@ -478,26 +494,29 @@ namespace ChessLib
         {
             int differance = winner.Rating - losser.Rating;
             (int, int) res = (-1, -1);
-            if (differance >= 20)
+            const int theMostMoreDiffer = 20;
+            const int littleMoreDiffer = 5;
+            const int littleLowerDiffer = -5;
+            if (differance >= theMostMoreDiffer)
             {
                 res = WinnerHasMuchMoreRaitingThenLosser(winner, losser);
             }
-            else if (differance >= 5)
+            else if (differance >= littleMoreDiffer)
             {
                 res = WinnerHasLittleMorePoints(winner, losser);
             }
-            else if (differance <= 5 && differance >= -5)
+            else if (differance <= littleMoreDiffer && differance >= littleLowerDiffer)
             {
                 res = WinnerAndLosserHasEqualPoints(winner, losser);
             }
-            else if (differance < -5)
+            else if (differance < littleLowerDiffer)
             {
                 res = WinnerHadLessPointsThanLosser(winner, losser);
             }
             return res;
         }
 
-        public (int,int) WinnerHasMuchMoreRaitingThenLosser(User winner, User losser)
+        public (int, int) WinnerHasMuchMoreRaitingThenLosser(User winner, User losser)
         {
             ((User)winner).Rating += _muchMorePointWinner;
             ((User)losser).Rating -= _muchMorePointsLosser;
@@ -519,8 +538,54 @@ namespace ChessLib
         {
             winner.Rating += _stateScoreEarnForGame + _muchMoreWinnerDifferance;
             losser.Rating -= _stateScoreEarnForGame + _muchMorePointsLosser;
-            return (_stateScoreEarnForGame + _muchMoreWinnerDifferance, 
+            return (_stateScoreEarnForGame + _muchMoreWinnerDifferance,
                 -_stateScoreEarnForGame - _muchMorePointsLosser);
         }
+
+        public bool IfFigureIsEnemysOrEmpty((int, int) cord)
+        {
+            return AllField.IfFigIsEnemys(cord, _steper);
+        }
+
+        public bool IfPlayerIsUser(int playerIndex)
+        {
+            return Players[playerIndex] is User;
+        }
+        public string GetStepperLogin()
+        {
+            return _steper.Login;
+        }
+        public Player GetSteper()
+        {
+            return _steper;
+        }
+        public List<Player> GetPlayers()
+        {
+            return Players;
+        }
+        public void InitResScore((int, int) res)
+        {
+            _earnedScoreForGame = res;
+        }
+        public (int, int) GetResScore()
+        {
+            return _earnedScoreForGame;
+        }
+        public GameResult GetOpositWinner()
+        {
+            return _steper.Login == Players[0].Login ?
+                GameResult.SecondWon : GameResult.FirstWon;
+        }
+        public GameResult GetWinnerResult()
+        {
+            return _steper.Login == Players[0].Login ?
+                GameResult.FirstWon : GameResult.SecondWon;
+        }
+
+        public void InitGameResult(GameResult res)
+        {
+            _gameResult = res;
+        }
+
     }
 }

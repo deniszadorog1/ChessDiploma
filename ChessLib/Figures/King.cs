@@ -9,12 +9,13 @@ using ChessLib.Other;
 using ChessLib.PlayerModels;
 using ChessLib.FieldModels;
 using ChessLib.Enums.Figures;
+using ChessLib.Figures.Interfaces;
 
 namespace ChessLib.Figures
 {
-    public class King : Figure
+    public class King : Figure, IFirstMove
     {
-        public bool IfFirstMoveMaken { get; set; }
+        public bool IsFirstMoveMaken { get; set; }
         public List<(int, int)> DirectionsToStep = new List<(int, int)>()
         {
             (1,0),
@@ -40,11 +41,11 @@ namespace ChessLib.Figures
             int figureId, (int,int) figCord, PlayerSide ownerSide) : 
             base(figColor, figureId, figCord, ownerSide)
         {
-            IfFirstMoveMaken = ifMakenOneMove;
+            IsFirstMoveMaken = ifMakenOneMove;
         }
         public King()
         {
-            IfFirstMoveMaken = false;
+            IsFirstMoveMaken = false;
         }
         public override double GetScoreForFigure()
         {
@@ -68,7 +69,7 @@ namespace ChessLib.Figures
         }
         public override Figure GetCopy()
         {
-            return new King(FigureColor, IfFirstMoveMaken, FigureID, FigureCord, OwnerSide);
+            return new King(FigureColor, IsFirstMoveMaken, FigureID, FigureCord, OwnerSide);
         }
         public override double GetScoreForFigPositionOnBoard((int, int) cord)
         {
@@ -102,7 +103,7 @@ namespace ChessLib.Figures
                     }
                 }
             }
-            if (!IfFirstMoveMaken)
+            if (!IsFirstMoveMaken)
             {
                 moves.PossibleMoves.AddRange(field.
                     GetMovesForCastling(field, player, cord).PossibleMoves);

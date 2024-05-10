@@ -19,6 +19,8 @@ namespace ChessDiploma.Windows.UserMenuWindows
         private User _chosenUser = new User();
 
         private const int _distansBetweenLogins = 25;
+        private const int _butWidthError = 15;
+        private const int _butHeight = 50;
         public ChoosePlayer(List<User> users)
         {
             _users = users;
@@ -50,7 +52,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
             user.Font = new Font("Times New Roman", 14);
             user.Click += Player_Click;
             user.Location = location;
-            user.Size = new Size(PlayersList.Width - 15, 50);
+            user.Size = new Size(PlayersList.Width - _butWidthError, _butHeight);
             PlayersList.Controls.Add(user);
             return new Point(0, location.Y + _distansBetweenLogins);
         }

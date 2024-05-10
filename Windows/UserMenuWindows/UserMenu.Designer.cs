@@ -49,8 +49,8 @@
             this.SeeAllPlayers = new System.Windows.Forms.Button();
             this.SeeAllGames = new System.Windows.Forms.Button();
             this.CorrectAccount = new System.Windows.Forms.Button();
-            this.Exit = new System.Windows.Forms.Button();
             this.SendStat = new System.Windows.Forms.Button();
+            this.Exit = new System.Windows.Forms.Button();
             this.MainParams.SuspendLayout();
             this.OtherParams.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -228,6 +228,7 @@
             // 
             // MainMenu
             // 
+            this.MainMenu.AutoScroll = true;
             this.MainMenu.Controls.Add(this.PlayGame);
             this.MainMenu.Controls.Add(this.SeeAllPlayers);
             this.MainMenu.Controls.Add(this.SeeAllGames);
@@ -244,7 +245,7 @@
             this.PlayGame.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.PlayGame.Location = new System.Drawing.Point(3, 3);
             this.PlayGame.Name = "PlayGame";
-            this.PlayGame.Size = new System.Drawing.Size(199, 60);
+            this.PlayGame.Size = new System.Drawing.Size(196, 60);
             this.PlayGame.TabIndex = 0;
             this.PlayGame.Text = "Play game ";
             this.PlayGame.UseVisualStyleBackColor = true;
@@ -255,7 +256,7 @@
             this.SeeAllPlayers.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.SeeAllPlayers.Location = new System.Drawing.Point(3, 69);
             this.SeeAllPlayers.Name = "SeeAllPlayers";
-            this.SeeAllPlayers.Size = new System.Drawing.Size(199, 60);
+            this.SeeAllPlayers.Size = new System.Drawing.Size(196, 60);
             this.SeeAllPlayers.TabIndex = 1;
             this.SeeAllPlayers.Text = "See All Players";
             this.SeeAllPlayers.UseVisualStyleBackColor = true;
@@ -266,7 +267,7 @@
             this.SeeAllGames.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.SeeAllGames.Location = new System.Drawing.Point(3, 135);
             this.SeeAllGames.Name = "SeeAllGames";
-            this.SeeAllGames.Size = new System.Drawing.Size(199, 60);
+            this.SeeAllGames.Size = new System.Drawing.Size(196, 60);
             this.SeeAllGames.TabIndex = 4;
             this.SeeAllGames.Text = "See All Games";
             this.SeeAllGames.UseVisualStyleBackColor = true;
@@ -277,33 +278,33 @@
             this.CorrectAccount.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.CorrectAccount.Location = new System.Drawing.Point(3, 201);
             this.CorrectAccount.Name = "CorrectAccount";
-            this.CorrectAccount.Size = new System.Drawing.Size(199, 60);
+            this.CorrectAccount.Size = new System.Drawing.Size(196, 60);
             this.CorrectAccount.TabIndex = 2;
             this.CorrectAccount.Text = "Correct Account";
             this.CorrectAccount.UseVisualStyleBackColor = true;
             this.CorrectAccount.Click += new System.EventHandler(this.CorrectAccount_Click);
-            // 
-            // Exit
-            // 
-            this.Exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Exit.Location = new System.Drawing.Point(3, 333);
-            this.Exit.Name = "Exit";
-            this.Exit.Size = new System.Drawing.Size(199, 60);
-            this.Exit.TabIndex = 3;
-            this.Exit.Text = "Exit";
-            this.Exit.UseVisualStyleBackColor = true;
-            this.Exit.Click += new System.EventHandler(this.Exit_Click);
             // 
             // SendStat
             // 
             this.SendStat.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.SendStat.Location = new System.Drawing.Point(3, 267);
             this.SendStat.Name = "SendStat";
-            this.SendStat.Size = new System.Drawing.Size(199, 60);
+            this.SendStat.Size = new System.Drawing.Size(196, 60);
             this.SendStat.TabIndex = 5;
             this.SendStat.Text = "Send statistic to email ";
             this.SendStat.UseVisualStyleBackColor = true;
             this.SendStat.Click += new System.EventHandler(this.SendStat_Click);
+            // 
+            // Exit
+            // 
+            this.Exit.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Exit.Location = new System.Drawing.Point(3, 333);
+            this.Exit.Name = "Exit";
+            this.Exit.Size = new System.Drawing.Size(196, 60);
+            this.Exit.TabIndex = 3;
+            this.Exit.Text = "Exit";
+            this.Exit.UseVisualStyleBackColor = true;
+            this.Exit.Click += new System.EventHandler(this.Exit_Click);
             // 
             // UserMenu
             // 

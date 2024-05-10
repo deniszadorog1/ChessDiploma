@@ -331,10 +331,10 @@ namespace ChessLib.FieldModels
             int check = 0;
             do
             {
-                if(check >= 50)
+/*                if(check >= 50)
                 {
                     return false;
-                }
+                }*/
                 figCord = (figCord.Item1 + direction.Item1, figCord.Item2 + direction.Item2);
 
                 if (IfChipIsOutOfRange(figCord))
@@ -437,11 +437,10 @@ namespace ChessLib.FieldModels
                 int check = 0;
                 do
                 {
-                    if(check >= 50)
+/*                    if(check >= 50)
                     {
-
                         break;
-                    }
+                    }*/
                     temp = (temp.Item1 + _castlingDirections[i].Item1, temp.Item2 + _castlingDirections[i].Item2);
                     tempCaslingWay.Add(temp);
 
@@ -453,7 +452,7 @@ namespace ChessLib.FieldModels
                     {
                         if (field.AllCells[temp.Item1, temp.Item2].Figure.FigureColor == player.Color &&
                             field.AllCells[temp.Item1, temp.Item2].Figure is Rook &&
-                            !((Rook)field.AllCells[temp.Item1, temp.Item2].Figure).IfFirstMoveMaken)
+                            !((Rook)field.AllCells[temp.Item1, temp.Item2].Figure).IsFirstMoveMaken)
                         {
                             castlingWays.Add(tempCaslingWay);
                         }
@@ -595,15 +594,15 @@ namespace ChessLib.FieldModels
                     (int, int) cord = move.OneMove[i];
                     if (AllCells[cord.Item1, cord.Item2].Figure is Pawn)
                     {
-                        ((Pawn)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                        ((Pawn)AllCells[cord.Item1, cord.Item2].Figure).IsFirstMoveMaken = true;
                     }
                     else if (AllCells[cord.Item1, cord.Item2].Figure is Rook)
                     {
-                        ((Rook)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                        ((Rook)AllCells[cord.Item1, cord.Item2].Figure).IsFirstMoveMaken = true;
                     }
                     else if (AllCells[cord.Item1, cord.Item2].Figure is King)
                     {
-                        ((King)AllCells[cord.Item1, cord.Item2].Figure).IfFirstMoveMaken = true;
+                        ((King)AllCells[cord.Item1, cord.Item2].Figure).IsFirstMoveMaken = true;
                     }
                 }
             }
@@ -623,8 +622,8 @@ namespace ChessLib.FieldModels
                     move.OneMove[0], move.OneMove[3], move.OneMove[2] });
                 ReassignMove(backMove);
 
-                ((King)AllCells[kingStartPos.Item1, kingStartPos.Item2].Figure).IfFirstMoveMaken = false;
-                ((Rook)AllCells[rookStartPos.Item1, rookStartPos.Item2].Figure).IfFirstMoveMaken = false;
+                ((King)AllCells[kingStartPos.Item1, kingStartPos.Item2].Figure).IsFirstMoveMaken = false;
+                ((Rook)AllCells[rookStartPos.Item1, rookStartPos.Item2].Figure).IsFirstMoveMaken = false;
 
                 return;
             }
@@ -1012,6 +1011,13 @@ namespace ChessLib.FieldModels
         {
             return AllCells[cord.Item1, cord.Item2].Figure != null &&
                 AllCells[cord.Item1, cord.Item2].Figure.FigureColor == player.Color;
+        }
+
+        public bool IfFigIsEnemys((int,int) cord, Player player)
+        {
+            if (AllCells[cord.Item1, cord.Item2].Figure is null) return true;
+
+            return AllCells[cord.Item1, cord.Item2].Figure.FigureColor != player.Color;
         }
 
     }

@@ -45,6 +45,8 @@
     <Compile Include="Enums\Field\CastlingType.cs" />
     <Compile Include="Enums\Field\CellColor.cs" />
     <Compile Include="Enums\Figures\ConvertPawn.cs" />
+    <Compile Include="Enums\Figures\FigType.cs" />
+    <Compile Include="Enums\Figures\FiguresTypesByColors.cs" />
     <Compile Include="Enums\Game\GameResult.cs" />
     <Compile Include="Enums\Game\GameTime.cs" />
     <Compile Include="Enums\Game\ReplayOrGame.cs" />
@@ -56,6 +58,7 @@
     <Compile Include="Figures\Bishop.cs" />
     <Compile Include="Figures\Figure.cs" />
     <Compile Include="Figures\Horse.cs" />
+    <Compile Include="Figures\Interfaces\IFirstMove.cs" />
     <Compile Include="Figures\King.cs" />
     <Compile Include="Figures\Pawn.cs" />
     <Compile Include="Figures\Queen.cs" />

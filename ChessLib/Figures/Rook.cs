@@ -9,12 +9,13 @@ using ChessLib.Other;
 using ChessLib.PlayerModels;
 using ChessLib.FieldModels;
 using ChessLib.Enums.Figures;
+using ChessLib.Figures.Interfaces;
 
 namespace ChessLib.Figures
 {
-    public class Rook : Figure
+    public class Rook : Figure, IFirstMove
     {
-        public bool IfFirstMoveMaken { get; set; }
+        public bool IsFirstMoveMaken { get; set; }
 
         private readonly double[,] posTableDownPlayer = new double[8, 8] {
             {0, 0, 0, 0, 0, 0, 0, 0},
@@ -31,11 +32,11 @@ namespace ChessLib.Figures
             bool ifMoveIsMaken, int figureId, (int,int) figCord, PlayerSide ownerSide) :
             base(figColor, figureId, figCord, ownerSide)
         {
-            IfFirstMoveMaken = ifMoveIsMaken;
+            IsFirstMoveMaken = ifMoveIsMaken;
         }
         public Rook()
         {
-            IfFirstMoveMaken = false;
+            IsFirstMoveMaken = false;
         }
         public override double GetScoreForFigure()
         {
@@ -43,7 +44,7 @@ namespace ChessLib.Figures
         }
         public override Figure GetCopy()
         {
-            return new Rook(FigureColor, IfFirstMoveMaken, FigureID, FigureCord, OwnerSide);
+            return new Rook(FigureColor, IsFirstMoveMaken, FigureID, FigureCord, OwnerSide);
         }
         public override AllMoves GetHitMoves(Field field, Player player, (int, int) figCord)
         {

@@ -1,6 +1,6 @@
 ﻿namespace ChessDiploma.Windows.UserMenuWindows.GameWindows
 {
-    partial class TradeOffer
+    partial class DrawOffer
     {
         /// <summary>
         /// Required designer variable.
