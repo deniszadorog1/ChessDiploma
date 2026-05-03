@@ -1,0 +1,298 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "B:\\GitHub\\ChessDiploma\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\windows\\fieldfrom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:windows\\fieldfrom.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\playermodels\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\playermodels\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\models\\sendcodefortwofa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:models\\sendcodefortwofa.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|b:\\github\\chessdiploma\\models\\dbusage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:models\\dbusage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:models\\data.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\fieldmodels\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\fieldmodels\\cell.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\models\\emailsender.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:models\\emailsender.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\models\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:models\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\windows\\startwindows\\startform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:windows\\startwindows\\startform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\windows\\startwindows\\faauth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:windows\\startwindows\\faauth.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\windows\\startwindows\\createaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:windows\\startwindows\\createaccount.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\playermodels\\bot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\playermodels\\bot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\other\\move.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\other\\move.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\figures\\pawn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\figures\\pawn.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|B:\\GitHub\\ChessDiploma\\chesslib\\figures\\interfaces\\ifirstmove.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8BC9A8CD-9B94-465F-B8D1-4AFB568C56BB}|ChessLib\\ChessLib.csproj|solutionrelative:chesslib\\figures\\interfaces\\ifirstmove.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|B:\\GitHub\\ChessDiploma\\windows\\usermenuwindows\\chooseplayer.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EF1112E8-BF45-487F-8EB6-12D6560C0193}|ChessDiploma.csproj|solutionrelative:windows\\usermenuwindows\\chooseplayer.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 1,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedHeight": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Data.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Models\\Data.cs",
+              "RelativeDocumentMoniker": "Models\\Data.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Models\\Data.cs",
+              "RelativeToolTip": "Models\\Data.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACcAAAAXAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-21T19:38:21.541Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FieldFrom.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Windows\\FieldFrom.cs",
+              "RelativeDocumentMoniker": "Windows\\FieldFrom.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Windows\\FieldFrom.cs",
+              "RelativeToolTip": "Windows\\FieldFrom.cs",
+              "ViewState": "AgIAANMGAAAAAAAAAIA9wOsGAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-21T19:40:06.787Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Bot.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\PlayerModels\\Bot.cs",
+              "RelativeDocumentMoniker": "ChessLib\\PlayerModels\\Bot.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\PlayerModels\\Bot.cs",
+              "RelativeToolTip": "ChessLib\\PlayerModels\\Bot.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAcwCgAAAASAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-22T00:02:35.21Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{dcc4ea97-1c0c-482b-b205-e541c0df9728}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DbUsage.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Models\\DbUsage.cs",
+              "RelativeDocumentMoniker": "Models\\DbUsage.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Models\\DbUsage.cs",
+              "RelativeToolTip": "Models\\DbUsage.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKEAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-25T11:31:52.76Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "StartForm.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\StartForm.cs",
+              "RelativeDocumentMoniker": "Windows\\StartWindows\\StartForm.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\StartForm.cs",
+              "RelativeToolTip": "Windows\\StartWindows\\StartForm.cs",
+              "ViewState": "AQIAAJQAAAAAAAAAAAAAAKgAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003525|",
+              "WhenOpened": "2024-04-21T20:29:51.45Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "User.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\PlayerModels\\User.cs",
+              "RelativeDocumentMoniker": "ChessLib\\PlayerModels\\User.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\PlayerModels\\User.cs",
+              "RelativeToolTip": "ChessLib\\PlayerModels\\User.cs",
+              "ViewState": "AgIAADoAAAAAAAAAAAAewE0AAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-28T17:12:55.002Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CreateAccount.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\CreateAccount.cs",
+              "RelativeDocumentMoniker": "Windows\\StartWindows\\CreateAccount.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\CreateAccount.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "RelativeToolTip": "Windows\\StartWindows\\CreateAccount.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003525|",
+              "WhenOpened": "2024-04-25T20:24:05.762Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SendCodeForTwoFA.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Models\\SendCodeForTwoFA.cs",
+              "RelativeDocumentMoniker": "Models\\SendCodeForTwoFA.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Models\\SendCodeForTwoFA.cs",
+              "RelativeToolTip": "Models\\SendCodeForTwoFA.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAnwCIAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-26T22:23:01.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Cell.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\FieldModels\\Cell.cs",
+              "RelativeDocumentMoniker": "ChessLib\\FieldModels\\Cell.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\FieldModels\\Cell.cs",
+              "RelativeToolTip": "ChessLib\\FieldModels\\Cell.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-25T11:44:01.778Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "FAAuth.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\FAAuth.cs",
+              "RelativeDocumentMoniker": "Windows\\StartWindows\\FAAuth.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Windows\\StartWindows\\FAAuth.cs",
+              "RelativeToolTip": "Windows\\StartWindows\\FAAuth.cs",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAqwBYAAAA6AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003525|",
+              "WhenOpened": "2024-06-10T11:31:03.189Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Models\\Program.cs",
+              "RelativeDocumentMoniker": "Models\\Program.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Models\\Program.cs",
+              "RelativeToolTip": "Models\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAGAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-21T19:40:52.96Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "EmailSender.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Models\\EmailSender.cs",
+              "RelativeDocumentMoniker": "Models\\EmailSender.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Models\\EmailSender.cs",
+              "RelativeToolTip": "Models\\EmailSender.cs",
+              "ViewState": "AQIAACQAAAAAAAAAAAAowEIAAAAzAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-01T15:55:48.829Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Move.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\Other\\Move.cs",
+              "RelativeDocumentMoniker": "ChessLib\\Other\\Move.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\Other\\Move.cs",
+              "RelativeToolTip": "ChessLib\\Other\\Move.cs",
+              "ViewState": "AQIAAG8AAAAAAAAAAAAmwIEAAAAsAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-22T13:55:46.145Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "IFirstMove.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\Figures\\Interfaces\\IFirstMove.cs",
+              "RelativeDocumentMoniker": "ChessLib\\Figures\\Interfaces\\IFirstMove.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\Figures\\Interfaces\\IFirstMove.cs",
+              "RelativeToolTip": "ChessLib\\Figures\\Interfaces\\IFirstMove.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAPAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-05T20:59:11.983Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Pawn.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\ChessLib\\Figures\\Pawn.cs",
+              "RelativeDocumentMoniker": "ChessLib\\Figures\\Pawn.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\ChessLib\\Figures\\Pawn.cs",
+              "RelativeToolTip": "ChessLib\\Figures\\Pawn.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAqAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-04-21T19:48:39.951Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ChoosePlayer.Designer.cs",
+              "DocumentMoniker": "B:\\GitHub\\ChessDiploma\\Windows\\UserMenuWindows\\ChoosePlayer.Designer.cs",
+              "RelativeDocumentMoniker": "Windows\\UserMenuWindows\\ChoosePlayer.Designer.cs",
+              "ToolTip": "B:\\GitHub\\ChessDiploma\\Windows\\UserMenuWindows\\ChoosePlayer.Designer.cs",
+              "RelativeToolTip": "Windows\\UserMenuWindows\\ChoosePlayer.Designer.cs",
+              "ViewState": "AQIAACIAAAAAAAAAAAAlwDcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001384|",
+              "WhenOpened": "2024-04-26T11:05:37.115Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

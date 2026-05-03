@@ -74,7 +74,7 @@ namespace ChessDiploma.Windows.UserMenuWindows
         }
         private void CorrectAccount_Click(object sender, EventArgs e)
         {
-            User copy = new User(_user.Email, _user.Login, _user.Password, _user.DateBirth);
+            User copy = new User(_user.Email, _user.Login, _user.Password, _user.DateBirth, _user.PhoneNumber);
 
             UserCorrection correct = new UserCorrection(_user, _allUsers);
             correct.ShowDialog();

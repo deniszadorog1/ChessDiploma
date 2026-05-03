@@ -28,14 +28,15 @@ namespace ChessDiploma.Windows
         private void CreateBut_Click(object sender, EventArgs e)
         {
             if(EmailBox.Text.Equals(string.Empty) || LoginBox.Text.Equals(string.Empty) || PasswordBox.Text.Equals(string.Empty) || 
-               _users.Exists(x => x.Login == LoginBox.Text))
+                string.IsNullOrWhiteSpace(PhoneNumberBox.Text)||
+               _users.Exists(x => x.Login == LoginBox.Text) || _users.Exists(x => x.PhoneNumber == PhoneNumberBox.Text))
             {
                 MessageBox.Show("Cant be add!", "Mistake!");
                 return;
             }
 
             DateTime birth = DateBirth.Value;
-            _newUser = new User(EmailBox.Text, LoginBox.Text, PasswordBox.Text, birth);
+            _newUser = new User(EmailBox.Text, LoginBox.Text, PasswordBox.Text, birth, PhoneNumberBox.Text);
             DbUsage.InsertPlayer(_newUser);
             _users.Add(_newUser);
             MessageBox.Show("Account created!", "Success!");

@@ -37,18 +37,18 @@ namespace ChessDiploma.Models
 
         public static void InsertPlayer(User player)
         {
-
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO [Players]([Login], [Password], [Email], [DateBirth]) " +
-                    "VALUES( @login, @password, @email, @dateBirth)";
+                string query = "INSERT INTO [Players]([Login], [Password], [Email], [DateBirth],  [PhoneNumber]) " +
+                    "VALUES( @login, @password, @email, @dateBirth, @phoneNum)";
 
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@login", player.Login);
                 command.Parameters.AddWithValue("@password", player.Password);
                 command.Parameters.AddWithValue("@email", player.Email);
                 command.Parameters.AddWithValue("@dateBirth", player.DateBirth);
+                command.Parameters.AddWithValue("@phoneNum", player.PhoneNumber);
                 command.ExecuteNonQuery();
 
 
@@ -140,7 +140,6 @@ namespace ChessDiploma.Models
                 connection.Close();
             }
         }
-
         public static void InsertGame(Game game)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -1150,12 +1149,7 @@ namespace ChessDiploma.Models
                 command.Parameters.AddWithValue("compPassword", passwrod);
                 command.Parameters.AddWithValue("compEmail", email);
 
-
                 command.ExecuteNonQuery();
-
-                //string query = "UPDATE [PlayerRating] SET [GameAmount] = @gameAmount, [Wons] = @wons," +
-                //    " [Losts] = @losts, [Draws] = @draws WHERE [UserId] = @id";
-
 
                 connection.Close();
             }

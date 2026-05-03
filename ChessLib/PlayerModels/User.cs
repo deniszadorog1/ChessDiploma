@@ -17,6 +17,7 @@ namespace ChessLib.PlayerModels
     {
         public string Password { get; set; }
         public string Email { get; set; }
+        public string PhoneNumber { get; set; }
         public DateTime DateBirth { get; set; }
         public int Rating { get; set; }
         public int Wons { get; set; }
@@ -52,13 +53,14 @@ namespace ChessLib.PlayerModels
             DateBirth = new DateTime();
             InitTimer();
         }
-        public User(string email, string login, string password, DateTime birth)
+        public User(string email, string login, string password, DateTime birth, string phoneNumber)
         {
             Login = login;
             Password = password;
             Email = email;
             DateBirth = birth;
             InitTimer();
+            PhoneNumber = phoneNumber;
         }
         public void InitTimer()
         {
@@ -70,7 +72,10 @@ namespace ChessLib.PlayerModels
                 _currentTime--;
                 if (_currentTime > 0)
                 {
-                    checkTimer.Text = GetTimerInString();
+                    checkTimer.Invoke((MethodInvoker)delegate {
+                        checkTimer.Text = GetTimerInString();
+                    });
+                    //checkTimer.Text = GetTimerInString();
                 }
                 else
                 {

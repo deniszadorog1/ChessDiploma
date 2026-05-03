@@ -39,6 +39,8 @@
             this.BackBut = new System.Windows.Forms.Button();
             this.DateBirth = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
+            this.PhoneNumLB = new System.Windows.Forms.Label();
+            this.PhoneNumberBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // MainLB
@@ -109,7 +111,7 @@
             // CreateBut
             // 
             this.CreateBut.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.CreateBut.Location = new System.Drawing.Point(59, 347);
+            this.CreateBut.Location = new System.Drawing.Point(59, 413);
             this.CreateBut.Name = "CreateBut";
             this.CreateBut.Size = new System.Drawing.Size(88, 42);
             this.CreateBut.TabIndex = 7;
@@ -120,7 +122,7 @@
             // BackBut
             // 
             this.BackBut.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.BackBut.Location = new System.Drawing.Point(186, 347);
+            this.BackBut.Location = new System.Drawing.Point(186, 413);
             this.BackBut.Name = "BackBut";
             this.BackBut.Size = new System.Drawing.Size(88, 42);
             this.BackBut.TabIndex = 8;
@@ -131,7 +133,7 @@
             // DateBirth
             // 
             this.DateBirth.CalendarFont = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.DateBirth.Location = new System.Drawing.Point(59, 309);
+            this.DateBirth.Location = new System.Drawing.Point(59, 377);
             this.DateBirth.Name = "DateBirth";
             this.DateBirth.Size = new System.Drawing.Size(215, 20);
             this.DateBirth.TabIndex = 9;
@@ -140,17 +142,37 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(55, 281);
+            this.label1.Location = new System.Drawing.Point(55, 349);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(47, 24);
             this.label1.TabIndex = 10;
             this.label1.Text = "Birth";
             // 
+            // PhoneNumLB
+            // 
+            this.PhoneNumLB.AutoSize = true;
+            this.PhoneNumLB.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.PhoneNumLB.Location = new System.Drawing.Point(55, 288);
+            this.PhoneNumLB.Name = "PhoneNumLB";
+            this.PhoneNumLB.Size = new System.Drawing.Size(135, 24);
+            this.PhoneNumLB.TabIndex = 12;
+            this.PhoneNumLB.Text = "PhoneNumber";
+            // 
+            // PhoneNumberBox
+            // 
+            this.PhoneNumberBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.PhoneNumberBox.Location = new System.Drawing.Point(59, 315);
+            this.PhoneNumberBox.Name = "PhoneNumberBox";
+            this.PhoneNumberBox.Size = new System.Drawing.Size(215, 31);
+            this.PhoneNumberBox.TabIndex = 11;
+            // 
             // CreateAccount
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(334, 411);
+            this.ClientSize = new System.Drawing.Size(334, 467);
+            this.Controls.Add(this.PhoneNumLB);
+            this.Controls.Add(this.PhoneNumberBox);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.DateBirth);
             this.Controls.Add(this.BackBut);
@@ -182,5 +204,7 @@
         private System.Windows.Forms.Button BackBut;
         private System.Windows.Forms.DateTimePicker DateBirth;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label PhoneNumLB;
+        private System.Windows.Forms.TextBox PhoneNumberBox;
     }
 }

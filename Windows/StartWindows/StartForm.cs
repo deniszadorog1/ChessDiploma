@@ -12,7 +12,7 @@ using ChessDiploma.Windows;
 using ChessLib.PlayerModels;
 using ChessDiploma.Models;
 using ChessDiploma.Windows.UserMenuWindows;
-
+using ChessDiploma.Windows.StartWindows;
 namespace ChessDiploma
 {
     public partial class StartForm : Form
@@ -35,9 +35,11 @@ namespace ChessDiploma
 
         private List<User> _users = DbUsage.GetAllUsers();
 
+        private Button _enterWithoutPhoneNumber;
+
         private const int _butWidth = 145;
         private const int _butHeight = 50;
-        private const int _enterPanelHeight = 150;
+        private const int _enterPanelHeight = 250;
         private const int _halfDevider = 2;
 
 
@@ -129,20 +131,48 @@ namespace ChessDiploma
                 _halfDevider, _loginIn.Location.Y);
             _createAccount.Click += CreateAccount_Click;
 
+            _enterWithoutPhoneNumber = new Button();
+            _enterWithoutPhoneNumber.Text = "Enter without phone number";
+            _enterWithoutPhoneNumber.AutoSize = false;
+            _enterWithoutPhoneNumber.Size = new Size(_loginIn.Width + _createAccount.Width + _spaceInEnterLoginPanel * 2, _loginIn.Height);
+            _enterWithoutPhoneNumber.Location = new Point(_loginIn.Location.X, _loginIn.Location.Y + _loginIn.Height + _spaceInEnterLoginPanel);
+            _enterWithoutPhoneNumber.Font = new Font("Times New Roman", 14);
+            _enterWithoutPhoneNumber.Click += EnterWithoutPhoneNumber;
+
             enterPanel.Controls.Add(loginLB);
             enterPanel.Controls.Add(_enterLogin);
             enterPanel.Controls.Add(enterPasswordLB);
             enterPanel.Controls.Add(_enterPawssword);
             enterPanel.Controls.Add(_loginIn);
             enterPanel.Controls.Add(_createAccount);
+            enterPanel.Controls.Add(_enterWithoutPhoneNumber);
 
             _rightPanel.Controls.Add(enterPanel);
+        }
+        private void EnterWithoutPhoneNumber(object sender, EventArgs e)
+        {
+            string login = _enterLogin.Text;
+            string password = _enterPawssword.Text;
+            EnterInAccByLoginAndPass(login, password);
         }
         private void LoingIn_Click(object sender, EventArgs e)
         {
             string login = _enterLogin.Text;
             string password = _enterPawssword.Text;
+            User user = _users.Find(x => x.Login == login && x.Password == password);
 
+            if(user is null)
+            {
+                MessageBox.Show("No user with such login!");
+                return;
+            }
+            FAAuth FAAuth = new FAAuth(user);
+            FAAuth.ShowDialog();
+
+            EnterInAccByLoginAndPass(login, password);
+        }
+        private void EnterInAccByLoginAndPass(string login, string password)
+        {
             User user = _users.Find(x => x.Login == login && x.Password == password);
 
             if (!(user is null))
@@ -154,8 +184,8 @@ namespace ChessDiploma
                 Show();
             }
             else MessageBox.Show("No user with such login!");
-
         }
+
         private void CreateAccount_Click(object sender, EventArgs e)
         {
             CreateAccount create = new CreateAccount(_users);
